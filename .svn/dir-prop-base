@@ -1,0 +1,21 @@
+K 13
+svn:externals
+V 73
+libratbox http://svn.ratbox.org/svnroot/libratbox/branches/LIBRATBOX_3_0
+
+K 10
+svn:ignore
+V 127
+config.log
+config.cache
+config.status
+autom4te.cache
+Makefile
+lint.out
+rsa_respond.tar.gz
+.depend
+.deps
+stamp*.in
+.libs
+libtool
+END

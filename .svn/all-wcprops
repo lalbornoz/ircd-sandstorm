@@ -1,0 +1,167 @@
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svnroot/!svn/ver/27120/ircd-ratbox/branches/RATBOX_3_0
+END
+mkinstalldirs
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/mkinstalldirs
+END
+configure
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/!svn/ver/26732/ircd-ratbox/branches/RATBOX_3_0/configure
+END
+LICENSE
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/LICENSE
+END
+Makefile.in
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svnroot/!svn/ver/26732/ircd-ratbox/branches/RATBOX_3_0/Makefile.in
+END
+ChangeLog.1.bz2
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/ChangeLog.1.bz2
+END
+README.FIRST
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/README.FIRST
+END
+depcomp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/depcomp
+END
+ChangeLog
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/!svn/ver/27120/ircd-ratbox/branches/RATBOX_3_0/ChangeLog
+END
+compile
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/compile
+END
+config.guess
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/!svn/ver/26732/ircd-ratbox/branches/RATBOX_3_0/config.guess
+END
+RELNOTES
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svnroot/!svn/ver/26750/ircd-ratbox/branches/RATBOX_3_0/RELNOTES
+END
+CREDITS
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/CREDITS
+END
+config.sub
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svnroot/!svn/ver/26732/ircd-ratbox/branches/RATBOX_3_0/config.sub
+END
+ltmain.sh
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/!svn/ver/26732/ircd-ratbox/branches/RATBOX_3_0/ltmain.sh
+END
+.indent.pro
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/.indent.pro
+END
+BUGS
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/BUGS
+END
+install-mod.sh.in
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/install-mod.sh.in
+END
+configure.ac
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/!svn/ver/26732/ircd-ratbox/branches/RATBOX_3_0/configure.ac
+END
+SVN-Access
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/SVN-Access
+END
+main.c
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/main.c
+END
+INSTALL
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/INSTALL
+END
+acinclude.m4
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/!svn/ver/26529/ircd-ratbox/branches/RATBOX_3_0/acinclude.m4
+END
+missing
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/missing
+END
+Makefile.am
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/Makefile.am
+END
+aclocal.m4
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svnroot/!svn/ver/26732/ircd-ratbox/branches/RATBOX_3_0/aclocal.m4
+END
+install-sh
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svnroot/!svn/ver/26732/ircd-ratbox/branches/RATBOX_3_0/install-sh
+END
+ylwrap
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/ylwrap
+END

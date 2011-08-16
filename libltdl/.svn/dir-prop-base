@@ -1,0 +1,13 @@
+K 10
+svn:ignore
+V 74
+config.log
+config.status
+config.h
+*.la
+*.lo
+libtool
+stamp-*
+Makefile
+.libs
+END

@@ -1,0 +1,95 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/!svn/ver/26732/ircd-ratbox/branches/RATBOX_3_0/libltdl
+END
+ltdl.c
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/libltdl/ltdl.c
+END
+configure
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svnroot/!svn/ver/26732/ircd-ratbox/branches/RATBOX_3_0/libltdl/configure
+END
+Makefile.in
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/libltdl/Makefile.in
+END
+ltdl.h
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/libltdl/ltdl.h
+END
+config.guess
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/libltdl/config.guess
+END
+ltmain.sh
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/libltdl/ltmain.sh
+END
+config.sub
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/libltdl/config.sub
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/libltdl/README
+END
+config-h.in
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svnroot/!svn/ver/26732/ircd-ratbox/branches/RATBOX_3_0/libltdl/config-h.in
+END
+configure.ac
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/libltdl/configure.ac
+END
+acinclude.m4
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/libltdl/acinclude.m4
+END
+missing
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/libltdl/missing
+END
+Makefile.am
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/libltdl/Makefile.am
+END
+aclocal.m4
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/libltdl/aclocal.m4
+END
+install-sh
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/libltdl/install-sh
+END

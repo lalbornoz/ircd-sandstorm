@@ -1,0 +1,89 @@
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svnroot/!svn/ver/26483/ircd-ratbox/branches/RATBOX_3_0/doc/technical
+END
+cluster.txt
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/doc/technical/cluster.txt
+END
+event.txt
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/doc/technical/event.txt
+END
+fd-management.txt
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/doc/technical/fd-management.txt
+END
+linebuf.txt
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/doc/technical/linebuf.txt
+END
+README.TSora
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/doc/technical/README.TSora
+END
+index.txt
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/doc/technical/index.txt
+END
+file-management.txt
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/doc/technical/file-management.txt
+END
+hostmask.txt
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/doc/technical/hostmask.txt
+END
+network.txt
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/doc/technical/network.txt
+END
+send.txt
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/doc/technical/send.txt
+END
+ts5.txt
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/doc/technical/ts5.txt
+END
+ts6-protocol.txt
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svnroot/!svn/ver/26483/ircd-ratbox/branches/RATBOX_3_0/doc/technical/ts6-protocol.txt
+END
+ts6.txt
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/doc/technical/ts6.txt
+END
+rfc1459.txt
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/doc/technical/rfc1459.txt
+END

@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svnroot/!svn/ver/27037/ircd-ratbox/branches/RATBOX_3_0/help
+END
+Makefile.in
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svnroot/!svn/ver/26732/ircd-ratbox/branches/RATBOX_3_0/help/Makefile.in
+END
+Makefile.am
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/help/Makefile.am
+END

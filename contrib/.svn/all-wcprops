@@ -1,0 +1,149 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/!svn/ver/26732/ircd-ratbox/branches/RATBOX_3_0/contrib
+END
+spy_motd_notice.c
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/spy_motd_notice.c
+END
+example_module.c
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/example_module.c
+END
+m_42.c
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/m_42.c
+END
+Makefile.in
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svnroot/!svn/ver/26732/ircd-ratbox/branches/RATBOX_3_0/contrib/Makefile.in
+END
+m_mkpasswd.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/m_mkpasswd.c
+END
+spy_whois_notice_global.c
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/spy_whois_notice_global.c
+END
+m_olist.c
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/m_olist.c
+END
+m_flags.c
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/m_flags.c
+END
+spy_stats_p_notice.c
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/spy_stats_p_notice.c
+END
+m_force.c
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/m_force.c
+END
+m_opme.c
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/m_opme.c
+END
+m_okick.c
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/m_okick.c
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/README
+END
+spy_links_notice.c
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/spy_links_notice.c
+END
+.indent.pro
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/.indent.pro
+END
+ircd-shortcut.pl
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/ircd-shortcut.pl
+END
+spy_admin_notice.c
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/spy_admin_notice.c
+END
+spy_whois_notice.c
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/spy_whois_notice.c
+END
+m_webirc.c
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svnroot/!svn/ver/26401/ircd-ratbox/branches/RATBOX_3_0/contrib/m_webirc.c
+END
+spy_info_notice.c
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/spy_info_notice.c
+END
+Makefile.am
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svnroot/!svn/ver/26642/ircd-ratbox/branches/RATBOX_3_0/contrib/Makefile.am
+END
+m_ojoin.c
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/m_ojoin.c
+END
+spy_stats_notice.c
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/spy_stats_notice.c
+END
+m_clearchan.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svnroot/!svn/ver/26334/ircd-ratbox/branches/RATBOX_3_0/contrib/m_clearchan.c
+END

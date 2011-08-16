@@ -1,0 +1,119 @@
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svnroot/!svn/ver/27166/libratbox/branches/LIBRATBOX_3_0
+END
+configure
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svnroot/!svn/ver/27113/libratbox/branches/LIBRATBOX_3_0/configure
+END
+Makefile.in
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/!svn/ver/27113/libratbox/branches/LIBRATBOX_3_0/Makefile.in
+END
+depcomp
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svnroot/!svn/ver/26339/libratbox/branches/LIBRATBOX_3_0/depcomp
+END
+ChangeLog
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svnroot/!svn/ver/27166/libratbox/branches/LIBRATBOX_3_0/ChangeLog
+END
+config.guess
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svnroot/!svn/ver/26339/libratbox/branches/LIBRATBOX_3_0/config.guess
+END
+config.sub
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svnroot/!svn/ver/26339/libratbox/branches/LIBRATBOX_3_0/config.sub
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/!svn/ver/26339/libratbox/branches/LIBRATBOX_3_0/README
+END
+CREDITS
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svnroot/!svn/ver/26339/libratbox/branches/LIBRATBOX_3_0/CREDITS
+END
+ltmain.sh
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svnroot/!svn/ver/27115/libratbox/branches/LIBRATBOX_3_0/ltmain.sh
+END
+.indent.pro
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/!svn/ver/26339/libratbox/branches/LIBRATBOX_3_0/.indent.pro
+END
+configure.ac
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svnroot/!svn/ver/26650/libratbox/branches/LIBRATBOX_3_0/configure.ac
+END
+TODO
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svnroot/!svn/ver/26339/libratbox/branches/LIBRATBOX_3_0/TODO
+END
+acinclude.m4
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svnroot/!svn/ver/27113/libratbox/branches/LIBRATBOX_3_0/acinclude.m4
+END
+INSTALL
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svnroot/!svn/ver/26339/libratbox/branches/LIBRATBOX_3_0/INSTALL
+END
+COPYING
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svnroot/!svn/ver/26339/libratbox/branches/LIBRATBOX_3_0/COPYING
+END
+Makefile.am
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/!svn/ver/26339/libratbox/branches/LIBRATBOX_3_0/Makefile.am
+END
+missing
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svnroot/!svn/ver/26339/libratbox/branches/LIBRATBOX_3_0/missing
+END
+aclocal.m4
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svnroot/!svn/ver/27113/libratbox/branches/LIBRATBOX_3_0/aclocal.m4
+END
+install-sh
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svnroot/!svn/ver/26339/libratbox/branches/LIBRATBOX_3_0/install-sh
+END

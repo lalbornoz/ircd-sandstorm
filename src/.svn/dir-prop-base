@@ -1,0 +1,15 @@
+K 10
+svn:ignore
+V 108
+Makefile
+y.tab.*
+lex.yy.c
+ircd
+version.c.last
+version.c
+ircd_lexer.c
+ircd_parser.c
+ircd_parser.h
+.deps
+.libs
+END

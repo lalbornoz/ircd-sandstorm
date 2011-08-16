@@ -1,0 +1,14 @@
+K 10
+svn:ignore
+V 96
+Makefile
+mkpasswd
+viconf
+convertconf
+fixklines
+convertklines
+encspeed
+convertilines
+*.deps
+.libs
+END
