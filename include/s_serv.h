@@ -66,12 +66,13 @@ struct Capability
 #define CAP_RSFNC	0x20000	/* rserv FNC */
 #define CAP_SAVE	0x40000	/* supports SAVE (nick collision FNC) */
 #define CAP_SAVETS_100	0x80000	/* supports SAVE at TS 100 */
+#define CAP_WIDE_MOTD	0x100000/* increased MOTD line length */
 
 #define CAP_MASK        (CAP_QS  | CAP_EX   | CAP_CHW  | \
 			 CAP_IE  | CAP_SERVICE |\
 			 CAP_GLN | CAP_ENCAP | \
 			 CAP_ZIP  | CAP_KNOCK  | \
-			 CAP_RSFNC | CAP_SAVE | CAP_SAVETS_100)
+			 CAP_RSFNC | CAP_SAVE | CAP_SAVETS_100 | CAP_WIDE_MOTD)
 /*
  * Capability macros.
  */

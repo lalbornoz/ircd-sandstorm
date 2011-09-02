@@ -4,7 +4,7 @@
 
 #define HELP_MAX	100
 
-#define CACHELINELEN	81
+#define CACHELINELEN	192
 #define CACHEFILELEN	30
 /* two servernames, a gecos, three spaces, ":1", '\0' */
 #define LINKSLINELEN	(HOSTLEN + HOSTLEN + REALLEN + 6)
