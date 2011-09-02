@@ -41,7 +41,6 @@ struct Mode
 {
 	unsigned int mode;
 	int limit;
-	char key[KEYLEN];
 };
 
 struct topic_info
@@ -142,10 +141,7 @@ struct ChCapCombo
 /* channel modes ONLY */
 #define MODE_PRIVATE    0x0001
 #define MODE_SECRET     0x0002
-#define MODE_MODERATED  0x0004
-#define MODE_TOPICLIMIT 0x0008
 #define MODE_INVITEONLY 0x0010
-#define MODE_NOPRIVMSGS 0x0020
 #define MODE_REGONLY	0x0040
 #define MODE_SSLONLY	0x0080
 #define CHFL_BAN        0x0100	/* ban channel flag */

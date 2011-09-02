@@ -95,7 +95,6 @@ m_topic(struct Client *client_p, struct Client *source_p, int parc, const char *
 			return 0;
 		}
 
-		if((chptr->mode.mode & MODE_TOPICLIMIT) == 0 || is_chanop(msptr))
 		{
 			char topic_info[USERHOST_REPLYLEN];
 			rb_sprintf(topic_info, "%s!%s@%s",
@@ -116,9 +115,6 @@ m_topic(struct Client *client_p, struct Client *source_p, int parc, const char *
 					     source_p->host, chptr->chname,
 					     chptr->topic == NULL ? "" : chptr->topic->topic);
 		}
-		else
-			sendto_one(source_p, form_str(ERR_CHANOPRIVSNEEDED),
-				   me.name, source_p->name, parv[1]);
 	}
 	else if(MyClient(source_p))
 	{

@@ -248,24 +248,23 @@ m_join(struct Client *client_p, struct Client *source_p, int parc, const char *p
 				     source_p->name,
 				     source_p->username, source_p->host, chptr->chname);
 
-		/* its a new channel, set +nt and burst. */
+		/* its a new channel, set +l and burst. */
 		if(flags & CHFL_CHANOP)
 		{
 			chptr->channelts = rb_current_time();
-			chptr->mode.mode |= MODE_TOPICLIMIT;
-			chptr->mode.mode |= MODE_NOPRIVMSGS;
+			chptr->mode.limit = 1488;
 
-			sendto_channel_local(ONLY_CHANOPS, chptr, ":%s MODE %s +nt",
+			sendto_channel_local(ONLY_CHANOPS, chptr, ":%s MODE %s +l 1488",
 					     me.name, chptr->chname);
 
 			if(*chptr->chname == '#')
 			{
 				sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
-					      ":%s SJOIN %ld %s +nt :@%s",
+					      ":%s SJOIN %ld %s +l 1488 :@%s",
 					      me.id, (long)chptr->channelts,
 					      chptr->chname, source_p->id);
 				sendto_server(client_p, chptr, NOCAPS, CAP_TS6,
-					      ":%s SJOIN %ld %s +nt :@%s",
+					      ":%s SJOIN %ld %s +l 1488 :@%s",
 					      me.name, (long)chptr->channelts,
 					      chptr->chname, source_p->name);
 			}
@@ -342,7 +341,6 @@ ms_join(struct Client *client_p, struct Client *source_p, int parc, const char *
 	if(parv[2][0] == '&')
 		return 0;
 
-	mode.key[0] = '\0';
 	mode.mode = mode.limit = 0;
 
 	if((chptr = get_or_create_channel(source_p, parv[2], &isnew)) == NULL)
@@ -410,7 +408,7 @@ ms_join(struct Client *client_p, struct Client *source_p, int parc, const char *
  * parv[0] - sender
  * parv[1] - TS
  * parv[2] - channel
- * parv[3] - modes + n arguments (key and/or limit)
+ * parv[3] - modes + n arguments (limit)
  * parv[4+n] - flags+nick list (all in one parameter)
  * 
  * process a SJOIN, taking the TS's into account to either ignore the
@@ -463,7 +461,6 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 	if(*parv[2] == '&')
 		return 0;
 
-	mode.key[0] = '\0';
 	mode.mode = mode.limit = 0;
 
 	newts = atol(parv[1]);
@@ -476,20 +473,11 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 		case 'i':
 			mode.mode |= MODE_INVITEONLY;
 			break;
-		case 'n':
-			mode.mode |= MODE_NOPRIVMSGS;
-			break;
 		case 'p':
 			mode.mode |= MODE_PRIVATE;
 			break;
 		case 's':
 			mode.mode |= MODE_SECRET;
-			break;
-		case 'm':
-			mode.mode |= MODE_MODERATED;
-			break;
-		case 't':
-			mode.mode |= MODE_TOPICLIMIT;
 			break;
 #ifdef ENABLE_SERVICES
 		case 'r':
@@ -498,12 +486,6 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 #endif
 		case 'S':
 			mode.mode |= MODE_SSLONLY;
-			break;
-		case 'k':
-			rb_strlcpy(mode.key, parv[4 + args], sizeof(mode.key));
-			args++;
-			if(parc < 5 + args)
-				return 0;
 			break;
 		case 'l':
 			mode.limit = atoi(parv[4 + args]);
@@ -562,8 +544,6 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 		mode.mode |= oldmode->mode;
 		if(oldmode->limit > mode.limit)
 			mode.limit = oldmode->limit;
-		if(strcmp(mode.key, oldmode->key) < 0)
-			strcpy(mode.key, oldmode->key);
 	}
 
 	/* Lost the TS, other side wins, so remove modes on this side */
@@ -931,13 +911,6 @@ can_join(struct Client *source_p, struct Channel *chptr, char *key)
 		}
 	}
 
-	if(*chptr->mode.key && (EmptyString(key) || irccmp(chptr->mode.key, key)))
-		return (ERR_BADCHANNELKEY);
-
-	if(chptr->mode.limit &&
-	   rb_dlink_list_length(&chptr->members) >= (unsigned long)chptr->mode.limit)
-		return (ERR_CHANNELISFULL);
-
 #ifdef ENABLE_SERVICES
 	if(chptr->mode.mode & MODE_REGONLY && EmptyString(source_p->user->suser))
 		return ERR_NEEDREGGEDNICK;
@@ -956,13 +929,7 @@ static struct mode_letter
 } flags[] =
 {
 	{
-	MODE_NOPRIVMSGS, 'n'},
-	{
-	MODE_TOPICLIMIT, 't'},
-	{
 	MODE_SECRET, 's'},
-	{
-	MODE_MODERATED, 'm'},
 	{
 	MODE_INVITEONLY, 'i'},
 	{
@@ -1027,16 +994,6 @@ set_final_mode(struct Client *source_p, struct Channel *chptr,
 		}
 		*mbuf++ = 'l';
 	}
-	if(oldmode->key[0] && !mode->key[0])
-	{
-		if(dir != MODE_DEL)
-		{
-			*mbuf++ = '-';
-			dir = MODE_DEL;
-		}
-		*mbuf++ = 'k';
-		pbuf += rb_sprintf(pbuf, "%s ", oldmode->key);
-	}
 	if(mode->limit && oldmode->limit != mode->limit)
 	{
 		if(dir != MODE_ADD)
@@ -1046,16 +1003,6 @@ set_final_mode(struct Client *source_p, struct Channel *chptr,
 		}
 		*mbuf++ = 'l';
 		pbuf += rb_sprintf(pbuf, "%d ", mode->limit);
-	}
-	if(mode->key[0] && strcmp(oldmode->key, mode->key))
-	{
-		if(dir != MODE_ADD)
-		{
-			*mbuf++ = '+';
-			dir = MODE_ADD;
-		}
-		*mbuf++ = 'k';
-		pbuf += rb_sprintf(pbuf, "%s ", mode->key);
 	}
 
 	*mbuf = '\0';

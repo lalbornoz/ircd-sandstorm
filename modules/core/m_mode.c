@@ -613,52 +613,6 @@ pretty_mask(const char *idmask)
 	return mask_buf + old_mask_pos;
 }
 
-/* fix_key()
- *
- * input	- key to fix
- * output	- the same key, fixed
- * side effects - anything below ascii 13 is discarded, ':' discarded,
- *                high ascii is dropped to lower half of ascii table
- */
-static char *
-fix_key(char *arg)
-{
-	u_char *s, *t, c;
-
-	for(s = t = (u_char *) arg; (c = *s); s++)
-	{
-		c &= 0x7f;
-		if(c != ':' && c != ',' && c > ' ')
-			*t++ = c;
-	}
-
-	*t = '\0';
-	return arg;
-}
-
-/* fix_key_remote()
- *
- * input	- key to fix
- * ouput	- the same key, fixed
- * side effects - high ascii dropped to lower half of table,
- *                CR/LF/':' are dropped
- */
-static char *
-fix_key_remote(char *arg)
-{
-	u_char *s, *t, c;
-
-	for(s = t = (u_char *) arg; (c = *s); s++)
-	{
-		c &= 0x7f;
-		if((c != 0x0a) && (c != ':') && (c != ',') && (c != 0x0d) && (c != ' '))
-			*t++ = c;
-	}
-
-	*t = '\0';
-	return arg;
-}
-
 /* chm_*()
  *
  * The handlers for each specific mode.
@@ -1058,133 +1012,8 @@ chm_limit(struct Client *source_p, struct Channel *chptr,
 	  int alevel, int parc, int *parn,
 	  const char **parv, int *errors, int dir, char c, long mode_type)
 {
-	const char *lstr;
-	static char limitstr[30];
-	int limit;
-
-	if(alevel != CHFL_CHANOP)
-	{
-		if(!(*errors & SM_ERR_NOOPS))
-			sendto_one(source_p, form_str(ERR_CHANOPRIVSNEEDED),
-				   me.name, source_p->name, chptr->chname);
-		*errors |= SM_ERR_NOOPS;
-		return;
-	}
-
 	if(dir == MODE_QUERY)
 		return;
-
-	if((dir == MODE_ADD) && parc > *parn)
-	{
-		lstr = parv[(*parn)];
-		(*parn)++;
-
-		if(EmptyString(lstr) || (limit = atoi(lstr)) <= 0)
-			return;
-
-		rb_sprintf(limitstr, "%d", limit);
-
-		mode_changes[mode_count].letter = c;
-		mode_changes[mode_count].dir = MODE_ADD;
-		mode_changes[mode_count].caps = 0;
-		mode_changes[mode_count].nocaps = 0;
-		mode_changes[mode_count].mems = ALL_MEMBERS;
-		mode_changes[mode_count].id = NULL;
-		mode_changes[mode_count++].arg = limitstr;
-
-		chptr->mode.limit = limit;
-	}
-	else if(dir == MODE_DEL)
-	{
-		if(!chptr->mode.limit)
-			return;
-
-		chptr->mode.limit = 0;
-
-		mode_changes[mode_count].letter = c;
-		mode_changes[mode_count].dir = MODE_DEL;
-		mode_changes[mode_count].caps = 0;
-		mode_changes[mode_count].nocaps = 0;
-		mode_changes[mode_count].mems = ALL_MEMBERS;
-		mode_changes[mode_count].id = NULL;
-		mode_changes[mode_count++].arg = NULL;
-	}
-}
-
-static void
-chm_key(struct Client *source_p, struct Channel *chptr,
-	int alevel, int parc, int *parn,
-	const char **parv, int *errors, int dir, char c, long mode_type)
-{
-	char *key;
-
-	if(alevel != CHFL_CHANOP)
-	{
-		if(!(*errors & SM_ERR_NOOPS))
-			sendto_one(source_p, form_str(ERR_CHANOPRIVSNEEDED),
-				   me.name, source_p->name, chptr->chname);
-		*errors |= SM_ERR_NOOPS;
-		return;
-	}
-
-	if(dir == MODE_QUERY)
-		return;
-
-	if((dir == MODE_ADD) && parc > *parn)
-	{
-		key = LOCAL_COPY(parv[(*parn)]);
-		(*parn)++;
-
-		if(MyClient(source_p))
-			fix_key(key);
-		else
-			fix_key_remote(key);
-
-		if(EmptyString(key))
-			return;
-
-		s_assert(key[0] != ' ');
-		rb_strlcpy(chptr->mode.key, key, sizeof(chptr->mode.key));
-
-		mode_changes[mode_count].letter = c;
-		mode_changes[mode_count].dir = MODE_ADD;
-		mode_changes[mode_count].caps = 0;
-		mode_changes[mode_count].nocaps = 0;
-		mode_changes[mode_count].mems = ALL_MEMBERS;
-		mode_changes[mode_count].id = NULL;
-		mode_changes[mode_count++].arg = chptr->mode.key;
-	}
-	else if(dir == MODE_DEL)
-	{
-		static char splat[] = "*";
-		int i;
-
-		if(parc > *parn)
-			(*parn)++;
-
-		if(!(*chptr->mode.key))
-			return;
-
-		/* hack time.  when we get a +k-k mode, the +k arg is
-		 * chptr->mode.key, which the -k sets to \0, so hunt for a
-		 * +k when we get a -k, and set the arg to splat. --anfl
-		 */
-		for(i = 0; i < mode_count; i++)
-		{
-			if(mode_changes[i].letter == 'k' && mode_changes[i].dir == MODE_ADD)
-				mode_changes[i].arg = splat;
-		}
-
-		*chptr->mode.key = 0;
-
-		mode_changes[mode_count].letter = c;
-		mode_changes[mode_count].dir = MODE_DEL;
-		mode_changes[mode_count].caps = 0;
-		mode_changes[mode_count].nocaps = 0;
-		mode_changes[mode_count].mems = ALL_MEMBERS;
-		mode_changes[mode_count].id = NULL;
-		mode_changes[mode_count++].arg = "*";
-	}
 }
 
 #ifdef ENABLE_SERVICES
@@ -1321,10 +1150,10 @@ static struct ChannelMode ModeTable[255] =
   {chm_nosuch,	0 },			/* h */
   {chm_simple,	MODE_INVITEONLY },	/* i */
   {chm_nosuch,	0 },			/* j */
-  {chm_key,	0 },			/* k */
+  {chm_nosuch,	0 },			/* k */
   {chm_limit,	0 },			/* l */
-  {chm_simple,	MODE_MODERATED },	/* m */
-  {chm_simple,	MODE_NOPRIVMSGS },	/* n */
+  {chm_nosuch,	0 },			/* m */
+  {chm_nosuch,	0 },			/* n */
   {chm_op,	0 },			/* o */
   {chm_simple,	MODE_PRIVATE },		/* p */
   {chm_nosuch,	0 },			/* q */
@@ -1334,7 +1163,7 @@ static struct ChannelMode ModeTable[255] =
   {chm_nosuch,	0 },			/* r */
 #endif
   {chm_simple,	MODE_SECRET },		/* s */
-  {chm_simple,	MODE_TOPICLIMIT },	/* t */
+  {chm_nosuch,	0 },			/* t */
   {chm_nosuch,	0 },			/* u */
   {chm_voice,	0 },			/* v */
   {chm_nosuch,	0 },			/* w */
