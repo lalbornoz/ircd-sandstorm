@@ -143,6 +143,10 @@ confopts(void)
 	*p++ = '6';
 #endif
 
+	*p++ = 'E';
+	*p++ = 'C';
+	*p++ = 'W';
+
 	*p = '\0';
 
 	return result;
