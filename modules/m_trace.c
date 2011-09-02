@@ -257,10 +257,6 @@ m_trace(struct Client *client_p, struct Client *source_p, int parc, const char *
 	{
 		target_p = ptr->data;
 
-		/* dont show invisible users to remote opers */
-		if(IsInvisible(target_p) && dow && !MyConnect(source_p) && !IsOper(target_p))
-			continue;
-
 		if(!doall && wilds && !match(tname, target_p->name))
 			continue;
 

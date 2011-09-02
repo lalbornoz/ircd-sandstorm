@@ -1523,10 +1523,7 @@ stats_l_list(struct Client *source_p, const char *name, int doall, int wilds,
 	rb_dlink_node *ptr;
 	struct Client *target_p;
 
-	/* send information about connections which match.  note, we
-	 * dont need tests for IsInvisible(), because non-opers will
-	 * never get here for normal clients --fl
-	 */
+	/* send information about connections which match. */
 	RB_DLINK_FOREACH(ptr, list->head)
 	{
 		target_p = ptr->data;

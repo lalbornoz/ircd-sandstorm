@@ -126,7 +126,7 @@ m_who(struct Client *client_p, struct Client *source_p, int parc, const char *pa
 			SetCork(source_p);
 			if(IsMember(source_p, chptr) || operspy)
 				do_who_on_channel(source_p, chptr, server_oper, YES);
-			else if(!SecretChannel(chptr))
+			else
 				do_who_on_channel(source_p, chptr, server_oper, NO);
 			ClearCork(source_p);
 		}
@@ -139,21 +139,13 @@ m_who(struct Client *client_p, struct Client *source_p, int parc, const char *pa
 
 	if(((target_p = find_named_person(mask)) != NULL) && (!server_oper || IsOper(target_p)))
 	{
-		int isinvis = 0;
-
-		isinvis = IsInvisible(target_p);
 		RB_DLINK_FOREACH(lp, target_p->user->channel.head)
 		{
 			msptr = lp->data;
 			chptr = msptr->chptr;
 
 			member = IsMember(source_p, chptr);
-
-			if(isinvis && !member)
-				continue;
-
-			if(member || (!isinvis && PubChannel(chptr)))
-				break;
+			break;
 		}
 
 		/* if we stopped midlist, lp->data is the membership for
@@ -208,7 +200,7 @@ m_who(struct Client *client_p, struct Client *source_p, int parc, const char *pa
  *		- int if oper on a server or not
  *		- pointer to int maxmatches
  * output	- NONE
- * side effects - lists matching invisible clients on specified channel,
+ * side effects - lists matching clients on specified channel,
  * 		  marks matched clients.
  */
 static void
@@ -224,7 +216,7 @@ who_common_channel(struct Client *source_p, struct Channel *chptr,
 		msptr = ptr->data;
 		target_p = msptr->client_p;
 
-		if(!IsInvisible(target_p) || IsMarked(target_p))
+		if(IsMarked(target_p))
 			continue;
 
 		if(server_oper && !IsOper(target_p))
@@ -291,12 +283,6 @@ who_global(struct Client *source_p, const char *mask, int server_oper, int opers
 		if(!IsClient(target_p))
 			continue;
 
-		if(IsInvisible(target_p) && !operspy)
-		{
-			ClearMark(target_p);
-			continue;
-		}
-
 		if(server_oper && !IsOper(target_p))
 			continue;
 
@@ -345,9 +331,8 @@ do_who_on_channel(struct Client *source_p, struct Channel *chptr, int server_ope
 		if(server_oper && !IsOper(target_p))
 			continue;
 
-		if(member || !IsInvisible(target_p))
-			do_who(source_p, target_p, chptr->chname,
-			       find_channel_status(msptr, combine));
+		do_who(source_p, target_p, chptr->chname,
+		       find_channel_status(msptr, combine));
 	}
 }
 

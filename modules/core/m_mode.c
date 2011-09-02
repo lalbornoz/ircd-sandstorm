@@ -747,14 +747,14 @@ static struct ChannelMode ModeTable[255] =
   {chm_nosuch,	0 },			/* m */
   {chm_nosuch,	0 },			/* n */
   {chm_op,	0 },			/* o */
-  {chm_simple,	MODE_PRIVATE },		/* p */
+  {chm_nosuch,	0 },			/* p */
   {chm_nosuch,	0 },			/* q */
 #ifdef ENABLE_SERVICES
   {chm_regonly, 0 },			/* r */
 #else
   {chm_nosuch,	0 },			/* r */
 #endif
-  {chm_simple,	MODE_SECRET },		/* s */
+  {chm_nosuch,	0 },			/* s */
   {chm_nosuch,	0 },			/* t */
   {chm_nosuch,	0 },			/* u */
   {chm_voice,	0 },			/* v */

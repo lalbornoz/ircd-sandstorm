@@ -595,8 +595,6 @@ update_client_exit_stats(struct Client *client_p)
 		--Count.total;
 		if(IsOper(client_p))
 			--Count.oper;
-		if(IsInvisible(client_p))
-			--Count.invisi;
 	}
 
 	if(splitchecking && !splitmode)

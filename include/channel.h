@@ -120,8 +120,6 @@ struct ChCapCombo
 #define is_deop(x)	((x) && (x)->flags & CHFL_DEOPPED)
 
 /* channel modes ONLY */
-#define MODE_PRIVATE    0x0001
-#define MODE_SECRET     0x0002
 #define MODE_REGONLY	0x0040
 #define MODE_SSLONLY	0x0080
 
@@ -129,14 +127,6 @@ struct ChCapCombo
 #define MODE_QUERY     0
 #define MODE_ADD       1
 #define MODE_DEL       -1
-
-#define SecretChannel(x)        ((x) && ((x)->mode.mode & MODE_SECRET))
-#define HiddenChannel(x)        ((x) && ((x)->mode.mode & MODE_PRIVATE))
-#define PubChannel(x)           ((!x) || ((x)->mode.mode &\
-				 (MODE_PRIVATE | MODE_SECRET)) == 0)
-
-/* channel visible */
-#define ShowChannel(v,c)        (PubChannel(c) || IsMember((v),(c)))
 
 #define IsMember(who, chan) ((who && who->user && \
 		find_channel_membership(chan, who)) ? 1 : 0)

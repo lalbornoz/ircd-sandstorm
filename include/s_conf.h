@@ -174,7 +174,6 @@ struct config_file_entry
 	int pace_wait;
 	int pace_wait_simple;
 	int short_motd;
-	int default_invisible;
 	int no_oper_flood;
 	int glines;
 	int gline_time;

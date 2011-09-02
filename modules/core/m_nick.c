@@ -1010,10 +1010,6 @@ register_client(struct Client *client_p, struct Client *server,
 		}
 #endif
 
-		/* increment +i count if theyre invis */
-		if(!(source_p->umodes & UMODE_INVISIBLE) && (flag & UMODE_INVISIBLE))
-			Count.invisi++;
-
 		/* increment opered count if theyre opered */
 		if(!(source_p->umodes & UMODE_OPER) && (flag & UMODE_OPER))
 			Count.oper++;

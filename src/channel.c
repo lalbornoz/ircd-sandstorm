@@ -307,17 +307,13 @@ destroy_channel(struct Channel *chptr)
 /* channel_pub_or_secret()
  *
  * input	- channel
- * output	- "=" if public, "@" if secret, else "*"
+ * output	- "=" (public)
  * side effects	-
  */
 static const char *
 channel_pub_or_secret(struct Channel *chptr)
 {
-	if(PubChannel(chptr))
-		return ("=");
-	else if(SecretChannel(chptr))
-		return ("@");
-	return ("*");
+	return ("=");
 }
 
 /* channel_member_names()
@@ -340,7 +336,6 @@ channel_member_names(struct Channel *chptr, struct Client *client_p, int show_eo
 	int is_member;
 	int stack = IsCapable(client_p, CLICAP_MULTI_PREFIX);
 	SetCork(client_p);
-	if(ShowChannel(client_p, chptr))
 	{
 		is_member = IsMember(client_p, chptr);
 
@@ -354,9 +349,6 @@ channel_member_names(struct Channel *chptr, struct Client *client_p, int show_eo
 		{
 			msptr = ptr->data;
 			target_p = msptr->client_p;
-
-			if(IsInvisible(target_p) && !is_member)
-				continue;
 
 			/* space, possible "@+" prefix */
 			if(cur_len + strlen(target_p->name) + 3 >= BUFSIZE - 3)
@@ -607,10 +599,6 @@ channel_modes(struct Channel *chptr, struct Client *client_p)
 
 	*mbuf++ = '+';
 
-	if(chptr->mode.mode & MODE_SECRET)
-		*mbuf++ = 's';
-	if(chptr->mode.mode & MODE_PRIVATE)
-		*mbuf++ = 'p';
 #ifdef ENABLE_SERVICES
 	if(chptr->mode.mode & MODE_REGONLY)
 		*mbuf++ = 'r';

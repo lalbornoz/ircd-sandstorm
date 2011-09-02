@@ -9,8 +9,6 @@ User Modes:
 +d - debug      - See debugging notices
 +f - full       - See I: line full notices
 +g - callerid   - Server Side Ignore
-+i - invisible  - Not shown in NAMES or WHO unless you share a
-                  a channel
 +k - skill      - See server generated KILL messages
 +l - locops     - See LOCOPS messages
 +n - nchange    - See client nick changes
@@ -28,12 +26,8 @@ User Modes:
 Channel Modes:
 
 +o - chanop     - Full operator status
-+p - private    - Private is obsolete, this now restricts KNOCK, and can be
-                  set at the same time as +s. 
 +r - registered - Users must be registered with services to JOIN (enabled only
                   if compiled with --enable-services)
-+s - secret     - The channel does not show up on NAMES or LIST or in the 
-                  WHOIS channel list unless you are a member of the channel
 +v - voice      - Can speak in a moderated channel, and is exempt from flood 
                   restrictions
 +S - ssl only 	- Requires SSL/TLS connections to join

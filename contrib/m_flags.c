@@ -112,7 +112,6 @@ static struct FlagTable flag_table[] = {
 	/* Now we have our Hybrid specific flags */
 	{ "FULL",		UMODE_FULL,		1 },
 	/* Not in CS, but we might as well put it here */
-	{ "INVISIBLE",		UMODE_INVISIBLE,	0 },
 	{ "BOTS",		UMODE_BOTS,		1 },
 	{ "CALLERID",		UMODE_CALLERID,		0 },
 	{ "UNAUTH",		UMODE_UNAUTH,		1 },
@@ -121,7 +120,7 @@ static struct FlagTable flag_table[] = {
 };
 /* *INDENT-ON* */
 
-/* We won't control CALLERID or INVISIBLE in here */
+/* We won't control CALLERID here */
 
 #define FL_ALL_USER_FLAGS (UMODE_WALLOP | UMODE_SKILL | UMODE_SERVNOTICE )
 

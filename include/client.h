@@ -165,7 +165,6 @@ struct LocalUser;
 #define UMODE_NCHANGE      0x0080	/* Nick change notice */
 #define UMODE_WALLOP       0x0100	/* send wallops to them */
 #define UMODE_OPERWALL     0x0200	/* Operwalls */
-#define UMODE_INVISIBLE    0x0400	/* makes user invisible */
 #define UMODE_BOTS         0x0800	/* shows bots */
 #define UMODE_EXTERNAL     0x1000	/* show servers introduced and splitting */
 #define UMODE_CALLERID     0x2000	/* block unless caller id's */
@@ -185,7 +184,7 @@ struct LocalUser;
 /* overflow flags */
 /* EARLIER FLAGS ARE IN s_newconf.h */
 
-#define SEND_UMODES  (UMODE_INVISIBLE | UMODE_OPER | UMODE_WALLOP | \
+#define SEND_UMODES  (UMODE_OPER | UMODE_WALLOP | \
 		      UMODE_ADMIN | UMODE_SERVICE | UMODE_DEAF)
 #define DEFAULT_OPER_UMODES (UMODE_SERVNOTICE | UMODE_OPERWALL | \
 			     UMODE_WALLOP | UMODE_LOCOPS)
@@ -254,9 +253,6 @@ struct LocalUser;
 #define IsPrivileged(x)         (IsOper(x) || IsServer(x))
 
 /* umode flags */
-#define IsInvisible(x)          ((x)->umodes & UMODE_INVISIBLE)
-#define SetInvisible(x)         ((x)->umodes |= UMODE_INVISIBLE)
-#define ClearInvisible(x)       ((x)->umodes &= ~UMODE_INVISIBLE)
 #define SendWallops(x)          ((x)->umodes & UMODE_WALLOP)
 #define ClearWallops(x)         ((x)->umodes &= ~UMODE_WALLOP)
 #define SendLocops(x)           ((x)->umodes & UMODE_LOCOPS)

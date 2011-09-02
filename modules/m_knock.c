@@ -100,14 +100,6 @@ m_knock(struct Client *client_p, struct Client *source_p, int parc, const char *
 		return 0;
 	}
 
-	/* cant knock to a +p channel */
-	if(HiddenChannel(chptr))
-	{
-		sendto_one_numeric(source_p, ERR_CANNOTSENDTOCHAN,
-				   form_str(ERR_CANNOTSENDTOCHAN), name);
-		return 0;
-	}
-
 
 	if(MyClient(source_p))
 	{

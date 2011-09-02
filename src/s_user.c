@@ -74,7 +74,6 @@ static struct flag_item user_modes[] = {
 	{UMODE_DEAF,		'D'},
 	{UMODE_FULL,		'f'},
 	{UMODE_CALLERID,	'g'},
-	{UMODE_INVISIBLE,	'i'},
 	{UMODE_SKILL,		'k'},
 	{UMODE_LOCOPS,		'l'},
 	{UMODE_NCHANGE,		'n'},
@@ -139,7 +138,7 @@ int user_modes_from_c_to_bitmask[] = {
 	UMODE_FULL,		/* f */
 	UMODE_CALLERID,		/* g */
 	0,			/* h */
-	UMODE_INVISIBLE,	/* i */
+	0,			/* i */
 	0,			/* j */
 	UMODE_SKILL,		/* k */
 	UMODE_LOCOPS,		/* l */
@@ -181,8 +180,8 @@ show_lusers(struct Client *source_p)
 {
 	SetCork(source_p);
 	sendto_one_numeric(source_p, RPL_LUSERCLIENT, form_str(RPL_LUSERCLIENT),
-			   (Count.total - Count.invisi),
-			   Count.invisi, rb_dlink_list_length(&global_serv_list));
+			   Count.total,
+			   0, rb_dlink_list_length(&global_serv_list));
 
 	if(Count.oper > 0)
 		sendto_one_numeric(source_p, RPL_LUSEROP, form_str(RPL_LUSEROP), Count.oper);
@@ -484,12 +483,6 @@ register_local_user(struct Client *client_p, struct Client *source_p, const char
 
 	strcpy(source_p->id, generate_uid());
 	add_to_hash(HASH_ID, source_p->id, source_p);
-
-	if(ConfigFileEntry.default_invisible)
-	{
-		source_p->umodes |= UMODE_INVISIBLE;
-		Count.invisi++;
-	}
 
 	s_assert(!IsClient(source_p));
 	rb_dlinkMoveNode(&source_p->localClient->tnode, &unknown_list, &lclient_list);
@@ -840,10 +833,6 @@ user_mode(struct Client *client_p, struct Client *source_p, int parc, const char
 	}
 
 
-	if(!(setflags & UMODE_INVISIBLE) && IsInvisible(source_p))
-		++Count.invisi;
-	if((setflags & UMODE_INVISIBLE) && !IsInvisible(source_p))
-		--Count.invisi;
 	/*
 	 * compare new flags with old flags and send string which
 	 * will cause servers to update correctly.

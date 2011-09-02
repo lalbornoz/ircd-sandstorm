@@ -366,12 +366,6 @@ static struct InfoStruct info_table[] = {
 		"Default operstring at startup.",
 	},
 	{
-		"default_invisible",
-		OUTPUT_BOOLEAN_YN,
-		{ &ConfigFileEntry.default_invisible }, 
-		"Clients are set +i on connect"
-	},
-	{
 		"disable_auth",
 		OUTPUT_BOOLEAN_YN,
 		{ &ConfigFileEntry.disable_auth }, 

@@ -143,29 +143,7 @@ names_global(struct Client *source_p)
 		target_p = ptr->data;
 		dont_show = NO;
 
-		if(!IsClient(target_p) || IsInvisible(target_p))
-			continue;
-
-		/* we want to show -i clients that are either:
-		 *   a) not on any channels
-		 *   b) only on +p channels
-		 *
-		 * both were missed out above.  if the target is on a
-		 * common channel with source, its already been shown.
-		 */
-		RB_DLINK_FOREACH(lp, target_p->user->channel.head)
-		{
-			msptr = lp->data;
-			chptr = msptr->chptr;
-
-			if(PubChannel(chptr) || IsMember(source_p, chptr) || SecretChannel(chptr))
-			{
-				dont_show = YES;
-				break;
-			}
-		}
-
-		if(dont_show)
+		if(!IsClient(target_p))
 			continue;
 
 		if((cur_len + NICKLEN + 2) > (BUFSIZE - 3))

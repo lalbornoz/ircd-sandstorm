@@ -466,12 +466,6 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 	{
 		switch (*(s++))
 		{
-		case 'p':
-			mode.mode |= MODE_PRIVATE;
-			break;
-		case 's':
-			mode.mode |= MODE_SECRET;
-			break;
 #ifdef ENABLE_SERVICES
 		case 'r':
 			mode.mode |= MODE_REGONLY;
@@ -873,10 +867,6 @@ static struct mode_letter
 	char letter;
 } flags[] =
 {
-	{
-	MODE_SECRET, 's'},
-	{
-	MODE_PRIVATE, 'p'},
 #ifdef ENABLE_SERVICES
 	{
 	MODE_REGONLY, 'r'},

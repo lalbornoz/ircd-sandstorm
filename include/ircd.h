@@ -49,7 +49,6 @@ struct Counter
 {
 	int oper;		/* Opers */
 	int total;		/* total clients */
-	int invisi;		/* invisible clients */
 	int max_loc;		/* MAX local clients */
 	int max_tot;		/* MAX global clients */
 	unsigned long totalrestartcount;	/* Total client count ever */
