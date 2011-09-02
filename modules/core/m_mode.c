@@ -221,141 +221,6 @@ ms_tmode(struct Client *client_p, struct Client *source_p, int parc, const char 
 	return 0;
 }
 
-/* check_string()
- *
- * input	- string to check
- * output	- pointer to 'fixed' string, or "*" if empty
- * side effects - any white space found becomes \0
- */
-static char *
-check_string(char *s)
-{
-	char *str = s;
-	static char splat[] = "*";
-	if(!(s && *s))
-		return splat;
-
-	for(; *s; ++s)
-	{
-		if(IsSpace(*s))
-		{
-			*s = '\0';
-			break;
-		}
-	}
-	return str;
-}
-
-/* pretty_mask()
- *
- * inputs	- mask to pretty
- * outputs	- better version of the mask
- * side effects - mask is chopped to limits, and transformed:
- *                x!y@z => x!y@z
- *                y@z   => *!y@z
- *                x!y   => x!y@*
- *                x     => x!*@*
- *                z.d   => *!*@z.d
- */
-static char *
-pretty_mask(const char *idmask)
-{
-	static char mask_buf[BUFSIZE];
-	int old_mask_pos;
-	char *nick, *user, *host;
-	char splat[] = "*";
-	char *t, *at, *ex;
-	char ne = 0, ue = 0, he = 0;	/* save values at nick[NICKLEN], et all */
-	char *mask;
-
-	mask = LOCAL_COPY(idmask);
-	mask = check_string(mask);
-	collapse(mask);
-
-	nick = user = host = splat;
-
-	if((size_t)BUFSIZE - mask_pos < strlen(mask) + 5)
-		return NULL;
-
-	old_mask_pos = mask_pos;
-
-	at = ex = NULL;
-	if((t = strchr(mask, '@')) != NULL)
-	{
-		at = t;
-		*t++ = '\0';
-		if(*t != '\0')
-			host = t;
-
-		if((t = strchr(mask, '!')) != NULL)
-		{
-			ex = t;
-			*t++ = '\0';
-			if(*t != '\0')
-				user = t;
-			if(*mask != '\0')
-				nick = mask;
-		}
-		else
-		{
-			if(*mask != '\0')
-				user = mask;
-		}
-	}
-	else if((t = strchr(mask, '!')) != NULL)
-	{
-		ex = t;
-		*t++ = '\0';
-		if(*mask != '\0')
-			nick = mask;
-		if(*t != '\0')
-			user = t;
-	}
-	else if(strchr(mask, '.') != NULL || strchr(mask, ':') != NULL)
-	{
-		if(*mask != '\0')
-			host = mask;
-	}
-	else
-	{
-		if(*mask != '\0')
-			nick = mask;
-	}
-
-	/* truncate values to max lengths */
-	if(strlen(nick) > NICKLEN - 1)
-	{
-		ne = nick[NICKLEN - 1];
-		nick[NICKLEN - 1] = '\0';
-	}
-	if(strlen(user) > USERLEN)
-	{
-		ue = user[USERLEN];
-		user[USERLEN] = '\0';
-	}
-	if(strlen(host) > HOSTLEN)
-	{
-		he = host[HOSTLEN];
-		host[HOSTLEN] = '\0';
-	}
-
-	mask_pos += rb_sprintf(mask_buf + mask_pos, "%s!%s@%s", nick, user, host) + 1;
-
-	/* restore mask, since we may need to use it again later */
-	if(at)
-		*at = '@';
-	if(ex)
-		*ex = '!';
-	if(ne)
-		nick[NICKLEN - 1] = ne;
-	if(ue)
-		user[USERLEN] = ue;
-	if(he)
-		host[HOSTLEN] = he;
-
-	return mask_buf + old_mask_pos;
-}
-
 /* chm_*()
  *
  * The handlers for each specific mode.
@@ -369,51 +234,6 @@ chm_nosuch(struct Client *source_p, struct Channel *chptr,
 		return;
 	*errors |= SM_ERR_UNKNOWN;
 	sendto_one(source_p, form_str(ERR_UNKNOWNMODE), me.name, source_p->name, c);
-}
-
-static void
-chm_simple(struct Client *source_p, struct Channel *chptr,
-	   int alevel, int parc, int *parn,
-	   const char **parv, int *errors, int dir, char c, long mode_type)
-{
-	if(alevel != CHFL_CHANOP)
-	{
-		if(!(*errors & SM_ERR_NOOPS))
-			sendto_one(source_p, form_str(ERR_CHANOPRIVSNEEDED),
-				   me.name, source_p->name, chptr->chname);
-		*errors |= SM_ERR_NOOPS;
-		return;
-	}
-
-	/* +ntspmaikl == 9 + MAXMODEPARAMS (4 * +o) */
-	if(MyClient(source_p) && (++mode_limit > (9 + MAXMODEPARAMS)))
-		return;
-
-	/* setting + */
-	if((dir == MODE_ADD) && !(chptr->mode.mode & mode_type))
-	{
-		chptr->mode.mode |= mode_type;
-
-		mode_changes[mode_count].letter = c;
-		mode_changes[mode_count].dir = MODE_ADD;
-		mode_changes[mode_count].caps = 0;
-		mode_changes[mode_count].nocaps = 0;
-		mode_changes[mode_count].id = NULL;
-		mode_changes[mode_count].mems = ALL_MEMBERS;
-		mode_changes[mode_count++].arg = NULL;
-	}
-	else if((dir == MODE_DEL) && (chptr->mode.mode & mode_type))
-	{
-		chptr->mode.mode &= ~mode_type;
-
-		mode_changes[mode_count].letter = c;
-		mode_changes[mode_count].dir = MODE_DEL;
-		mode_changes[mode_count].caps = 0;
-		mode_changes[mode_count].nocaps = 0;
-		mode_changes[mode_count].mems = ALL_MEMBERS;
-		mode_changes[mode_count].id = NULL;
-		mode_changes[mode_count++].arg = NULL;
-	}
 }
 
 static void
@@ -482,9 +302,6 @@ chm_op(struct Client *source_p, struct Channel *chptr,
 
 	if(dir == MODE_ADD)
 	{
-		if(targ_p == source_p)
-			return;
-
 		mode_changes[mode_count].letter = c;
 		mode_changes[mode_count].dir = MODE_ADD;
 		mode_changes[mode_count].caps = 0;
@@ -651,11 +468,10 @@ chm_sslonly(struct Client *source_p, struct Channel *chptr,
 	    int alevel, int parc, int *parn,
 	    const char **parv, int *errors, int dir, char c, long mode_type)
 {
-	if(alevel != CHFL_CHANOP)
+	if(!IsOperAdmin(source_p))
 	{
 		if(!(*errors & SM_ERR_NOOPS))
-			sendto_one(source_p, form_str(ERR_CHANOPRIVSNEEDED),
-				   me.name, source_p->name, chptr->chname);
+			sendto_one_numeric(source_p, ERR_NOPRIVILEGES, form_str(ERR_NOPRIVILEGES));
 		*errors |= SM_ERR_NOOPS;
 		return;
 	}
@@ -765,15 +581,6 @@ static struct ChannelMode ModeTable[255] =
 };
 /* *INDENT-ON* */
 
-static int
-get_channel_access(struct Client *source_p, struct membership *msptr)
-{
-	if(!MyClient(source_p) || is_chanop(msptr))
-		return CHFL_CHANOP;
-
-	return CHFL_PEON;
-}
-
 /* set_channel_mode()
  *
  * inputs	- client, source, channel, membership pointer, params
@@ -802,7 +609,7 @@ set_channel_mode(struct Client *client_p, struct Client *source_p,
 	mode_count = 0;
 	mode_limit = 0;
 
-	alevel = get_channel_access(source_p, msptr);
+	alevel = CHFL_CHANOP;
 
 	for(; (c = *ml) != 0; ml++)
 	{

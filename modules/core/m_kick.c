@@ -96,24 +96,6 @@ m_kick(struct Client *client_p, struct Client *source_p, int parc, const char *p
 			return 0;
 		}
 
-		if(!is_chanop(msptr))
-		{
-			if(MyConnect(source_p))
-			{
-				sendto_one(source_p, form_str(ERR_CHANOPRIVSNEEDED),
-					   me.name, source_p->name, name);
-				return 0;
-			}
-
-			/* If its a TS 0 channel, do it the old way */
-			if(chptr->channelts == 0)
-			{
-				sendto_one(source_p, form_str(ERR_CHANOPRIVSNEEDED),
-					   get_id(&me, source_p), get_id(source_p, source_p), name);
-				return 0;
-			}
-		}
-
 		/* Its a user doing a kick, but is not showing as chanop locally
 		 * its also not a user ON -my- server, and the channel has a TS.
 		 * There are two cases we can get to this point then...
@@ -146,19 +128,10 @@ m_kick(struct Client *client_p, struct Client *source_p, int parc, const char *p
 		return 0;
 	}
 
-	msptr = find_channel_membership(chptr, who);
+	msptr = find_channel_membership(chptr, source_p);
 
 	if(msptr != NULL)
 	{
-#ifdef ENABLE_SERVICES
-		if(MyClient(source_p) && IsService(who))
-		{
-			sendto_one(source_p, form_str(ERR_ISCHANSERVICE),
-				   me.name, source_p->name, who->name, chptr->chname);
-			return 0;
-		}
-#endif
-
 		comment = LOCAL_COPY_N((EmptyString(parv[3])) ? who->name : parv[3], REASONLEN);
 
 		/* jdc
@@ -170,19 +143,19 @@ m_kick(struct Client *client_p, struct Client *source_p, int parc, const char *p
 		 */
 		if(IsServer(source_p))
 			sendto_channel_local(ALL_MEMBERS, chptr, ":%s KICK %s %s :%s",
-					     source_p->name, name, who->name, comment);
+					     source_p->name, name, source_p->name, comment);
 		else
 			sendto_channel_local(ALL_MEMBERS, chptr,
 					     ":%s!%s@%s KICK %s %s :%s",
 					     source_p->name, source_p->username,
-					     source_p->host, name, who->name, comment);
+					     source_p->host, name, source_p->name, comment);
 
 		sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
 			      ":%s KICK %s %s :%s",
-			      use_id(source_p), chptr->chname, use_id(who), comment);
+			      use_id(source_p), chptr->chname, use_id(source_p), comment);
 		sendto_server(client_p, chptr, NOCAPS, CAP_TS6,
 			      ":%s KICK %s %s :%s",
-			      source_p->name, chptr->chname, who->name, comment);
+			      source_p->name, chptr->chname, source_p->name, comment);
 		remove_user_from_channel(msptr);
 	}
 	else if(MyClient(source_p))

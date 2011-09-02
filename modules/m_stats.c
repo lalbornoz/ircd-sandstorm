@@ -1160,8 +1160,6 @@ stats_memory(struct Client *source_p)
 {
 	struct Client *target_p;
 	struct Channel *chptr;
-	struct Ban *actualBan;
-	rb_dlink_node *dlink;
 	rb_dlink_node *ptr;
 	int channel_count = 0;
 	int local_client_conf_count = 0;	/* local client conf links */

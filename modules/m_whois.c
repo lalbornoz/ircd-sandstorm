@@ -238,7 +238,6 @@ single_whois(struct Client *source_p, struct Client *target_p, int operspy)
 	hook_data_client hdata;
 	const char *name;
 	char quest[] = "?";
-	int visible;
 	int extra_space = 0;
 
 	if(target_p->name)
@@ -291,8 +290,7 @@ single_whois(struct Client *source_p, struct Client *target_p, int operspy)
 					t = buf + mlen;
 				}
 
-				tlen = rb_sprintf(t, "%s%s%s ",
-						  visible ? "" : "!",
+				tlen = rb_sprintf(t, "%s%s ",
 						  find_channel_status(msptr, 1), chptr->chname);
 				t += tlen;
 				cur_len += tlen;

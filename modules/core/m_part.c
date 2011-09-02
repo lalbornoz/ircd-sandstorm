@@ -116,13 +116,8 @@ part_one_client(struct Client *client_p, struct Client *source_p, char *name, ch
 
 	/*
 	 *  Remove user from the old channel (if any)
-	 *  only allow /part reasons in -m chans
 	 */
-	if(!EmptyString(reason) && (is_chanop(msptr) || !MyConnect(source_p) ||
-				    ((can_send(chptr, source_p, msptr) > 0 &&
-				      (source_p->localClient->firsttime +
-				       ConfigFileEntry.anti_spam_exit_message_time) <
-				      rb_current_time()))))
+	if(!EmptyString(reason))
 	{
 		sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
 			      ":%s PART %s :%s", use_id(source_p), chptr->chname, reason);
@@ -142,5 +137,6 @@ part_one_client(struct Client *client_p, struct Client *source_p, char *name, ch
 				     source_p->name, source_p->username,
 				     source_p->host, chptr->chname);
 	}
+
 	remove_user_from_channel(msptr);
 }

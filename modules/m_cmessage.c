@@ -112,14 +112,6 @@ m_cmessage(int p_or_n, const char *command,
 		return 0;
 	}
 
-	if(!is_chanop_voiced(msptr))
-	{
-		if(p_or_n != NOTICE)
-			sendto_one(source_p, form_str(ERR_VOICENEEDED),
-				   me.name, source_p->name, chptr->chname);
-		return 0;
-	}
-
 	if(!IsMember(target_p, chptr))
 	{
 		if(p_or_n != NOTICE)

@@ -3,7 +3,9 @@ MODE <channel> <+|-><modes> [parameters]
 CHANNELMODE - DESCRIPTION
 ------------------------------------------------------------------------
 WITH PARAMETERS:
-     +v     - Voice.  Allows a user to talk in a +m channel.  Noted by +nick.
+     +v     - Voice.  Noted by +nick.
               PARAMS: /mode #channel +v nick
-     +o     - Op.  Allows a user full control over the channel.
+     +o     - Op.
               PARAMS: /mode #channel +o nick
+     +S       Requires SSL/TLS connections to join. May only set by admins.
+
