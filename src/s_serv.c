@@ -65,9 +65,7 @@ static char buf[BUFSIZE];
 struct Capability captab[] = {
 /*  name     cap     */
 	{"QS", CAP_QS},
-	{"EX", CAP_EX},
 	{"CHW", CAP_CHW},
-	{"IE", CAP_IE},
 	{"GLN", CAP_GLN},
 	{"KNOCK", CAP_KNOCK},
 	{"ZIP", CAP_ZIP},

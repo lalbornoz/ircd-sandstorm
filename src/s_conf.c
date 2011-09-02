@@ -806,16 +806,12 @@ set_default_conf(void)
 		UMODE_OPERWALL | UMODE_WALLOP;
 	ConfigFileEntry.oper_only_umodes = UMODE_DEBUG | UMODE_OPERSPY;
 
-	ConfigChannel.use_except = YES;
-	ConfigChannel.use_invex = YES;
 	ConfigChannel.use_knock = YES;
 	ConfigChannel.use_sslonly = NO;
 	ConfigChannel.knock_delay = 300;
 	ConfigChannel.knock_delay_channel = 60;
 	ConfigChannel.max_chans_per_user = 15;
-	ConfigChannel.max_bans = 25;
 	ConfigChannel.burst_topicwho = YES;
-	ConfigChannel.invite_ops_only = YES;
 
 	ConfigChannel.default_split_user_count = 15000;
 	ConfigChannel.default_split_server_count = 10;

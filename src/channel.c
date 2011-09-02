@@ -44,12 +44,11 @@
 struct config_channel_entry ConfigChannel;
 rb_dlink_list global_channel_list;
 static rb_bh *channel_heap;
-static rb_bh *ban_heap;
 static rb_bh *topic_heap;
 static rb_bh *member_heap;
 struct ev_entry *checksplit_ev;
 
-static int channel_capabs[] = { CAP_EX, CAP_IE,
+static int channel_capabs[] = {
 #ifdef ENABLE_SERVICES
 	CAP_SERVICE,
 #endif
@@ -73,7 +72,6 @@ void
 init_channels(void)
 {
 	channel_heap = rb_bh_create(sizeof(struct Channel), CHANNEL_HEAP_SIZE, "channel_heap");
-	ban_heap = rb_bh_create(sizeof(struct Ban), BAN_HEAP_SIZE, "ban_heap");
 	topic_heap = rb_bh_create(sizeof(struct topic_info), TOPIC_HEAP_SIZE, "topic_heap");
 	member_heap = rb_bh_create(sizeof(struct membership), MEMBER_HEAP_SIZE, "member_heap");
 }
@@ -95,25 +93,6 @@ free_channel(struct Channel *chptr)
 {
 	rb_free(chptr->chname);
 	rb_bh_free(channel_heap, chptr);
-}
-
-struct Ban *
-allocate_ban(const char *banstr, const char *who)
-{
-	struct Ban *bptr;
-	bptr = rb_bh_alloc(ban_heap);
-	bptr->banstr = rb_strndup(banstr, BANLEN);
-	bptr->who = rb_strndup(who, BANLEN);
-
-	return (bptr);
-}
-
-void
-free_ban(struct Ban *bptr)
-{
-	rb_free(bptr->banstr);
-	rb_free(bptr->who);
-	rb_bh_free(ban_heap, bptr);
 }
 
 
@@ -284,30 +263,6 @@ remove_user_from_channels(struct Client *client_p)
 	client_p->user->channel.length = 0;
 }
 
-/* invalidate_bancache_user()
- *
- * input	- user to invalidate ban cache for
- * output	-
- * side effects - ban cache is invalidated for all memberships of that user
- *                to be used after a nick change
- */
-void
-invalidate_bancache_user(struct Client *client_p)
-{
-	struct membership *msptr;
-	rb_dlink_node *ptr;
-
-	if(client_p == NULL)
-		return;
-
-	RB_DLINK_FOREACH(ptr, client_p->user->channel.head)
-	{
-		msptr = ptr->data;
-		msptr->ban_serial = 0;
-		msptr->flags &= ~CHFL_BANNED;
-	}
-}
-
 /* check_channel_name()
  *
  * input	- channel name
@@ -330,29 +285,6 @@ check_channel_name(const char *name)
 	return 1;
 }
 
-/* free_channel_list()
- *
- * input	- dlink list to free
- * output	-
- * side effects - list of b/e/I modes is cleared
- */
-void
-free_channel_list(rb_dlink_list *list)
-{
-	rb_dlink_node *ptr;
-	rb_dlink_node *next_ptr;
-	struct Ban *actualBan;
-
-	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, list->head)
-	{
-		actualBan = ptr->data;
-		free_ban(actualBan);
-	}
-
-	list->head = list->tail = NULL;
-	list->length = 0;
-}
-
 /* destroy_channel()
  *
  * input	- channel to destroy
@@ -363,16 +295,6 @@ void
 destroy_channel(struct Channel *chptr)
 {
 	rb_dlink_node *ptr, *next_ptr;
-
-	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, chptr->invites.head)
-	{
-		del_invite(chptr, ptr->data);
-	}
-
-	/* free all bans/exceptions/denies */
-	free_channel_list(&chptr->banlist);
-	free_channel_list(&chptr->exceptlist);
-	free_channel_list(&chptr->invexlist);
 
 	/* Free the topic */
 	free_topic(chptr);
@@ -473,101 +395,6 @@ channel_member_names(struct Channel *chptr, struct Client *client_p, int show_eo
 	send_pop_queue(client_p);
 }
 
-/* del_invite()
- *
- * input	- channel to remove invite from, client to remove
- * output	-
- * side effects - user is removed from invite list, if exists
- */
-void
-del_invite(struct Channel *chptr, struct Client *who)
-{
-	rb_dlinkFindDestroy(who, &chptr->invites);
-	rb_dlinkFindDestroy(chptr, &who->localClient->invited);
-}
-
-/* is_banned()
- *
- * input	- channel to check bans for, user to check bans against
- *                optional prebuilt buffers
- * output	- 1 if banned, else 0
- * side effects -
- */
-int
-is_banned(struct Channel *chptr, struct Client *who, struct membership *msptr,
-	  const char *s, const char *s2)
-{
-	char src_host[NICKLEN + USERLEN + HOSTLEN + 6];
-	char src_iphost[NICKLEN + USERLEN + HOSTLEN + 6];
-	rb_dlink_node *ptr;
-	struct Ban *actualBan = NULL;
-	struct Ban *actualExcept = NULL;
-
-	if(!MyClient(who))
-		return 0;
-
-	/* if the buffers havent been built, do it here */
-	if(s == NULL)
-	{
-		rb_sprintf(src_host, "%s!%s@%s", who->name, who->username, who->host);
-		rb_sprintf(src_iphost, "%s!%s@%s", who->name, who->username, who->sockhost);
-
-		s = src_host;
-		s2 = src_iphost;
-	}
-
-	RB_DLINK_FOREACH(ptr, chptr->banlist.head)
-	{
-		actualBan = ptr->data;
-		if(match(actualBan->banstr, s) ||
-		   match(actualBan->banstr, s2) || match_cidr(actualBan->banstr, s2))
-			break;
-		else
-			actualBan = NULL;
-	}
-
-	if((actualBan != NULL) && ConfigChannel.use_except)
-	{
-		RB_DLINK_FOREACH(ptr, chptr->exceptlist.head)
-		{
-			actualExcept = ptr->data;
-
-			/* theyre exempted.. */
-			if(match(actualExcept->banstr, s) ||
-			   match(actualExcept->banstr, s2) || match_cidr(actualExcept->banstr, s2))
-			{
-				/* cache the fact theyre not banned */
-				if(msptr != NULL)
-				{
-					msptr->ban_serial = chptr->ban_serial;
-					msptr->flags &= ~CHFL_BANNED;
-				}
-
-				return CHFL_EXCEPTION;
-			}
-		}
-	}
-
-	/* cache the banned/not banned status */
-	if(msptr != NULL)
-	{
-		msptr->ban_serial = chptr->ban_serial;
-
-		if(actualBan != NULL)
-		{
-			msptr->flags |= CHFL_BANNED;
-			return CHFL_BAN;
-		}
-		else
-		{
-			msptr->flags &= ~CHFL_BANNED;
-			return 0;
-		}
-	}
-
-	return ((actualBan ? CHFL_BAN : 0));
-}
-
 /* can_send()
  *
  * input	- user to check in channel, membership pointer
@@ -594,18 +421,6 @@ can_send(struct Channel *chptr, struct Client *source_p, struct membership *mspt
 
 	if(is_chanop_voiced(msptr))
 		return CAN_SEND_OPV;
-
-	if(ConfigChannel.quiet_on_ban && MyClient(source_p))
-	{
-		/* cached can_send */
-		if(msptr->ban_serial == chptr->ban_serial)
-		{
-			if(can_send_banned(msptr))
-				return CAN_SEND_NO;
-		}
-		else if(is_banned(chptr, source_p, msptr, NULL, NULL) == CHFL_BAN)
-			return CAN_SEND_NO;
-	}
 
 	return CAN_SEND_NONOP;
 }
@@ -796,8 +611,6 @@ channel_modes(struct Channel *chptr, struct Client *client_p)
 		*mbuf++ = 's';
 	if(chptr->mode.mode & MODE_PRIVATE)
 		*mbuf++ = 'p';
-	if(chptr->mode.mode & MODE_INVITEONLY)
-		*mbuf++ = 'i';
 #ifdef ENABLE_SERVICES
 	if(chptr->mode.mode & MODE_REGONLY)
 		*mbuf++ = 'r';

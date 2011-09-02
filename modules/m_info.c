@@ -763,18 +763,6 @@ static struct InfoStruct info_table[] = {
 		"Delay between KNOCK attempts to a channel",
 	},
 	{
-		"invite_ops_only",
-		OUTPUT_BOOLEAN_YN,
-		{ &ConfigChannel.invite_ops_only }, 
-		"INVITE is restricted to channelops only"
-	},
-	{
-		"max_bans",
-		OUTPUT_DECIMAL,
-		{ &ConfigChannel.max_bans }, 
-		"Total +b/e/I modes allowed in a channel",
-	},
-	{
 		"max_chans_per_user",
 		OUTPUT_DECIMAL,
 		{ &ConfigChannel.max_chans_per_user }, 
@@ -791,24 +779,6 @@ static struct InfoStruct info_table[] = {
 		OUTPUT_BOOLEAN_YN,
 		{ &ConfigChannel.no_join_on_split }, 
 		"Disallow joining channels when split",
-	},
-	{
-		"quiet_on_ban",
-		OUTPUT_BOOLEAN_YN,
-		{ &ConfigChannel.quiet_on_ban }, 
-		"Banned users may not send text to a channel"
-	},
-	{
-		"use_except",
-		OUTPUT_BOOLEAN_YN,
-		{ &ConfigChannel.use_except }, 
-		"Enable chanmode +e (ban exceptions)",
-	},
-	{
-		"use_invex",
-		OUTPUT_BOOLEAN_YN,
-		{ &ConfigChannel.use_invex }, 
-		"Enable chanmode +I (invite exceptions)",
 	},
 	{
 		"use_knock",

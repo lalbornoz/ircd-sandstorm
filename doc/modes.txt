@@ -27,12 +27,6 @@ User Modes:
 
 Channel Modes:
 
-+b - ban        - Channel ban on nick!user@host
-+e - exempt     - Exemption from bans
-+I - invex      - Invite exceptions, nick!user@host does not need to be
-                  explicitly INVITE'd into the channel before being able
-                  JOIN
-+i - invite     - Invite only
 +o - chanop     - Full operator status
 +p - private    - Private is obsolete, this now restricts KNOCK, and can be
                   set at the same time as +s. 

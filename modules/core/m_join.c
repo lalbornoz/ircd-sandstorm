@@ -64,8 +64,6 @@ static int can_join(struct Client *source_p, struct Channel *chptr, char *key);
 
 static void set_final_mode(struct Client *, struct Channel *, struct Mode *, struct Mode *);
 static void remove_our_modes(struct Channel *chptr);
-static void remove_ban_list(struct Channel *chptr, struct Client *source_p,
-			    rb_dlink_list *list, char c, int cap, int mems);
 
 /*
  * m_join
@@ -281,8 +279,6 @@ m_join(struct Client *client_p, struct Client *source_p, int parc, const char *p
 				      chptr->chname, source_p->name);
 		}
 
-		del_invite(chptr, source_p);
-
 		if(chptr->topic != NULL)
 		{
 			sendto_one(source_p, form_str(RPL_TOPIC), me.name,
@@ -470,9 +466,6 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 	{
 		switch (*(s++))
 		{
-		case 'i':
-			mode.mode |= MODE_INVITEONLY;
-			break;
 		case 'p':
 			mode.mode |= MODE_PRIVATE;
 			break;
@@ -772,26 +765,6 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 	sendto_server(client_p->from, NULL, CAP_TS6, NOCAPS, "%s", buf_uid);
 	sendto_server(client_p->from, NULL, NOCAPS, CAP_TS6, "%s", buf_nick);
 
-	/* if the source does TS6 we have to remove our bans.  Its now safe
-	 * to issue -b's to the non-ts6 servers, as the sjoin we've just
-	 * sent will kill any ops they have.
-	 */
-	if(!keep_our_modes && source_p->id[0] != '\0')
-	{
-		if(rb_dlink_list_length(&chptr->banlist) > 0)
-			remove_ban_list(chptr, source_p, &chptr->banlist, 'b', NOCAPS, ALL_MEMBERS);
-
-		if(rb_dlink_list_length(&chptr->exceptlist) > 0)
-			remove_ban_list(chptr, source_p, &chptr->exceptlist,
-					'e', CAP_EX, ONLY_CHANOPS);
-
-		if(rb_dlink_list_length(&chptr->invexlist) > 0)
-			remove_ban_list(chptr, source_p, &chptr->invexlist,
-					'I', CAP_IE, ONLY_CHANOPS);
-
-		chptr->ban_serial++;
-	}
-
 
 	return 0;
 }
@@ -875,7 +848,6 @@ can_join(struct Client *source_p, struct Channel *chptr, char *key)
 {
 	rb_dlink_node *lp;
 	rb_dlink_node *ptr;
-	struct Ban *invex = NULL;
 	char src_host[NICKLEN + USERLEN + HOSTLEN + 6];
 	char src_iphost[NICKLEN + USERLEN + HOSTLEN + 6];
 
@@ -883,33 +855,6 @@ can_join(struct Client *source_p, struct Channel *chptr, char *key)
 
 	rb_sprintf(src_host, "%s!%s@%s", source_p->name, source_p->username, source_p->host);
 	rb_sprintf(src_iphost, "%s!%s@%s", source_p->name, source_p->username, source_p->sockhost);
-
-	if((is_banned(chptr, source_p, NULL, src_host, src_iphost)) == CHFL_BAN)
-		return (ERR_BANNEDFROMCHAN);
-
-	if(chptr->mode.mode & MODE_INVITEONLY)
-	{
-		RB_DLINK_FOREACH(lp, source_p->localClient->invited.head)
-		{
-			if(lp->data == chptr)
-				break;
-		}
-		if(lp == NULL)
-		{
-			if(!ConfigChannel.use_invex)
-				return (ERR_INVITEONLYCHAN);
-			RB_DLINK_FOREACH(ptr, chptr->invexlist.head)
-			{
-				invex = ptr->data;
-				if(match(invex->banstr, src_host)
-				   || match(invex->banstr, src_iphost)
-				   || match_cidr(invex->banstr, src_iphost))
-					break;
-			}
-			if(ptr == NULL)
-				return (ERR_INVITEONLYCHAN);
-		}
-	}
 
 #ifdef ENABLE_SERVICES
 	if(chptr->mode.mode & MODE_REGONLY && EmptyString(source_p->user->suser))
@@ -930,8 +875,6 @@ static struct mode_letter
 {
 	{
 	MODE_SECRET, 's'},
-	{
-	MODE_INVITEONLY, 'i'},
 	{
 	MODE_PRIVATE, 'p'},
 #ifdef ENABLE_SERVICES
@@ -1119,68 +1062,4 @@ remove_our_modes(struct Channel *chptr)
 				     EmptyString(lpara[3]) ? "" : lpara[3]);
 
 	}
-}
-
-/* remove_ban_list()
- *
- * inputs	- channel, source, list to remove, char of mode, caps needed
- * outputs	-
- * side effects - given list is removed, with modes issued to local clients
- * 		  and non-TS6 servers.
- */
-static void
-remove_ban_list(struct Channel *chptr, struct Client *source_p,
-		rb_dlink_list *list, char c, int cap, int mems)
-{
-	static char lmodebuf[BUFSIZE];
-	static char lparabuf[BUFSIZE];
-	struct Ban *banptr;
-	rb_dlink_node *ptr;
-	rb_dlink_node *next_ptr;
-	char *mbuf, *pbuf;
-	int count = 0;
-	int cur_len, mlen, plen;
-
-	pbuf = lparabuf;
-
-	cur_len = mlen = rb_sprintf(lmodebuf, ":%s MODE %s -", source_p->name, chptr->chname);
-	mbuf = lmodebuf + mlen;
-
-	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, list->head)
-	{
-		banptr = ptr->data;
-
-		/* trailing space, and the mode letter itself */
-		plen = strlen(banptr->banstr) + 2;
-
-		if(count >= MAXMODEPARAMS || (cur_len + plen) > BUFSIZE - 4)
-		{
-			/* remove trailing space */
-			*mbuf = '\0';
-			*(pbuf - 1) = '\0';
-
-			sendto_channel_local(mems, chptr, "%s %s", lmodebuf, lparabuf);
-			sendto_server(source_p, chptr, cap, CAP_TS6, "%s %s", lmodebuf, lparabuf);
-
-			cur_len = mlen;
-			mbuf = lmodebuf + mlen;
-			pbuf = lparabuf;
-			count = 0;
-		}
-
-		*mbuf++ = c;
-		cur_len += plen;
-		pbuf += rb_sprintf(pbuf, "%s ", banptr->banstr);
-		count++;
-
-		free_ban(banptr);
-	}
-
-	*mbuf = '\0';
-	*(pbuf - 1) = '\0';
-	sendto_channel_local(mems, chptr, "%s %s", lmodebuf, lparabuf);
-	sendto_server(source_p, chptr, cap, CAP_TS6, "%s %s", lmodebuf, lparabuf);
-
-	list->head = list->tail = NULL;
-	list->length = 0;
 }

@@ -9,9 +9,6 @@
 /* Size of away heap. */
 #undef AWAY_HEAP_SIZE
 
-/* Size of the ban heap. */
-#undef BAN_HEAP_SIZE
-
 /* Size of the channel heap. */
 #undef CHANNEL_HEAP_SIZE
 

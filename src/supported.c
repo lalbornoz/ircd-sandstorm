@@ -55,8 +55,8 @@
  *  by a channel, where:
  *
  *    A = modes that take a parameter, and add or remove nicks
- *        or addresses to a list, such as +bIe for the ban,
- *        invite, and exception lists.
+ *        or addresses to a list, such as +bIe for the ban and
+ *        exception lists.
  *
  *    B = modes that change channel settings, but which take
  *        a parameter when they are set and unset, such as
@@ -216,8 +216,7 @@ isupport_chanmodes(const void *ptr)
 {
 	static char result[80];
 
-	rb_snprintf(result, sizeof result, "%s%sb,k,l,imnpstS%s",
-		    ConfigChannel.use_except ? "e" : "", ConfigChannel.use_invex ? "I" : "",
+	rb_snprintf(result, sizeof result, "b,k,l,imnpstS%s",
 #ifdef ENABLE_SERVICES
 		    rb_dlink_list_length(&service_list) ? "r" : ""
 #else
@@ -233,17 +232,6 @@ isupport_chanlimit(const void *ptr)
 	static char result[30];
 
 	rb_snprintf(result, sizeof result, "&#:%i", ConfigChannel.max_chans_per_user);
-	return result;
-}
-
-static const char *
-isupport_maxlist(const void *ptr)
-{
-	static char result[30];
-
-	rb_snprintf(result, sizeof result, "b%s%s:%i",
-		    ConfigChannel.use_except ? "e" : "",
-		    ConfigChannel.use_invex ? "I" : "", ConfigChannel.max_bans);
 	return result;
 }
 
@@ -266,12 +254,9 @@ init_isupport(void)
 	static int channellen = LOC_CHANNELLEN;
 
 	add_isupport("CHANTYPES", isupport_string, "&#");
-	add_isupport("EXCEPTS", isupport_boolean, &ConfigChannel.use_except);
-	add_isupport("INVEX", isupport_boolean, &ConfigChannel.use_invex);
 	add_isupport("CHANMODES", isupport_chanmodes, NULL);
 	add_isupport("CHANLIMIT", isupport_chanlimit, NULL);
 	add_isupport("PREFIX", isupport_string, "(ov)@+");
-	add_isupport("MAXLIST", isupport_maxlist, NULL);
 	add_isupport("MODES", isupport_intptr, &maxmodes);
 	add_isupport("NETWORK", isupport_stringptr, &ServerInfo.network_name);
 	add_isupport("KNOCK", isupport_boolean, &ConfigChannel.use_knock);

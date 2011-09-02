@@ -53,9 +53,7 @@ struct Capability
 
 #define CAP_CAP         0x00001	/* received a CAP to begin with */
 #define CAP_QS          0x00002	/* Can handle quit storm removal */
-#define CAP_EX          0x00004	/* Can do channel +e exemptions */
 #define CAP_CHW         0x00008	/* Can do channel wall @# */
-#define CAP_IE          0x00010	/* Can do invite exceptions */
 #define CAP_GLN	        0x00080	/* Can do GLINE message */
 #define CAP_ZIP         0x00100	/* Can do ZIPlinks */
 #define CAP_KNOCK	0x00400	/* supports KNOCK */
@@ -70,8 +68,8 @@ struct Capability
 #define CAP_GCLICONN	0x200000/* global CLICONN/EXIT SNOTICEs */
 #define CAP_EXT_CHARS	0x400000/* extended nick/user/spoof name charset */
 
-#define CAP_MASK        (CAP_QS  | CAP_EX   | CAP_CHW  | \
-			 CAP_IE  | CAP_SERVICE |\
+#define CAP_MASK        (CAP_QS  | CAP_CHW  | \
+			 CAP_SERVICE |\
 			 CAP_GLN | CAP_ENCAP | \
 			 CAP_ZIP  | CAP_KNOCK  | \
 			 CAP_RSFNC | CAP_SAVE | CAP_SAVETS_100 | \

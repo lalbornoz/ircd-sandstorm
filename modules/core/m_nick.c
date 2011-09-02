@@ -565,9 +565,6 @@ change_local_nick(struct Client *client_p, struct Client *source_p, char *nick, 
 		else
 			source_p->tsinfo = rb_current_time();
 		monitor_signoff(source_p);
-		/* we only do bancache for local users -- jilles */
-		if(source_p->user)
-			invalidate_bancache_user(source_p);
 	}
 
 	sendto_realops_flags(UMODE_NCHANGE, L_ALL,

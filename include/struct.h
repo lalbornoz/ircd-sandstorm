@@ -179,8 +179,6 @@ struct LocalUser
 	/* nicknames theyre monitoring */
 	rb_dlink_list monitor_list;
 
-	rb_dlink_list invited;	/* chain of invite pointer blocks */
-
 	/*
 	 * Anti-flood stuff. We track how many messages were parsed and how
 	 * many we were allowed in the current second, and apply a simple decay

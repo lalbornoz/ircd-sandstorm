@@ -61,16 +61,10 @@ struct Channel
 	rb_dlink_list members;	/* channel members */
 	rb_dlink_list locmembers;	/* local channel members */
 
-	rb_dlink_list invites;
-	rb_dlink_list banlist;
-	rb_dlink_list exceptlist;
-	rb_dlink_list invexlist;
-
 	time_t first_received_message_time;	/* channel flood control */
 	int received_number_of_privmsgs;
 	int flood_noticed;
 
-	uint32_t ban_serial;
 	time_t channelts;
 	char *chname;
 };
@@ -84,17 +78,6 @@ struct membership
 	struct Channel *chptr;
 	struct Client *client_p;
 	uint8_t flags;
-
-	uint32_t ban_serial;
-};
-
-#define BANLEN NICKLEN+USERLEN+HOSTLEN+6
-struct Ban
-{
-	char *banstr;
-	char *who;
-	time_t when;
-	rb_dlink_node node;
 };
 
 struct ChModeChange
@@ -126,7 +109,6 @@ struct ChCapCombo
 #define CHFL_CHANOP     	0x0001	/* Channel operator */
 #define CHFL_VOICE      	0x0002	/* the power to speak */
 #define CHFL_DEOPPED    	0x0004	/* deopped on sjoin, bounce modes */
-#define CHFL_BANNED		0x0008	/* cached as banned */
 #define ONLY_SERVERS		0x0010
 #define ALL_MEMBERS		CHFL_PEON
 #define ONLY_CHANOPS		CHFL_CHANOP
@@ -136,17 +118,12 @@ struct ChCapCombo
 #define is_voiced(x)	((x) && (x)->flags & CHFL_VOICE)
 #define is_chanop_voiced(x) ((x) && (x)->flags & (CHFL_CHANOP|CHFL_VOICE))
 #define is_deop(x)	((x) && (x)->flags & CHFL_DEOPPED)
-#define can_send_banned(x) ((x) && (x)->flags & CHFL_BANNED)
 
 /* channel modes ONLY */
 #define MODE_PRIVATE    0x0001
 #define MODE_SECRET     0x0002
-#define MODE_INVITEONLY 0x0010
 #define MODE_REGONLY	0x0040
 #define MODE_SSLONLY	0x0080
-#define CHFL_BAN        0x0100	/* ban channel flag */
-#define CHFL_EXCEPTION  0x0200	/* exception to ban channel flag */
-#define CHFL_INVEX      0x0400
 
 /* mode flags for direction indication */
 #define MODE_QUERY     0
@@ -171,8 +148,6 @@ void init_channels(void);
 
 struct Channel *allocate_channel(const char *chname);
 void free_channel(struct Channel *chptr);
-struct Ban *allocate_ban(const char *, const char *);
-void free_ban(struct Ban *bptr);
 
 
 void destroy_channel(struct Channel *);
@@ -193,8 +168,6 @@ void free_channel_list(rb_dlink_list *);
 int check_channel_name(const char *name);
 
 void channel_member_names(struct Channel *chptr, struct Client *, int show_eon);
-
-void del_invite(struct Channel *chptr, struct Client *who);
 
 const char *channel_modes(struct Channel *chptr, struct Client *who);
 

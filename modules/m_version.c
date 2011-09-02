@@ -115,9 +115,6 @@ confopts(void)
 	result[0] = '\0';
 	p = result;
 
-	if(ConfigChannel.use_except)
-		*p++ = 'e';
-
 	if(ConfigFileEntry.glines)
 		*p++ = 'g';
 	*p++ = 'G';
@@ -125,9 +122,6 @@ confopts(void)
 	/* might wanna hide this :P */
 	if(ServerInfo.hub)
 		*p++ = 'H';
-
-	if(ConfigChannel.use_invex)
-		*p++ = 'I';
 
 	if(ConfigChannel.use_knock)
 		*p++ = 'K';

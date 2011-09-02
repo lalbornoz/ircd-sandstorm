@@ -1357,12 +1357,6 @@ exit_local_client(struct Client *client_p, struct Client *source_p, struct Clien
 	if(IsOper(source_p))
 		rb_dlinkFindDestroy(source_p, &oper_list);
 
-	/* Clean up invitefield */
-	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, source_p->localClient->invited.head)
-	{
-		del_invite(ptr->data, source_p);
-	}
-
 	sendto_allops_flags(UMODE_CCONN, L_ALL,
 			     "Client exiting: %s (%s@%s) [%s] [%s]",
 			     source_p->name,

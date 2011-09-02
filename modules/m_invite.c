@@ -47,8 +47,6 @@ mapi_clist_av1 invite_clist[] = { &invite_msgtab, NULL };
 
 DECLARE_MODULE_AV1(invite, NULL, NULL, invite_clist, NULL, NULL, "$Revision: 26094 $");
 
-static void add_invite(struct Channel *, struct Client *);
-
 /* m_invite()
  *      parv[0] - sender prefix
  *      parv[1] - user to invite
@@ -60,7 +58,6 @@ m_invite(struct Client *client_p, struct Client *source_p, int parc, const char 
 	struct Client *target_p;
 	struct Channel *chptr;
 	struct membership *msptr;
-	int store_invite = 0;
 
 	if(MyClient(source_p) && !IsFloodDone(source_p))
 		flood_endgrace(source_p);
@@ -121,21 +118,6 @@ m_invite(struct Client *client_p, struct Client *source_p, int parc, const char 
 		return 0;
 	}
 
-	/* only store invites for +i channels */
-	if(ConfigChannel.invite_ops_only || (chptr->mode.mode & MODE_INVITEONLY))
-	{
-		/* treat remote clients as chanops */
-		if(MyClient(source_p) && !is_chanop(msptr))
-		{
-			sendto_one(source_p, form_str(ERR_CHANOPRIVSNEEDED),
-				   me.name, source_p->name, parv[2]);
-			return 0;
-		}
-
-		if(chptr->mode.mode & MODE_INVITEONLY)
-			store_invite = 1;
-	}
-
 	if(MyConnect(source_p))
 	{
 		sendto_one(source_p, form_str(RPL_INVITING),
@@ -150,9 +132,6 @@ m_invite(struct Client *client_p, struct Client *source_p, int parc, const char 
 		sendto_one(target_p, ":%s!%s@%s INVITE %s :%s",
 			   source_p->name, source_p->username, source_p->host,
 			   target_p->name, chptr->chname);
-
-		if(store_invite)
-			add_invite(chptr, target_p);
 	}
 	else if(target_p->from != client_p)
 	{
@@ -160,37 +139,4 @@ m_invite(struct Client *client_p, struct Client *source_p, int parc, const char 
 	}
 
 	return 0;
-}
-
-/* add_invite()
- *
- * input	- channel to add invite to, client to add
- * output	-
- * side effects - client is added to invite list.
- */
-static void
-add_invite(struct Channel *chptr, struct Client *who)
-{
-	rb_dlink_node *ptr;
-
-	/* already invited? */
-	RB_DLINK_FOREACH(ptr, who->localClient->invited.head)
-	{
-		if(ptr->data == chptr)
-			return;
-	}
-
-	/* ok, if their invite list is too long, remove the tail */
-	if((int)rb_dlink_list_length(&who->localClient->invited) >=
-	   ConfigChannel.max_chans_per_user)
-	{
-		ptr = who->localClient->invited.tail;
-		del_invite(ptr->data, who);
-	}
-
-	/* add user to channel invite list */
-	rb_dlinkAddAlloc(who, &chptr->invites);
-
-	/* add channel to user invite list */
-	rb_dlinkAddAlloc(chptr, &who->localClient->invited);
 }

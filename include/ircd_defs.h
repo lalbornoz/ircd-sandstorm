@@ -100,7 +100,6 @@
 
 #define BUFSIZE         512	/* WARNING: *DONT* CHANGE THIS!!!! */
 #define MAXRECIPIENTS   20
-#define MAXBANLENGTH    1024
 #define OPERNICKLEN     NICKLEN*2	/* Length of OPERNICKs. */
 
 #define USERHOST_REPLYLEN       (NICKLEN+HOSTLEN+USERLEN+5)

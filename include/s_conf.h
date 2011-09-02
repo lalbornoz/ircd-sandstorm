@@ -218,22 +218,17 @@ struct config_file_entry
 
 struct config_channel_entry
 {
-	int use_except;
-	int use_invex;
 	int use_knock;
 	int use_sslonly;
 	int knock_delay;
 	int knock_delay_channel;
-	int max_bans;
 	int max_chans_per_user;
 	int no_create_on_split;
 	int no_join_on_split;
-	int quiet_on_ban;
 	int default_split_server_count;
 	int default_split_user_count;
 	int no_oper_resvs;
 	int burst_topicwho;
-	int invite_ops_only;
 	int topiclen;
 };
 

@@ -100,11 +100,6 @@ m_knock(struct Client *client_p, struct Client *source_p, int parc, const char *
 		return 0;
 	}
 
-	if(!((chptr->mode.mode & MODE_INVITEONLY))) {
-		sendto_one_numeric(source_p, ERR_CHANOPEN, form_str(ERR_CHANOPEN), name);
-		return 0;
-	}
-
 	/* cant knock to a +p channel */
 	if(HiddenChannel(chptr))
 	{
@@ -116,14 +111,6 @@ m_knock(struct Client *client_p, struct Client *source_p, int parc, const char *
 
 	if(MyClient(source_p))
 	{
-		/* don't allow a knock if the user is banned */
-		if(is_banned(chptr, source_p, NULL, NULL, NULL) == CHFL_BAN)
-		{
-			sendto_one_numeric(source_p, ERR_CANNOTSENDTOCHAN,
-					   form_str(ERR_CANNOTSENDTOCHAN), name);
-			return 0;
-		}
-
 		/* local flood protection:
 		 * allow one knock per user per knock_delay
 		 * allow one knock per channel per knock_delay_channel
