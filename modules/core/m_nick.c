@@ -84,11 +84,6 @@ DECLARE_MODULE_AV1(nick, NULL, NULL, nick_clist, NULL, NULL, "$Revision: 26094 $
 
 static int change_remote_nick(struct Client *, struct Client *, time_t, const char *, int);
 
-static int clean_nick(const char *, int loc_client);
-static int clean_username(const char *);
-static int clean_host(const char *);
-static int clean_uid(const char *uid);
-
 static void set_initial_nick(struct Client *client_p, struct Client *source_p, char *nick);
 static void change_local_nick(struct Client *client_p, struct Client *source_p, char *nick, int);
 static int register_client(struct Client *client_p, struct Client *server,
@@ -129,7 +124,7 @@ mr_nick(struct Client *client_p, struct Client *source_p, int parc, const char *
 	rb_strlcpy(nick, parv[1], sizeof(nick));
 
 	/* check the nickname is ok */
-	if(!clean_nick(nick, 1))
+	if(!valid_nick(nick, 1))
 	{
 		sendto_one(source_p, form_str(ERR_ERRONEUSNICKNAME),
 			   me.name, EmptyString(parv[0]) ? "*" : parv[0], parv[1]);
@@ -189,11 +184,11 @@ m_nick(struct Client *client_p, struct Client *source_p, int parc, const char *p
 	if(!IsFloodDone(source_p))
 		flood_endgrace(source_p);
 
-	/* terminate nick to NICKLEN, we dont want clean_nick() to error! */
+	/* terminate nick to NICKLEN, we dont want valid_nick() to error! */
 	rb_strlcpy(nick, parv[1], sizeof(nick));
 
 	/* check the nickname is ok */
-	if(!clean_nick(nick, 1))
+	if(!valid_nick(nick, 1))
 	{
 		sendto_one(source_p, form_str(ERR_ERRONEUSNICKNAME), me.name, parv[0], nick);
 		return 0;
@@ -267,7 +262,7 @@ mc_nick(struct Client *client_p, struct Client *source_p, int parc, const char *
 	time_t newts = 0;
 
 	/* if nicks erroneous, or too long, kill */
-	if(!clean_nick(parv[1], 0))
+	if(!valid_nick(parv[1], 0))
 	{
 		ServerStats.is_kill++;
 		sendto_realops_flags(UMODE_DEBUG, L_ALL,
@@ -328,7 +323,7 @@ ms_nick(struct Client *client_p, struct Client *source_p, int parc, const char *
 	}
 
 	/* if nicks empty, erroneous, or too long, kill */
-	if(!clean_nick(parv[1], 0))
+	if(!valid_nick(parv[1], 0))
 	{
 		ServerStats.is_kill++;
 		sendto_realops_flags(UMODE_DEBUG, L_ALL,
@@ -339,7 +334,7 @@ ms_nick(struct Client *client_p, struct Client *source_p, int parc, const char *
 	}
 
 	/* invalid username or host? */
-	if(!clean_username(parv[5]) || !clean_host(parv[6]))
+	if(!valid_username(parv[5]) || !valid_host(parv[6]))
 	{
 		ServerStats.is_kill++;
 		sendto_realops_flags(UMODE_DEBUG, L_ALL,
@@ -420,7 +415,7 @@ ms_uid(struct Client *client_p, struct Client *source_p, int parc, const char *p
 	}
 
 	/* if nicks erroneous, or too long, kill */
-	if(!clean_nick(parv[1], 0))
+	if(!valid_nick(parv[1], 0))
 	{
 		ServerStats.is_kill++;
 		sendto_realops_flags(UMODE_DEBUG, L_ALL,
@@ -430,7 +425,7 @@ ms_uid(struct Client *client_p, struct Client *source_p, int parc, const char *p
 		return 0;
 	}
 
-	if(!clean_username(parv[5]) || !clean_host(parv[6]))
+	if(!valid_username(parv[5]) || !valid_host(parv[6]))
 	{
 		ServerStats.is_kill++;
 		sendto_realops_flags(UMODE_DEBUG, L_ALL,
@@ -440,7 +435,7 @@ ms_uid(struct Client *client_p, struct Client *source_p, int parc, const char *p
 		return 0;
 	}
 
-	if(!clean_uid(parv[8]))
+	if(!valid_uid(parv[8]))
 	{
 		ServerStats.is_kill++;
 		sendto_realops_flags(UMODE_DEBUG, L_ALL,
@@ -502,110 +497,6 @@ ms_save(struct Client *client_p, struct Client *source_p, int parc, const char *
 				     "Ignored SAVE message for %s from %s",
 				     target_p->name, source_p->name);
 	return 0;
-}
-
-/* clean_nick()
- *
- * input	- nickname to check
- * output	- 0 if erroneous, else 1
- * side effects - 
- */
-static int
-clean_nick(const char *nick, int loc_client)
-{
-	int len = 0;
-
-	/* nicks cant start with a digit or -, and must have a length */
-	if(*nick == '-' || *nick == '\0')
-		return 0;
-
-	if(loc_client && IsDigit(*nick))
-		return 0;
-
-	for(; *nick; nick++)
-	{
-		len++;
-		if(!IsNickChar(*nick))
-			return 0;
-	}
-
-	/* nicklen is +1 */
-	if(len >= NICKLEN)
-		return 0;
-
-	return 1;
-}
-
-/* clean_username()
- *
- * input	- username to check
- * output	- 0 if erroneous, else 0
- * side effects -
- */
-static int
-clean_username(const char *username)
-{
-	int len = 0;
-
-	for(; *username; username++)
-	{
-		len++;
-
-		if(!IsUserChar(*username))
-			return 0;
-	}
-
-	if(len > USERLEN)
-		return 0;
-
-	return 1;
-}
-
-/* clean_host()
- *
- * input	- host to check
- * output	- 0 if erroneous, else 0
- * side effects -
- */
-static int
-clean_host(const char *host)
-{
-	int len = 0;
-
-	for(; *host; host++)
-	{
-		len++;
-
-		if(!IsHostChar(*host))
-			return 0;
-	}
-
-	if(len > HOSTLEN)
-		return 0;
-
-	return 1;
-}
-
-static int
-clean_uid(const char *uid)
-{
-	int len = 1;
-
-	if(!IsDigit(*uid++))
-		return 0;
-
-	for(; *uid; uid++)
-	{
-		len++;
-
-		if(!IsIdChar(*uid))
-			return 0;
-	}
-
-	if(len != IDLEN - 1)
-		return 0;
-
-	return 1;
 }
 
 static void

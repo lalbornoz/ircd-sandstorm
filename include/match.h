@@ -66,6 +66,8 @@ int ircncmp(const char *s1, const char *s2, int n);
 
 int valid_hostname(const char *hostname);
 int valid_username(const char *username);
+int valid_nick(const char *nick, int loc_client);
+int valid_uid(const char *uid);
 int valid_servername(const char *servername);
 
 
@@ -101,6 +103,12 @@ extern const unsigned int CharAttrs[];
 #define MWILD_C  0x8000
 #define LET_C   0x10000		/* an actual letter */
 #define FCHAN_C 0x20000		/* a 'fake' channel char */
+#define UCSMB_C 0x40000		/* UCS/UTF-8 encoded multibyte sequence char */
+#define MIRCATTR_C \
+		0x80000		/* mIRC attribute encoding char */
+#define NINITIAL_C \
+	       0x100000		/* Character that may not appear as the initial octet */
+
 
 #define IsHostChar(c)   (CharAttrs[(unsigned char)(c)] & HOST_C)
 #define IsUserChar(c)   (CharAttrs[(unsigned char)(c)] & USER_C)
@@ -130,5 +138,6 @@ extern const unsigned int CharAttrs[];
 
 #define IsNonEOS(c) (CharAttrs[(unsigned char)(c)] & NONEOS_C)
 #define IsEol(c) (CharAttrs[(unsigned char)(c)] & EOL_C)
+#define IsNonInitial(c) (CharAttrs[(unsigned char)(c)] & NINITIAL_C)
 
 #endif /* INCLUDED_match_h */

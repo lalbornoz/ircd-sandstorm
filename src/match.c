@@ -521,35 +521,23 @@ ircncmp(const char *s1, const char *s2, int n)
  * Inputs       - pointer to user
  * Output       - YES if valid, NO if not
  * Side effects - NONE
- *
- * NOTE: this doesn't allow a hostname to begin with a dot and
- * will not allow more dots than chars.
  */
 int
 valid_hostname(const char *hostname)
 {
 	const char *p = hostname;
-	int found_sep = 0;
 
 	s_assert(NULL != p);
 
 	if(hostname == NULL)
 		return NO;
 
-	if('.' == *p || ':' == *p)
+	if((*p) == ':')
 		return NO;
 
 	while(*p)
-	{
-		if(!IsHostChar(*p))
+		if(!IsHostChar(*(p++)))
 			return NO;
-		if(*p == '.' || *p == ':')
-			found_sep++;
-		p++;
-	}
-
-	if(found_sep == 0)
-		return (NO);
 
 	return (YES);
 }
@@ -561,15 +549,11 @@ valid_hostname(const char *hostname)
  * Output       - YES if valid, NO if not
  * Side effects - NONE
  * 
- * Absolutely always reject any '*' '!' '?' '@' in an user name
- * reject any odd control characters names.
- * Allow '.' in username to allow for "first.last"
- * style of username
+ * Absolutely always reject any '@' in an user name
  */
 int
 valid_username(const char *username)
 {
-	int dots = 0;
 	const char *p = username;
 
 	s_assert(NULL != p);
@@ -580,27 +564,65 @@ valid_username(const char *username)
 	if('~' == *p)
 		++p;
 
-	/* reject usernames that don't start with an alphanum
-	 * i.e. reject jokers who have '-@somehost' or '.@somehost'
-	 * or "-hi-@somehost", "h-----@somehost" would still be accepted.
-	 */
-	if(!IsAlNum(*p))
+	while(*++p)
+		if(!IsUserChar(*p))
+			return NO;
+
+	return YES;
+}
+
+/*
+ * valid_nick()
+ *
+ * input        - nickname to check
+ * output       - NO if erroneous, else YES
+ * side effects -
+ */
+int
+valid_nick(const char *nick, int loc_client)
+{
+	int len = 0;
+
+	/* nicks cant start with a digit or -, and must have a length */
+	if((*nick == '-' || *nick == '\0') ||
+	   (loc_client && IsDigit(*nick))  ||
+	   (IsNonInitial((*nick))))
 		return NO;
 
-	while(*++p)
-	{
-		if((*p == '.') && ConfigFileEntry.dots_in_ident)
-		{
-			dots++;
-			if(dots > ConfigFileEntry.dots_in_ident)
-				return NO;
-			if(!IsUserChar(p[1]))
-				return NO;
-		}
-		else if(!IsUserChar(*p))
-			return NO;
-	}
+	for(; *nick; nick++, len++)
+		if(!IsNickChar(*nick))
+                        return NO;
+
+	/* nicklen is +1 */
+	if(len >= NICKLEN)
+		return NO;
+
 	return YES;
+}
+
+/*
+ * valid_uid()
+ *
+ * input        - uid to check
+ * output       - NO if erroneous, else YES
+ * side effects -
+ */
+int
+valid_uid(const char *uid)
+{
+	int len = 1;
+
+	if(!IsDigit(*uid++))
+		return NO;
+
+	for(; *uid; uid++, len++)
+		if(!IsIdChar(*uid))
+			return NO;
+
+	if(len != IDLEN - 1)
+		return NO;
+
+        return YES;
 }
 
 int
@@ -612,16 +634,14 @@ valid_servername(const char *servername)
 	for(s = servername; *s != '\0'; s++)
 	{
 		if(!IsServChar(*s))
-		{
 			return NO;
-		}
+
 		if(*s == '.')
 			dots++;
 	}
+
 	if(dots == 0)
-	{
 		return NO;
-	}
 	return YES;
 }
 
@@ -700,18 +720,51 @@ const unsigned char ToUpperTab[] = {
 /*
  * CharAttrs table
  *
+ * {{{ Useless block of original comments and vxp's addendum
  * NOTE: RFC 1459 sez: anything but a ^G, comma, or space is allowed
  * for channel names
+ *
+ * NOTE: arab/vxp, however, sez and maintains that RFC 1459 needs to be
+ * inserted into someone else's digestive tract; this particular fix/patch
+ * only inhibits {nick,user,host} name{, changes} where absolutely necessary
+ * ie. due to a given character colliding with in-stream protocol encoding/
+ * marshalling for the context in which the pertinent entity would appear.
+ * (ie. ``!'' in nick names, ``:'' generally, etc.)
+ * NOTE: Beyond that, RFC 1459 predates Unicode and any of its encodings
+ * plus pretty much only cares about 7-bit US ASCII (excepting scandinavian
+ * nord moon-talk,) this here ``fix'' further enhances the permissible
+ * range for names to the single character bytes in the higher 8-bit plane
+ * that would occur in {UCS,UTF-8} encoded multibyte sequences (including
+ * invalid ones, that is.)
+ * }}}
+ *
+ * N.B.  As per above, the liberty of newly permitted characters
+ *	 including the 8 bit range imply:
+ *	 1. {m,}IRC colour codes (including underline et al,)
+ *	 2. Invalid UTF-8 sequences (due to encoding-free logic,)
+ *	 3. ANSI escape codes (X3.64/IEC 6429/ECMA-48) (most clients will discard these,)
+ *	 4. Clients (via iconv(3)) falling back to CP1252 encoding which might
+ *	    culminate into readible yet otherwise unreachable nick names on
+ *	    UTF-8 implementing terminal emulators (ie. PuTTY in the corresponding mode,)
+ *	 5. Apparently zero-width nick names (code points not encoding a particular
+ *	    glyph rather than a control character,)
+ *	 6. `Spoofing' a server name (simulating S{NOTICE,MODE} (to some extent,))
+ *
+ *	 The rationale for this begun with #1, the remainder makes for a rather
+ *	 surprisingly welcome unknown.
+ *	 Do note that some characters may not appear as the initial, starting, octet
+ *	 (Notably `#'.)
+ *
  */
 const unsigned int CharAttrs[] = {
 /* 0  */ CNTRL_C,
 /* 1  */ CNTRL_C | CHAN_C | NONEOS_C,
-/* 2  */ CNTRL_C | CHAN_C | FCHAN_C | NONEOS_C,
-/* 3  */ CNTRL_C | CHAN_C | FCHAN_C | NONEOS_C,
+/* 2  */ CNTRL_C | CHAN_C | FCHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C | MIRCATTR_C,
+/* 3  */ CNTRL_C | CHAN_C | FCHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C | MIRCATTR_C,
 /* 4  */ CNTRL_C | CHAN_C | NONEOS_C,
 /* 5  */ CNTRL_C | CHAN_C | NONEOS_C,
 /* 6  */ CNTRL_C | CHAN_C | NONEOS_C,
-/* 7 BEL */ CNTRL_C | NONEOS_C,
+/* 7 BEL */ CNTRL_C | NONEOS_C | NICK_C | USER_C | HOST_C,
 /* 8  \b */ CNTRL_C | CHAN_C | NONEOS_C,
 /* 9  \t */ CNTRL_C | SPACE_C | CHAN_C | NONEOS_C,
 /* 10 \n */ CNTRL_C | SPACE_C | CHAN_C | NONEOS_C | EOL_C,
@@ -719,14 +772,14 @@ const unsigned int CharAttrs[] = {
 /* 12 \f */ CNTRL_C | SPACE_C | CHAN_C | NONEOS_C,
 /* 13 \r */ CNTRL_C | SPACE_C | CHAN_C | NONEOS_C | EOL_C,
 /* 14 */ CNTRL_C | CHAN_C | NONEOS_C,
-/* 15 */ CNTRL_C | CHAN_C | NONEOS_C,
+/* 15 */ CNTRL_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C | MIRCATTR_C,
 /* 16 */ CNTRL_C | CHAN_C | NONEOS_C,
 /* 17 */ CNTRL_C | CHAN_C | NONEOS_C,
 /* 18 */ CNTRL_C | CHAN_C | NONEOS_C,
 /* 19 */ CNTRL_C | CHAN_C | NONEOS_C,
 /* 20 */ CNTRL_C | CHAN_C | NONEOS_C,
 /* 21 */ CNTRL_C | CHAN_C | NONEOS_C,
-/* 22 */ CNTRL_C | CHAN_C | FCHAN_C | NONEOS_C,
+/* 22 */ CNTRL_C | CHAN_C | FCHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C | MIRCATTR_C,
 /* 23 */ CNTRL_C | CHAN_C | NONEOS_C,
 /* 24 */ CNTRL_C | CHAN_C | NONEOS_C,
 /* 25 */ CNTRL_C | CHAN_C | NONEOS_C,
@@ -735,23 +788,23 @@ const unsigned int CharAttrs[] = {
 /* 28 */ CNTRL_C | CHAN_C | NONEOS_C,
 /* 29 */ CNTRL_C | CHAN_C | NONEOS_C,
 /* 30 */ CNTRL_C | CHAN_C | NONEOS_C,
-/* 31 */ CNTRL_C | CHAN_C | FCHAN_C | NONEOS_C,
+/* 31 */ CNTRL_C | CHAN_C | FCHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C | MIRCATTR_C,
 /* SP */ PRINT_C | SPACE_C,
-/* ! */ PRINT_C | KWILD_C | CHAN_C | NONEOS_C,
-/* " */ PRINT_C | CHAN_C | NONEOS_C,
-/* # */ PRINT_C | MWILD_C | CHANPFX_C | CHAN_C | NONEOS_C,
-/* $ */ PRINT_C | CHAN_C | NONEOS_C | USER_C,
-/* % */ PRINT_C | CHAN_C | NONEOS_C,
-/* & */ PRINT_C | CHANPFX_C | CHAN_C | NONEOS_C,
-/* ' */ PRINT_C | CHAN_C | NONEOS_C,
-/* ( */ PRINT_C | CHAN_C | NONEOS_C,
-/* ) */ PRINT_C | CHAN_C | NONEOS_C,
-/* * */ PRINT_C | KWILD_C | MWILD_C | CHAN_C | NONEOS_C | SERV_C,
-/* + */ PRINT_C | CHAN_C | NONEOS_C,
-/* , */ PRINT_C | NONEOS_C,
-/* - */ PRINT_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
-/* . */ PRINT_C | KWILD_C | CHAN_C | NONEOS_C | USER_C | HOST_C | SERV_C,
-/* / */ PRINT_C | KWILD_C | CHAN_C | NONEOS_C,
+/* ! */ PRINT_C | KWILD_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
+/* " */ PRINT_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* # */ PRINT_C | MWILD_C | CHANPFX_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C | NINITIAL_C,
+/* $ */ PRINT_C | CHAN_C | NONEOS_C | USER_C | NICK_C | USER_C | HOST_C,
+/* % */ PRINT_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* & */ PRINT_C | CHANPFX_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* ' */ PRINT_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* ( */ PRINT_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* ) */ PRINT_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* * */ PRINT_C | KWILD_C | MWILD_C | CHAN_C | NONEOS_C | SERV_C | NICK_C | USER_C | HOST_C,
+/* + */ PRINT_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* , */ PRINT_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* - */ PRINT_C | CHAN_C | NONEOS_C | USER_C | HOST_C | NICK_C | USER_C | HOST_C,
+/* . */ PRINT_C | KWILD_C | CHAN_C | NONEOS_C | USER_C | HOST_C | SERV_C | NICK_C | USER_C | HOST_C,
+/* / */ PRINT_C | KWILD_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
 /* 0 */ PRINT_C | DIGIT_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
 /* 1 */ PRINT_C | DIGIT_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
 /* 2 */ PRINT_C | DIGIT_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
@@ -763,12 +816,12 @@ const unsigned int CharAttrs[] = {
 /* 8 */ PRINT_C | DIGIT_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
 /* 9 */ PRINT_C | DIGIT_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
 /* : */ PRINT_C | CHAN_C | NONEOS_C | HOST_C,
-/* ; */ PRINT_C | CHAN_C | NONEOS_C,
-/* < */ PRINT_C | CHAN_C | NONEOS_C,
-/* = */ PRINT_C | CHAN_C | NONEOS_C,
-/* > */ PRINT_C | CHAN_C | NONEOS_C,
-/* ? */ PRINT_C | KWILD_C | MWILD_C | CHAN_C | NONEOS_C,
-/* @ */ PRINT_C | KWILD_C | MWILD_C | CHAN_C | NONEOS_C,
+/* ; */ PRINT_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* < */ PRINT_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* = */ PRINT_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* > */ PRINT_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* ? */ PRINT_C | KWILD_C | MWILD_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* @ */ PRINT_C | KWILD_C | MWILD_C | CHAN_C | NONEOS_C | NICK_C | HOST_C,
 /* A */ PRINT_C | ALPHA_C | LET_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
 /* B */ PRINT_C | ALPHA_C | LET_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
 /* C */ PRINT_C | ALPHA_C | LET_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
@@ -795,12 +848,12 @@ const unsigned int CharAttrs[] = {
 /* X */ PRINT_C | ALPHA_C | LET_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
 /* Y */ PRINT_C | ALPHA_C | LET_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
 /* Z */ PRINT_C | ALPHA_C | LET_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
-/* [ */ PRINT_C | ALPHA_C | NICK_C | CHAN_C | NONEOS_C | USER_C,
-/* \ */ PRINT_C | ALPHA_C | NICK_C | CHAN_C | NONEOS_C | USER_C,
-/* ] */ PRINT_C | ALPHA_C | NICK_C | CHAN_C | NONEOS_C | USER_C,
-/* ^ */ PRINT_C | ALPHA_C | NICK_C | CHAN_C | NONEOS_C | USER_C,
-/* _ */ PRINT_C | NICK_C | CHAN_C | NONEOS_C | USER_C,
-/* ` */ PRINT_C | NICK_C | CHAN_C | NONEOS_C | USER_C,
+/* [ */ PRINT_C | ALPHA_C | NICK_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* \ */ PRINT_C | ALPHA_C | NICK_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* ] */ PRINT_C | ALPHA_C | NICK_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* ^ */ PRINT_C | ALPHA_C | NICK_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* _ */ PRINT_C | NICK_C | CHAN_C | NONEOS_C | USER_C | NICK_C | USER_C | HOST_C,
+/* ` */ PRINT_C | NICK_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
 /* a */ PRINT_C | ALPHA_C | LET_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
 /* b */ PRINT_C | ALPHA_C | LET_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
 /* c */ PRINT_C | ALPHA_C | LET_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
@@ -827,137 +880,137 @@ const unsigned int CharAttrs[] = {
 /* x */ PRINT_C | ALPHA_C | LET_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
 /* y */ PRINT_C | ALPHA_C | LET_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
 /* z */ PRINT_C | ALPHA_C | LET_C | NICK_C | CHAN_C | NONEOS_C | USER_C | HOST_C,
-/* { */ PRINT_C | ALPHA_C | NICK_C | CHAN_C | NONEOS_C | USER_C,
-/* | */ PRINT_C | ALPHA_C | NICK_C | CHAN_C | NONEOS_C | USER_C,
-/* } */ PRINT_C | ALPHA_C | NICK_C | CHAN_C | NONEOS_C | USER_C,
-/* ~ */ PRINT_C | ALPHA_C | CHAN_C | NONEOS_C | USER_C,
+/* { */ PRINT_C | ALPHA_C | NICK_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* | */ PRINT_C | ALPHA_C | NICK_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* } */ PRINT_C | ALPHA_C | NICK_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
+/* ~ */ PRINT_C | ALPHA_C | CHAN_C | NONEOS_C | NICK_C | USER_C | HOST_C,
 /* del  */ CHAN_C | NONEOS_C,
-/* 0x80 */ CHAN_C | NONEOS_C,
-/* 0x81 */ CHAN_C | NONEOS_C,
-/* 0x82 */ CHAN_C | NONEOS_C,
-/* 0x83 */ CHAN_C | NONEOS_C,
-/* 0x84 */ CHAN_C | NONEOS_C,
-/* 0x85 */ CHAN_C | NONEOS_C,
-/* 0x86 */ CHAN_C | NONEOS_C,
-/* 0x87 */ CHAN_C | NONEOS_C,
-/* 0x88 */ CHAN_C | NONEOS_C,
-/* 0x89 */ CHAN_C | NONEOS_C,
-/* 0x8A */ CHAN_C | NONEOS_C,
-/* 0x8B */ CHAN_C | NONEOS_C,
-/* 0x8C */ CHAN_C | NONEOS_C,
-/* 0x8D */ CHAN_C | NONEOS_C,
-/* 0x8E */ CHAN_C | NONEOS_C,
-/* 0x8F */ CHAN_C | NONEOS_C,
-/* 0x90 */ CHAN_C | NONEOS_C,
-/* 0x91 */ CHAN_C | NONEOS_C,
-/* 0x92 */ CHAN_C | NONEOS_C,
-/* 0x93 */ CHAN_C | NONEOS_C,
-/* 0x94 */ CHAN_C | NONEOS_C,
-/* 0x95 */ CHAN_C | NONEOS_C,
-/* 0x96 */ CHAN_C | NONEOS_C,
-/* 0x97 */ CHAN_C | NONEOS_C,
-/* 0x98 */ CHAN_C | NONEOS_C,
-/* 0x99 */ CHAN_C | NONEOS_C,
-/* 0x9A */ CHAN_C | NONEOS_C,
-/* 0x9B */ CHAN_C | NONEOS_C,
-/* 0x9C */ CHAN_C | NONEOS_C,
-/* 0x9D */ CHAN_C | NONEOS_C,
-/* 0x9E */ CHAN_C | NONEOS_C,
-/* 0x9F */ CHAN_C | NONEOS_C,
-/* 0xA0 */ CHAN_C | FCHAN_C | NONEOS_C,
-/* 0xA1 */ CHAN_C | NONEOS_C,
-/* 0xA2 */ CHAN_C | NONEOS_C,
-/* 0xA3 */ CHAN_C | NONEOS_C,
-/* 0xA4 */ CHAN_C | NONEOS_C,
-/* 0xA5 */ CHAN_C | NONEOS_C,
-/* 0xA6 */ CHAN_C | NONEOS_C,
-/* 0xA7 */ CHAN_C | NONEOS_C,
-/* 0xA8 */ CHAN_C | NONEOS_C,
-/* 0xA9 */ CHAN_C | NONEOS_C,
-/* 0xAA */ CHAN_C | NONEOS_C,
-/* 0xAB */ CHAN_C | NONEOS_C,
-/* 0xAC */ CHAN_C | NONEOS_C,
-/* 0xAD */ CHAN_C | NONEOS_C,
-/* 0xAE */ CHAN_C | NONEOS_C,
-/* 0xAF */ CHAN_C | NONEOS_C,
-/* 0xB0 */ CHAN_C | NONEOS_C,
-/* 0xB1 */ CHAN_C | NONEOS_C,
-/* 0xB2 */ CHAN_C | NONEOS_C,
-/* 0xB3 */ CHAN_C | NONEOS_C,
-/* 0xB4 */ CHAN_C | NONEOS_C,
-/* 0xB5 */ CHAN_C | NONEOS_C,
-/* 0xB6 */ CHAN_C | NONEOS_C,
-/* 0xB7 */ CHAN_C | NONEOS_C,
-/* 0xB8 */ CHAN_C | NONEOS_C,
-/* 0xB9 */ CHAN_C | NONEOS_C,
-/* 0xBA */ CHAN_C | NONEOS_C,
-/* 0xBB */ CHAN_C | NONEOS_C,
-/* 0xBC */ CHAN_C | NONEOS_C,
-/* 0xBD */ CHAN_C | NONEOS_C,
-/* 0xBE */ CHAN_C | NONEOS_C,
-/* 0xBF */ CHAN_C | NONEOS_C,
-/* 0xC0 */ CHAN_C | NONEOS_C,
-/* 0xC1 */ CHAN_C | NONEOS_C,
-/* 0xC2 */ CHAN_C | NONEOS_C,
-/* 0xC3 */ CHAN_C | NONEOS_C,
-/* 0xC4 */ CHAN_C | NONEOS_C,
-/* 0xC5 */ CHAN_C | NONEOS_C,
-/* 0xC6 */ CHAN_C | NONEOS_C,
-/* 0xC7 */ CHAN_C | NONEOS_C,
-/* 0xC8 */ CHAN_C | NONEOS_C,
-/* 0xC9 */ CHAN_C | NONEOS_C,
-/* 0xCA */ CHAN_C | NONEOS_C,
-/* 0xCB */ CHAN_C | NONEOS_C,
-/* 0xCC */ CHAN_C | NONEOS_C,
-/* 0xCD */ CHAN_C | NONEOS_C,
-/* 0xCE */ CHAN_C | NONEOS_C,
-/* 0xCF */ CHAN_C | NONEOS_C,
-/* 0xD0 */ CHAN_C | NONEOS_C,
-/* 0xD1 */ CHAN_C | NONEOS_C,
-/* 0xD2 */ CHAN_C | NONEOS_C,
-/* 0xD3 */ CHAN_C | NONEOS_C,
-/* 0xD4 */ CHAN_C | NONEOS_C,
-/* 0xD5 */ CHAN_C | NONEOS_C,
-/* 0xD6 */ CHAN_C | NONEOS_C,
-/* 0xD7 */ CHAN_C | NONEOS_C,
-/* 0xD8 */ CHAN_C | NONEOS_C,
-/* 0xD9 */ CHAN_C | NONEOS_C,
-/* 0xDA */ CHAN_C | NONEOS_C,
-/* 0xDB */ CHAN_C | NONEOS_C,
-/* 0xDC */ CHAN_C | NONEOS_C,
-/* 0xDD */ CHAN_C | NONEOS_C,
-/* 0xDE */ CHAN_C | NONEOS_C,
-/* 0xDF */ CHAN_C | NONEOS_C,
-/* 0xE0 */ CHAN_C | NONEOS_C,
-/* 0xE1 */ CHAN_C | NONEOS_C,
-/* 0xE2 */ CHAN_C | NONEOS_C,
-/* 0xE3 */ CHAN_C | NONEOS_C,
-/* 0xE4 */ CHAN_C | NONEOS_C,
-/* 0xE5 */ CHAN_C | NONEOS_C,
-/* 0xE6 */ CHAN_C | NONEOS_C,
-/* 0xE7 */ CHAN_C | NONEOS_C,
-/* 0xE8 */ CHAN_C | NONEOS_C,
-/* 0xE9 */ CHAN_C | NONEOS_C,
-/* 0xEA */ CHAN_C | NONEOS_C,
-/* 0xEB */ CHAN_C | NONEOS_C,
-/* 0xEC */ CHAN_C | NONEOS_C,
-/* 0xED */ CHAN_C | NONEOS_C,
-/* 0xEE */ CHAN_C | NONEOS_C,
-/* 0xEF */ CHAN_C | NONEOS_C,
-/* 0xF0 */ CHAN_C | NONEOS_C,
-/* 0xF1 */ CHAN_C | NONEOS_C,
-/* 0xF2 */ CHAN_C | NONEOS_C,
-/* 0xF3 */ CHAN_C | NONEOS_C,
-/* 0xF4 */ CHAN_C | NONEOS_C,
-/* 0xF5 */ CHAN_C | NONEOS_C,
-/* 0xF6 */ CHAN_C | NONEOS_C,
-/* 0xF7 */ CHAN_C | NONEOS_C,
-/* 0xF8 */ CHAN_C | NONEOS_C,
-/* 0xF9 */ CHAN_C | NONEOS_C,
-/* 0xFA */ CHAN_C | NONEOS_C,
-/* 0xFB */ CHAN_C | NONEOS_C,
-/* 0xFC */ CHAN_C | NONEOS_C,
-/* 0xFD */ CHAN_C | NONEOS_C,
+/* 0x80 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x81 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x82 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x83 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x84 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x85 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x86 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x87 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x88 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x89 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x8A */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x8B */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x8C */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x8D */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x8E */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x8F */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x90 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x91 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x92 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x93 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x94 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x95 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x96 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x97 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x98 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x99 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x9A */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x9B */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x9C */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x9D */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x9E */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0x9F */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xA0 */ CHAN_C | FCHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xA1 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xA2 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xA3 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xA4 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xA5 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xA6 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xA7 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xA8 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xA9 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xAA */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xAB */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xAC */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xAD */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xAE */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xAF */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xB0 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xB1 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xB2 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xB3 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xB4 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xB5 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xB6 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xB7 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xB8 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xB9 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xBA */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xBB */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xBC */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xBD */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xBE */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xBF */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xC0 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xC1 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xC2 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xC3 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xC4 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xC5 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xC6 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xC7 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xC8 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xC9 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xCA */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xCB */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xCC */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xCD */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xCE */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xCF */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xD0 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xD1 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xD2 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xD3 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xD4 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xD5 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xD6 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xD7 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xD8 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xD9 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xDA */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xDB */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xDC */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xDD */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xDE */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xDF */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xE0 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xE1 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xE2 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xE3 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xE4 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xE5 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xE6 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xE7 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xE8 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xE9 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xEA */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xEB */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xEC */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xED */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xEE */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xEF */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xF0 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xF1 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xF2 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xF3 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xF4 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xF5 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xF6 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xF7 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xF8 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xF9 */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xFA */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xFB */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xFC */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
+/* 0xFD */ CHAN_C | NONEOS_C | UCSMB_C | NICK_C | CHAN_C | HOST_C,
 /* 0xFE */ CHAN_C | NONEOS_C,
 /* 0xFF */ CHAN_C | NONEOS_C
 };
