@@ -12,9 +12,7 @@ AM_CFLAGS=$(WARNFLAGS)
 SRCS = \
 example_module.c        \
 m_42.c  	\
-m_clearchan.c   \
 m_flags.c       \
-m_force.c       \
 m_mkpasswd.c    \
 m_ojoin.c       \
 m_okick.c       \

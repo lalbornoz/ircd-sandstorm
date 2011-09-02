@@ -9,17 +9,8 @@ modules, or guarantee any of them will actually work.
 Modules
 -------
 
-m_clearchan.c  - CLEARCHAN - clears all users out of a channel and joins person
-                             issuing command
-                 Syntax: CLEARCHAN <channel> 
-
 m_flags.c      - FLAGS - csircd like support of changing usermodes
                  Syntax:  FLAGS :+OWALLOPS -SWALLOPS
-
-m_force.c      - FORCE - forces a user to either part or join a channel with
-                         an optional status (@%+)
-                 Syntax: FORCEJOIN <nick> [status]<channel>
-                         FORCEPART <nick> <channel>
 
 m_jupe.c       - JUPE - Server juping command
                  Syntax:  JUPE juped.server.name :Reason
