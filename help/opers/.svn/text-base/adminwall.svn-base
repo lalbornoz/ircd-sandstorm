@@ -1,3 +1,0 @@
-ADMINWALL :<message>
-
-Sends an ADMINWALL message of <message> to all admins (umode +a).
