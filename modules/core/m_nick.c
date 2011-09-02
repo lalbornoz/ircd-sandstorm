@@ -334,7 +334,7 @@ ms_nick(struct Client *client_p, struct Client *source_p, int parc, const char *
 	}
 
 	/* invalid username or host? */
-	if(!valid_username(parv[5]) || !valid_host(parv[6]))
+	if(!valid_username(parv[5]) || !valid_hostname(parv[6]))
 	{
 		ServerStats.is_kill++;
 		sendto_realops_flags(UMODE_DEBUG, L_ALL,
@@ -425,7 +425,7 @@ ms_uid(struct Client *client_p, struct Client *source_p, int parc, const char *p
 		return 0;
 	}
 
-	if(!valid_username(parv[5]) || !valid_host(parv[6]))
+	if(!valid_username(parv[5]) || !valid_hostname(parv[6]))
 	{
 		ServerStats.is_kill++;
 		sendto_realops_flags(UMODE_DEBUG, L_ALL,
