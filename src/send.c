@@ -929,6 +929,53 @@ sendto_realops_flags(int flags, int level, const char *pattern, ...)
 	rb_linebuf_donebuf(&linebuf);
 }
 
+/* sendto_allops_flags()
+ *
+ * inputs	- umode needed, level (opers/admin), va_args
+ * output	-
+ * side effects - message is sent to /all/ opers /network-wide/ with matching umodes
+ */
+void
+sendto_allops_flags(int flags, int level, const char *pattern, ...)
+{
+	rb_dlink_node *ptr, *next_ptr, *cptr;
+	va_list args;
+	buf_head_t linebuf;
+
+
+	if(EmptyString(me.name))
+		return;
+
+	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, global_serv_list.head)
+	{
+		struct Server *serv_p = ((struct Client *) ptr->data)->serv;
+
+		RB_DLINK_FOREACH(cptr, serv_p->users.head)
+		{
+			struct Client *client_p = cptr->data;
+
+			/* If we're sending it to opers and theyre an admin, skip.
+			 * If we're sending it to admins, and theyre not, skip.
+			 */
+			if(((level == L_ADMIN) && !IsAdmin(client_p)) ||
+			   ((level == L_OPER) && IsAdmin(client_p)))
+				continue;
+
+			if(client_p->umodes & flags)
+			{
+				rb_linebuf_newbuf(&linebuf);
+				va_start(args, pattern);
+				 rb_linebuf_putmsg(&linebuf, pattern, &args,
+						   ":%s NOTICE %s :*** Notice -- ",
+						   me.name, get_id(client_p, client_p));
+				va_end(args);
+				send_linebuf(client_p->from, &linebuf);
+				rb_linebuf_donebuf(&linebuf);
+			}
+		}
+	}
+}
+
 /*
  * sendto_wallops_flags
  *

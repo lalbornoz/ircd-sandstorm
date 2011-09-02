@@ -1363,13 +1363,13 @@ exit_local_client(struct Client *client_p, struct Client *source_p, struct Clien
 		del_invite(ptr->data, source_p);
 	}
 
-	sendto_realops_flags(UMODE_CCONN, L_ALL,
+	sendto_allops_flags(UMODE_CCONN, L_ALL,
 			     "Client exiting: %s (%s@%s) [%s] [%s]",
 			     source_p->name,
 			     source_p->username, source_p->host, comment,
 			     show_ip(NULL, source_p) ? source_p->sockhost : "255.255.255.255");
 
-	sendto_realops_flags(UMODE_CCONNEXT, L_ALL,
+	sendto_allops_flags(UMODE_CCONNEXT, L_ALL,
 			     "CLIEXIT %s %s %s %s 0 %s",
 			     source_p->name, source_p->username, source_p->host,
 			     show_ip(NULL, source_p) ? source_p->sockhost : "255.255.255.255",

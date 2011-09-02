@@ -64,6 +64,7 @@ AFP(2, 3);
 			  const char *, ...) AFP(4, 5);
 
      void sendto_realops_flags(int, int, const char *, ...) AFP(3, 4);
+     void sendto_allops_flags(int, int, const char *, ...) AFP(3, 4);
      void sendto_wallops_flags(int, struct Client *, const char *, ...) AFP(3, 4);
 
      void kill_client(struct Client *client_p, struct Client *diedie,

@@ -80,6 +80,7 @@ struct Capability captab[] = {
 	{"SAVE", CAP_SAVE},
 	{"SAVETS_100", CAP_SAVETS_100},
 	{"WIDE_MOTD", CAP_WIDE_MOTD},
+	{"GLOBAL_CLICONN", CAP_GCLICONN},
 	{0, 0}
 };
 

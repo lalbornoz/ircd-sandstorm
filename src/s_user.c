@@ -460,13 +460,13 @@ register_local_user(struct Client *client_p, struct Client *source_p, const char
 
 	rb_inet_ntop_sock((struct sockaddr *)&source_p->localClient->ip, ipaddr, sizeof(ipaddr));
 
-	sendto_realops_flags(UMODE_CCONN, L_ALL,
+	sendto_allops_flags(UMODE_CCONN, L_ALL,
 			     "Client connecting: %s (%s@%s) [%s] {%s} [%s]",
 			     source_p->name, source_p->username, source_p->host,
 			     show_ip(NULL, source_p) ? ipaddr : "255.255.255.255",
 			     get_client_class(source_p), source_p->info);
 
-	sendto_realops_flags(UMODE_CCONNEXT, L_ALL,
+	sendto_allops_flags(UMODE_CCONNEXT, L_ALL,
 			     "CLICONN %s %s %s %s %s %s 0 %s",
 			     source_p->name, source_p->username, source_p->host,
 			     show_ip(NULL, source_p) ? ipaddr : "255.255.255.255",
