@@ -17,7 +17,7 @@ libexecdir	= @libexecdir@
 confdir		= @confdir@
 localstatedir	= @localstatedir@
 
-CONFS		= example.conf example.efnet.conf
+CONFS		= example.conf
 
 install-mkdirs:
 	-@if test ! -d $(DESTDIR)$(confdir); then \
