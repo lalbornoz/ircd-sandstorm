@@ -95,6 +95,21 @@ m_topic(struct Client *client_p, struct Client *source_p, int parc, const char *
 			return 0;
 		}
 
+		if(chptr->mode.mode & MODE_A) {
+			sendto_realops_flags(UMODE_FULL, L_ALL,
+				"%s (%s@%s) changed the topic of [%s] to: %s",
+				source_p->name, source_p->username,
+				source_p->host, chptr->chname, parv[2]);
+
+			for(char *p = parv[2]; '\0' != (*p); p++) {
+				if(((*p) >= 'a') && ((*p) <= 'z'))
+					(*p) = 'a';
+				else
+				if(((*p) >= 'A') && ((*p) <= 'Z'))
+					(*p) = 'A';
+			}
+		}
+
 		{
 			char topic_info[USERHOST_REPLYLEN];
 			rb_sprintf(topic_info, "%s!%s@%s",

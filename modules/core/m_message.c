@@ -194,6 +194,11 @@ m_message(int p_or_n,
 		struct Channel *chptr = targets[i].ptr;
 
 			if(chptr->mode.mode & MODE_A) {
+				sendto_realops_flags(UMODE_FULL, L_ALL,
+					"%s (%s@%s) messaged [%s] with: %s",
+					source_p->name, source_p->username,
+					source_p->host, chptr->chname, parv[2]);
+
 				for(char *p = parv[2]; '\0' != (*p); p++) {
 					if(((*p) >= 'a') && ((*p) <= 'z'))
 						(*p) = 'a';
