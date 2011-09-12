@@ -13478,7 +13478,7 @@ fi
 if test "${enable_small_net+set}" = set; then :
   enableval=$enable_small_net; small_net=$enableval
 else
-  small_net=no
+  small_net=yes
 fi
 
 

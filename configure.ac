@@ -472,7 +472,7 @@ dnl =============
 
 AC_ARG_ENABLE(small-net,
 AC_HELP_STRING([--enable-small-net],[Enable small network support.]),
-[small_net=$enableval], [small_net=no])
+[small_net=$enableval], [small_net=yes])
 
 if test "$small_net" = yes; then
 dnl	AC_DEFINE([HASHSIZE], 4096, [Max number of buckets in hash tables.])
