@@ -259,15 +259,6 @@ chm_op(struct Client *source_p, struct Channel *chptr,
 	const char *opnick;
 	struct Client *targ_p;
 
-	if(alevel != CHFL_CHANOP)
-	{
-		if(!(*errors & SM_ERR_NOOPS))
-			sendto_one(source_p, form_str(ERR_CHANOPRIVSNEEDED),
-				   me.name, source_p->name, chptr->chname);
-		*errors |= SM_ERR_NOOPS;
-		return;
-	}
-
 	if((dir == MODE_QUERY) || (parc <= *parn))
 		return;
 
@@ -337,15 +328,6 @@ chm_voice(struct Client *source_p, struct Channel *chptr,
 	struct membership *mstptr;
 	const char *opnick;
 	struct Client *targ_p;
-
-	if(alevel != CHFL_CHANOP)
-	{
-		if(!(*errors & SM_ERR_NOOPS))
-			sendto_one(source_p, form_str(ERR_CHANOPRIVSNEEDED),
-				   me.name, source_p->name, chptr->chname);
-		*errors |= SM_ERR_NOOPS;
-		return;
-	}
 
 	if((dir == MODE_QUERY) || parc <= *parn)
 		return;
