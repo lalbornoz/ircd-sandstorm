@@ -451,11 +451,8 @@ msg_channel(int p_or_n, const char *command,
 	/* chanops and voiced can flood their own channel with impunity */
 	if((result = can_send(chptr, source_p, NULL)))
 	{
-		if(result == CAN_SEND_OPV)
-		{
-			sendto_channel_flags(client_p, ALL_MEMBERS, source_p, chptr,
-					     "%s %s :%s", command, chptr->chname, text);
-		}
+		sendto_channel_flags(client_p, ALL_MEMBERS, source_p, chptr,
+				     "%s %s :%s", command, chptr->chname, text);
 	}
 	else
 	{
