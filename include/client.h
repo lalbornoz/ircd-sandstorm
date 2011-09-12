@@ -131,7 +131,6 @@ struct LocalUser;
 #define FLAGS_EOB		0x00000200	/* EOB */
 #define FLAGS_MYCONNECT		0x00000400	/* MyConnect */
 #define FLAGS_IOERROR      	0x00000800	/* IO error */
-#define FLAGS_SERVICE	   	0x00001000
 #define FLAGS_TGCHANGE     	0x00002000	/* we're allowed to clear something */
 #define FLAGS_EXEMPTKLINE       0x00010000
 #define FLAGS_EXEMPTFLOOD       0x00020000
@@ -167,7 +166,6 @@ struct LocalUser;
 #define UMODE_LOCOPS       0x8000	/* show locops */
 #define UMODE_OPERSPY	   0x10000
 #define UMODE_CCONNEXT     0x20000	/* extended client connections */
-#define UMODE_SERVICE      0x40000
 #define UMODE_DEAF	   0x80000
 
 /* user information flags, only settable by remote mode or local oper */
@@ -180,7 +178,7 @@ struct LocalUser;
 /* EARLIER FLAGS ARE IN s_newconf.h */
 
 #define SEND_UMODES  (UMODE_OPER | UMODE_WALLOP | \
-		      UMODE_ADMIN | UMODE_SERVICE | UMODE_DEAF)
+		      UMODE_ADMIN | UMODE_DEAF)
 #define DEFAULT_OPER_UMODES (UMODE_SERVNOTICE | UMODE_OPERWALL | \
 			     UMODE_WALLOP | UMODE_LOCOPS)
 #define ALL_UMODES   (SEND_UMODES | UMODE_SERVNOTICE | UMODE_CCONN | \
@@ -188,7 +186,7 @@ struct LocalUser;
 		      UMODE_NCHANGE | UMODE_OPERWALL | UMODE_DEBUG | \
 		      UMODE_EXTERNAL | UMODE_LOCOPS | \
 		      UMODE_ADMIN | UMODE_UNAUTH | UMODE_CALLERID | \
-		      UMODE_OPERSPY | UMODE_CCONNEXT | UMODE_SERVICE | \
+		      UMODE_OPERSPY | UMODE_CCONNEXT | \
 		      UMODE_DEAF)
 
 #define CLICAP_MULTI_PREFIX	0x0001
@@ -263,7 +261,6 @@ struct LocalUser;
 #define SetWallops(x)           ((x)->umodes |= UMODE_WALLOP)
 #define SetCallerId(x)		((x)->umodes |= UMODE_CALLERID)
 #define IsSetCallerId(x)	((x)->umodes & UMODE_CALLERID)
-#define IsService(x)		((x)->umodes & UMODE_SERVICE)
 #define IsDeaf(x)		((x)->umodes & UMODE_DEAF)
 
 #define SetNeedId(x)            ((x)->flags |= FLAGS_NEEDID)
