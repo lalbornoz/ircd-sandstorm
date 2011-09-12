@@ -11,13 +11,8 @@ AM_CFLAGS=$(WARNFLAGS)
 
 SRCS = \
 example_module.c        \
-m_42.c  	\
 m_flags.c       \
 m_mkpasswd.c    \
-m_ojoin.c       \
-m_okick.c       \
-m_olist.c       \
-m_opme.c        \
 spy_admin_notice.c      \
 spy_info_notice.c       \
 spy_links_notice.c      \
