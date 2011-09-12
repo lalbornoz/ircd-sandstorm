@@ -4,7 +4,8 @@ ACCEPT          ADMIN           ADMINDLINE      ADMINKLINE
 ADMINWALL       AWAY            CAPAB           CHALLENGE
 CHANTRACE       CLOSE           CMODE           CNOTICE
 CONNECT         CPRIVMSG        CREDITS         DIE
-DLINE           ERROR           ETRACE          HELP
+DLINE           ERROR           ETRACE          FORCEGECOS
+FORCEHOST       FORCEUSER       FORCENICK       HELP
 INDEX           INFO            INVITE          ISON
 JOIN            KICK            KILL            KLINE
 KNOCK           LINKS           LIST            LOCOPS

@@ -1,0 +1,4 @@
+FORCEHOST <target> <spoof>
+
+Forcibly changes the named client's host (spoof) name, leaving
+/sock_host/ intact.

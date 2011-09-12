@@ -1,0 +1,4 @@
+FORCENICK <target> <nickname>
+
+Forces the target client named to change her nick name to the
+second nick name specifiedj.

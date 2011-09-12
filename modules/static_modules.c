@@ -33,10 +33,11 @@ extern struct mapi_header_av1 m_away_mheader;
 extern struct mapi_header_av1 m_capab_mheader;
 extern struct mapi_header_av1 m_cap_mheader;
 extern struct mapi_header_av1 m_close_mheader;
-extern struct mapi_header_av1 m_cmessage_mheader;
 extern struct mapi_header_av1 m_connect_mheader;
 extern struct mapi_header_av1 m_dline_mheader;
 extern struct mapi_header_av1 m_encap_mheader;
+extern struct mapi_header_av1 m_forcenames_mheader;
+extern struct mapi_header_av1 m_forcejoin_mheader;
 extern struct mapi_header_av1 m_help_mheader;
 extern struct mapi_header_av1 m_info_mheader;
 extern struct mapi_header_av1 m_invite_mheader;
@@ -96,10 +97,11 @@ const struct mapi_header_av1 *static_mapi_headers[] = {
 	&m_capab_mheader,
 	&m_cap_mheader,
 	&m_close_mheader,
-	&m_cmessage_mheader,
 	&m_connect_mheader,
 	&m_dline_mheader,
 	&m_encap_mheader,
+	&m_forcenames_mheader,
+	&m_forcejoin_mheader,
 	&m_help_mheader,
 	&m_info_mheader,
 	&m_invite_mheader,

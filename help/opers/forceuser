@@ -1,0 +1,3 @@
+FORCEUSER <target> <user>
+
+Forcibly changes the target client's user name.

@@ -1,0 +1,3 @@
+FORCENICK <target> <nickname>
+
+Forcibly changes the target cliet's nick name.

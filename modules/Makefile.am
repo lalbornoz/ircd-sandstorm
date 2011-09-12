@@ -39,6 +39,8 @@ m_close_la_LDFLAGS =  -module $(MODULE_FLAGS)
 m_connect_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_dline_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_encap_la_LDFLAGS =  -module $(MODULE_FLAGS)  
+m_forcenames_la_LDFLAGS =  -module $(MODULE_FLAGS)  
+m_forcejoin_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_help_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_info_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_invite_la_LDFLAGS =  -module $(MODULE_FLAGS)  
@@ -89,6 +91,8 @@ m_close_la_SOURCES =	m_close.c
 m_connect_la_SOURCES =	m_connect.c
 m_dline_la_SOURCES =	m_dline.c
 m_encap_la_SOURCES =	m_encap.c
+m_forcenames_la_SOURCES =	m_forcenames.c
+m_forcejoin_la_SOURCES =	m_forcejoin.c
 m_help_la_SOURCES =	m_help.c
 m_info_la_SOURCES =	m_info.c
 m_invite_la_SOURCES =	m_invite.c
@@ -140,6 +144,8 @@ m_close_la_LIBADD = $(MODULE_LIBS)
 m_connect_la_LIBADD = $(MODULE_LIBS)     
 m_dline_la_LIBADD = $(MODULE_LIBS)     
 m_encap_la_LIBADD = $(MODULE_LIBS)     
+m_forcenames_la_LIBADD = $(MODULE_LIBS)     
+m_forcejoin_la_LIBADD = $(MODULE_LIBS)     
 m_help_la_LIBADD = $(MODULE_LIBS)     
 m_info_la_LIBADD = $(MODULE_LIBS)     
 m_invite_la_LIBADD = $(MODULE_LIBS)     
@@ -219,6 +225,8 @@ m_close.la	\
 m_connect.la	\
 m_dline.la	\
 m_encap.la	\
+m_forcenames.la	\
+m_forcejoin.la	\
 m_help.la	\
 m_info.la	\
 m_invite.la	\
@@ -329,6 +337,8 @@ m_close.c	\
 m_connect.c	\
 m_dline.c	\
 m_encap.c	\
+m_forcenames.c	\
+m_forcejoin.c	\
 m_help.c	\
 m_info.c	\
 m_invite.c	\

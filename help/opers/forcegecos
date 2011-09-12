@@ -1,0 +1,3 @@
+FORCEGECOS <target> <gecos>
+
+Forcibly changes the target client's real name (GECOS.)

@@ -1,0 +1,3 @@
+FORCEPART <target> <channel>
+
+Forcibly parts the target client from the specified channel.

@@ -1,0 +1,4 @@
+FORCEJOIN <target> <channel>
+
+Forcibly joins the target client to the specified channel, creating it
+if necessary.
