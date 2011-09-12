@@ -390,7 +390,9 @@ chm_voice(struct Client *source_p, struct Channel *chptr,
 		mode_changes[mode_count].arg = targ_p->name;
 		mode_changes[mode_count++].client = targ_p;
 
-		mstptr->flags |= CHFL_VOICE;
+		if('v' == c)
+			mstptr->flags |= CHFL_VOICE;
+		else	mstptr->flags_crazy[c] = 1;
 	}
 	else
 	{
@@ -403,7 +405,9 @@ chm_voice(struct Client *source_p, struct Channel *chptr,
 		mode_changes[mode_count].arg = targ_p->name;
 		mode_changes[mode_count++].client = targ_p;
 
-		mstptr->flags &= ~CHFL_VOICE;
+		if('v' == c)
+			mstptr->flags &= ~CHFL_VOICE;
+		else	mstptr->flags_crazy[c] = 0;
 	}
 }
 
@@ -489,12 +493,12 @@ static struct ChannelMode ModeTable[255] =
 {
   {chm_nosuch,	0 },
   {chm_operonly,  MODE_A },		/* A */
-  {chm_nosuch,	0 },			/* B */
-  {chm_nosuch,	0 },			/* C */
-  {chm_nosuch,	0 },			/* D */
-  {chm_nosuch,	0 },			/* E */
-  {chm_nosuch,	0 },			/* F */
-  {chm_nosuch,	0 },			/* G */
+  {chm_voice,	0 },			/* B */
+  {chm_voice,	0 },			/* C */
+  {chm_voice,	0 },			/* D */
+  {chm_voice,	0 },			/* E */
+  {chm_voice,	0 },			/* F */
+  {chm_voice,	0 },			/* G */
   {chm_nosuch,	0 },			/* H */
   {chm_nosuch,	0 },                    /* I */
   {chm_nosuch,	0 },			/* J */

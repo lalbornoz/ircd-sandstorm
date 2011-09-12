@@ -248,11 +248,38 @@ init_isupport(void)
 	static int maxmodes = MAXMODEPARAMS;
 	static int nicklen = NICKLEN - 1;
 	static int channellen = LOC_CHANNELLEN;
+	char *modestr = NULL;
 
 	add_isupport("CHANTYPES", isupport_string, "&#");
 	add_isupport("CHANMODES", isupport_chanmodes, NULL);
 	add_isupport("CHANLIMIT", isupport_chanlimit, NULL);
-	add_isupport("PREFIX", isupport_string, "(ovacdefghijkmnopqrstuvwxyzBCDEFGHIJKLMNOQRTUVWXYZ)@+!#$%^&*()~+_-`='\\][{}/?.<>;:|ABCDEFGHIJKLMNOPQR");
+
+	modestr = rb_malloc((CRAZY_CMODES * 2) + 2 + 2 + 2 + 1);
+	{ char *p = modestr;
+
+		/* "(ov[ ... ])@+[ ... ])" */
+		strcpy(p, "(ov"); p += 3;
+
+		/* concatenate CMODEs */
+		for(uint8_t c = 0; c < CRAZY_CMODES; c++) {
+			if('\0' == crazy_cmode_tbl[c]) 
+				continue;
+			else	*p++ = c;
+		}
+		strcpy(p, ")@+"); p += 3;
+
+		/* concatenate prefix chars */
+		for(uint8_t c = 0; c < CRAZY_CMODES; c++) {
+			if('\0' == crazy_cmode_tbl[c]) 
+				continue;
+			else	*p++ = crazy_cmode_tbl[c];
+		}
+
+		/* NUL-terminate and add */
+		*p++ = '\0';
+	}
+
+	add_isupport("PREFIX", isupport_string, modestr);
 	add_isupport("MODES", isupport_intptr, &maxmodes);
 	add_isupport("NETWORK", isupport_stringptr, &ServerInfo.network_name);
 	add_isupport("KNOCK", isupport_boolean, &ConfigChannel.use_knock);

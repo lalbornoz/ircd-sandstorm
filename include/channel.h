@@ -65,6 +65,9 @@ struct Channel
 	char *chname;
 };
 
+#define CRAZY_CMODES		128
+char crazy_cmode_tbl[CRAZY_CMODES];
+
 struct membership
 {
 	rb_dlink_node channode;
@@ -74,6 +77,7 @@ struct membership
 	struct Channel *chptr;
 	struct Client *client_p;
 	uint8_t flags;
+	uint8_t flags_crazy[CRAZY_CMODES];
 };
 
 struct ChModeChange
