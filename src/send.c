@@ -544,6 +544,9 @@ sendto_channel_flags(struct Client *one, int type, struct Client *source_p,
 		if(chptr->mode.mode & MODE_OPERONLY && !IsOper(target_p))
 			continue;
 
+		if(ConfigChannel.use_sslonly && chptr->mode.mode & MODE_SSLONLY && !IsSSL(target_p))
+			continue;
+
 		if(IsDeaf(target_p))
 			continue;
 
@@ -610,6 +613,9 @@ sendto_channel_local(int type, struct Channel *chptr, const char *pattern, ...)
 			continue;
 
 		if(chptr->mode.mode & MODE_OPERONLY && !IsOper(target_p))
+			continue;
+
+		if(ConfigChannel.use_sslonly && chptr->mode.mode & MODE_SSLONLY && !IsSSL(target_p))
 			continue;
 
 		send_linebuf(target_p, &linebuf);
