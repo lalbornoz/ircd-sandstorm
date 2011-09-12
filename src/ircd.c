@@ -328,11 +328,6 @@ initialize_global_set_options(void)
 
 	GlobalSetOptions.autoconn = 1;
 
-	if(ConfigFileEntry.default_floodcount)
-		GlobalSetOptions.floodcount = ConfigFileEntry.default_floodcount;
-	else
-		GlobalSetOptions.floodcount = 10;
-
 	split_servers = ConfigChannel.default_split_server_count;
 	split_users = ConfigChannel.default_split_user_count;
 

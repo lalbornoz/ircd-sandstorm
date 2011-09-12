@@ -161,7 +161,6 @@ struct LocalUser;
 #define UMODE_NCHANGE      0x0080	/* Nick change notice */
 #define UMODE_WALLOP       0x0100	/* send wallops to them */
 #define UMODE_OPERWALL     0x0200	/* Operwalls */
-#define UMODE_BOTS         0x0800	/* shows bots */
 #define UMODE_EXTERNAL     0x1000	/* show servers introduced and splitting */
 #define UMODE_CALLERID     0x2000	/* block unless caller id's */
 #define UMODE_UNAUTH       0x4000	/* show unauth connects here */
@@ -187,7 +186,7 @@ struct LocalUser;
 #define ALL_UMODES   (SEND_UMODES | UMODE_SERVNOTICE | UMODE_CCONN | \
 		      UMODE_REJ | UMODE_SKILL | UMODE_FULL | UMODE_SPY | \
 		      UMODE_NCHANGE | UMODE_OPERWALL | UMODE_DEBUG | \
-		      UMODE_BOTS | UMODE_EXTERNAL | UMODE_LOCOPS | \
+		      UMODE_EXTERNAL | UMODE_LOCOPS | \
 		      UMODE_ADMIN | UMODE_UNAUTH | UMODE_CALLERID | \
 		      UMODE_OPERSPY | UMODE_CCONNEXT | UMODE_SERVICE | \
 		      UMODE_DEAF)

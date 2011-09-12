@@ -124,9 +124,6 @@ struct LocalUser
 	time_t last_leave_time;	/* when this client last 
 				 * left a channel */
 	time_t last_caller_id_time;
-	time_t first_received_message_time;
-	int received_number_of_privmsgs;
-	int flood_noticed;
 
 	time_t lasttime;	/* last time we parsed something */
 	time_t firsttime;	/* time client was created */

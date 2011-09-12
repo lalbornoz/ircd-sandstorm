@@ -61,10 +61,6 @@ struct Channel
 	rb_dlink_list members;	/* channel members */
 	rb_dlink_list locmembers;	/* local channel members */
 
-	time_t first_received_message_time;	/* channel flood control */
-	int received_number_of_privmsgs;
-	int flood_noticed;
-
 	time_t channelts;
 	char *chname;
 };

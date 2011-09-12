@@ -67,7 +67,6 @@ struct SetStruct
 static void quote_adminstring(struct Client *, const char *);
 static void quote_autoconn(struct Client *, char *, int);
 static void quote_autoconnall(struct Client *, int);
-static void quote_floodcount(struct Client *, int);
 static void quote_identtimeout(struct Client *, int);
 static void quote_max(struct Client *, int);
 static void quote_operstring(struct Client *, const char *);
@@ -91,7 +90,6 @@ static struct SetStruct set_cmd_table[] = {
 	{"ADMINSTRING", quote_adminstring, 1, 0},
 	{"AUTOCONN", quote_autoconn, 1, 1},
 	{"AUTOCONNALL", quote_autoconnall, 0, 1},
-	{"FLOODCOUNT", quote_floodcount, 0, 1},
 	{"IDENTTIMEOUT", quote_identtimeout, 0, 1},
 	{"MAX", quote_max, 0, 1},
 	{"MAXCLIENTS", quote_max, 0, 1},
@@ -160,25 +158,6 @@ quote_autoconnall(struct Client *source_p, int newval)
 	{
 		sendto_one_notice(source_p, ":AUTOCONNALL is currently %i",
 				  GlobalSetOptions.autoconn);
-	}
-}
-
-
-/* SET FLOODCOUNT */
-static void
-quote_floodcount(struct Client *source_p, int newval)
-{
-	if(newval >= 0)
-	{
-		GlobalSetOptions.floodcount = newval;
-		sendto_realops_flags(UMODE_ALL, L_ALL,
-				     "%s has changed FLOODCOUNT to %i", source_p->name,
-				     GlobalSetOptions.floodcount);
-	}
-	else
-	{
-		sendto_one_notice(source_p, ":FLOODCOUNT is currently %i",
-				  GlobalSetOptions.floodcount);
 	}
 }
 

@@ -308,12 +308,6 @@ static struct InfoStruct info_table[] = {
 		"Connect timeout for connections to servers"
 	},
 	{
-		"default_floodcount",
-		OUTPUT_DECIMAL,
-		{ &ConfigFileEntry.default_floodcount }, 
-		"Startup value of FLOODCOUNT",
-	},
-	{
 		"default_adminstring",
 		OUTPUT_STRING,
 		{ &ConfigFileEntry.default_adminstring }, 

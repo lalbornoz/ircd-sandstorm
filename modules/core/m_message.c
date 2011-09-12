@@ -83,8 +83,6 @@ static int build_target_list(int p_or_n, const char *command,
 			     struct Client *client_p,
 			     struct Client *source_p, const char *nicks_channels, const char *text);
 
-static int flood_attack_client(int p_or_n, struct Client *source_p, struct Client *target_p);
-static int flood_attack_channel(int p_or_n, struct Client *source_p, struct Channel *chptr);
 static struct Client *find_userhost(const char *, const char *, int *);
 
 #define ENTITY_NONE    0
@@ -453,7 +451,7 @@ msg_channel(int p_or_n, const char *command,
 	/* chanops and voiced can flood their own channel with impunity */
 	if((result = can_send(chptr, source_p, NULL)))
 	{
-		if(result == CAN_SEND_OPV || !flood_attack_channel(p_or_n, source_p, chptr))
+		if(result == CAN_SEND_OPV)
 		{
 			sendto_channel_flags(client_p, ALL_MEMBERS, source_p, chptr,
 					     "%s %s :%s", command, chptr->chname, text);
@@ -680,8 +678,6 @@ msg_client(int p_or_n, const char *command,
 					target_p->localClient->last_caller_id_time =
 						rb_current_time();
 				}
-				/* Only so opers can watch for floods */
-				(void)flood_attack_client(p_or_n, source_p, target_p);
 			}
 		}
 		else
@@ -691,128 +687,14 @@ msg_client(int p_or_n, const char *command,
 			 * we dont give warnings.. we then check if theyre opered 
 			 * (to avoid flood warnings), lastly if theyre our client
 			 * and flooding    -- fl */
-			if(!MyClient(source_p) || IsOper(source_p) ||
-			   !flood_attack_client(p_or_n, source_p, target_p))
+			if(!MyClient(source_p) || IsOper(source_p))
 				sendto_anywhere(target_p, source_p, command, ":%s", text);
 		}
 	}
-	else if(!MyClient(source_p) || IsOper(source_p) ||
-		!flood_attack_client(p_or_n, source_p, target_p))
+	else if(!MyClient(source_p) || IsOper(source_p))
 		sendto_anywhere(target_p, source_p, command, ":%s", text);
 
 	return;
-}
-
-/*
- * flood_attack_client
- * inputs       - flag 0 if PRIVMSG 1 if NOTICE. RFC
- *                say NOTICE must not auto reply
- *              - pointer to source Client 
- *		- pointer to target Client
- * output	- 1 if target is under flood attack
- * side effects	- check for flood attack on target target_p
- */
-static int
-flood_attack_client(int p_or_n, struct Client *source_p, struct Client *target_p)
-{
-	int delta;
-
-	if(GlobalSetOptions.floodcount && MyConnect(target_p) && IsClient(source_p))
-	{
-		if((target_p->localClient->first_received_message_time + 1) < rb_current_time())
-		{
-			delta = rb_current_time() -
-				target_p->localClient->first_received_message_time;
-			target_p->localClient->received_number_of_privmsgs -= delta;
-			target_p->localClient->first_received_message_time = rb_current_time();
-			if(target_p->localClient->received_number_of_privmsgs <= 0)
-			{
-				target_p->localClient->received_number_of_privmsgs = 0;
-				target_p->localClient->flood_noticed = 0;
-			}
-		}
-
-		if((target_p->localClient->received_number_of_privmsgs >=
-		    GlobalSetOptions.floodcount) || target_p->localClient->flood_noticed)
-		{
-			if(target_p->localClient->flood_noticed == 0)
-			{
-				sendto_realops_flags(UMODE_BOTS, L_ALL,
-						     "Possible Flooder %s[%s@%s] on %s target: %s",
-						     source_p->name, source_p->username,
-						     source_p->host,
-						     source_p->servptr->name, target_p->name);
-				target_p->localClient->flood_noticed = 1;
-				/* add a bit of penalty */
-				target_p->localClient->received_number_of_privmsgs += 2;
-			}
-			if(MyClient(source_p) && (p_or_n != NOTICE))
-				sendto_one_notice(source_p,
-						  ":*** Message to %s throttled due to flooding",
-						  target_p->name);
-			return 1;
-		}
-		else
-			target_p->localClient->received_number_of_privmsgs++;
-	}
-
-	return 0;
-}
-
-/*
- * flood_attack_channel
- * inputs       - flag 0 if PRIVMSG 1 if NOTICE. RFC
- *                says NOTICE must not auto reply
- *              - pointer to source Client 
- *		- pointer to target channel
- * output	- 1 if target is under flood attack
- * side effects	- check for flood attack on target chptr
- */
-static int
-flood_attack_channel(int p_or_n, struct Client *source_p, struct Channel *chptr)
-{
-	int delta;
-
-	if(GlobalSetOptions.floodcount && MyClient(source_p))
-	{
-		if((chptr->first_received_message_time + 1) < rb_current_time())
-		{
-			delta = rb_current_time() - chptr->first_received_message_time;
-			chptr->received_number_of_privmsgs -= delta;
-			chptr->first_received_message_time = rb_current_time();
-			if(chptr->received_number_of_privmsgs <= 0)
-			{
-				chptr->received_number_of_privmsgs = 0;
-				chptr->flood_noticed = 0;
-			}
-		}
-
-		if((chptr->received_number_of_privmsgs >= GlobalSetOptions.floodcount)
-		   || chptr->flood_noticed)
-		{
-			if(chptr->flood_noticed == 0)
-			{
-				sendto_realops_flags(UMODE_BOTS, L_ALL,
-						     "Possible Flooder %s[%s@%s] on %s target: %s",
-						     source_p->name, source_p->username,
-						     source_p->host,
-						     source_p->servptr->name, chptr->chname);
-				chptr->flood_noticed = 1;
-
-				/* Add a bit of penalty */
-				chptr->received_number_of_privmsgs += 2;
-			}
-			if(MyClient(source_p) && (p_or_n != NOTICE))
-				sendto_one_notice(source_p,
-						  ":*** Message to %s throttled due to flooding",
-						  chptr->chname);
-			return 1;
-		}
-		else
-			chptr->received_number_of_privmsgs++;
-	}
-
-	return 0;
 }
 
 

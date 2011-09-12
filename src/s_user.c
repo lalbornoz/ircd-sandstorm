@@ -67,7 +67,6 @@ struct flag_item
 /* *INDENT-OFF* */
 static struct flag_item user_modes[] = {
 	{UMODE_ADMIN,		'a'},
-	{UMODE_BOTS,		'b'},
 	{UMODE_CCONN,		'c'},
 	{UMODE_CCONNEXT,	'C'},
 	{UMODE_DEBUG,		'd'},
@@ -124,7 +123,7 @@ int user_modes_from_c_to_bitmask[] = {
 	UMODE_OPERSPY,		/* Z */
 	/* 0x5B */ 0, 0, 0, 0, 0, 0, /* 0x60 */
 	UMODE_ADMIN,		/* a */
-	UMODE_BOTS,		/* b */
+	0,			/* b */
 	UMODE_CCONN,		/* c */
 	UMODE_DEBUG,		/* d */
 	0,			/* e */

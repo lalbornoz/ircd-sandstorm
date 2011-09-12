@@ -112,7 +112,6 @@ static struct FlagTable flag_table[] = {
 	/* Now we have our Hybrid specific flags */
 	{ "FULL",		UMODE_FULL,		1 },
 	/* Not in CS, but we might as well put it here */
-	{ "BOTS",		UMODE_BOTS,		1 },
 	{ "CALLERID",		UMODE_CALLERID,		0 },
 	{ "UNAUTH",		UMODE_UNAUTH,		1 },
 	{ "DEBUG",		UMODE_DEBUG,		1 },
@@ -128,7 +127,7 @@ static struct FlagTable flag_table[] = {
 
 #define FL_ALL_OPER_FLAGS (FL_ALL_USER_FLAGS | UMODE_CCONN | UMODE_REJ |\
                            UMODE_FULL | UMODE_SPY | UMODE_DEBUG |\
-                           UMODE_BOTS | UMODE_EXTERNAL |\
+                            UMODE_EXTERNAL |\
                            UMODE_UNAUTH | UMODE_LOCOPS )
 
 /*
