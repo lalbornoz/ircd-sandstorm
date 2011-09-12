@@ -445,15 +445,6 @@ register_local_user(struct Client *client_p, struct Client *source_p, const char
 
 	/* end of valid user name check */
 
-	/* kline exemption extends to xline too */
-	if(!IsExemptKline(source_p) && find_xline(source_p->info, 1) != NULL)
-	{
-		ServerStats.is_ref++;
-		add_reject(source_p);
-		exit_client(client_p, source_p, &me, "Bad user info");
-		return CLIENT_EXITED;
-	}
-
 	if(IsAnyDead(client_p))
 		return CLIENT_EXITED;
 
@@ -601,15 +592,6 @@ report_and_set_user_flags(struct Client *source_p, struct ConfItem *aconf)
 		sendto_one_notice(source_p, ":*** You are exempt from K/G/X lines");
 	}
 
-	if(IsConfExemptGline(aconf))
-	{
-		SetExemptGline(source_p);
-
-		/* dont send both a kline and gline exempt notice */
-		if(!IsConfExemptKline(aconf))
-			sendto_one_notice(source_p, ":*** You are exempt from G lines");
-	}
-
 	/* If this user is exempt from user limits set it F lined" */
 	if(IsConfExemptLimits(aconf))
 	{
@@ -623,23 +605,12 @@ report_and_set_user_flags(struct Client *source_p, struct ConfItem *aconf)
 		sendto_one_notice(source_p, ":*** You are exempt from flood limits");
 	}
 
-	if(IsConfExemptJupe(aconf))
-	{
-		SetExemptJupe(source_p);
-		sendto_one_notice(source_p, ":*** You are exempt from juped channel warnings");
-	}
-
 	if(IsConfExemptShide(aconf))
 	{
 		SetExemptShide(source_p);
 		sendto_one_notice(source_p, ":*** You are exempt from serverhiding");
 	}
 
-	if(IsConfExemptResv(aconf))
-	{
-		SetExemptResv(source_p);
-		sendto_one_notice(source_p, ":*** You are exempt from resvs");
-	}
 	ClearCork(source_p);
 	send_pop_queue(source_p);
 }

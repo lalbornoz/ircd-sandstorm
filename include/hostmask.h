@@ -53,9 +53,6 @@ struct ConfItem *find_address_conf(const char *host, const char *sockhost,
 #define find_kline(x)	(find_conf_by_address((x)->host, (x)->sockhost,\
 			 (struct sockaddr *)&(x)->localClient->ip, CONF_KILL,\
 			 GET_SS_FAMILY(&(x)->localClient->ip), (x)->username))
-#define find_gline(x)	(find_conf_by_address((x)->host, (x)->sockhost,\
-			 (struct sockaddr *)&(x)->localClient->ip, CONF_GLINE,\
-			 GET_SS_FAMILY(&(x)->localClient->ip), (x)->username))
 
 #ifdef RB_IPV6
 int match_ipv6(struct sockaddr *, struct sockaddr *, int);

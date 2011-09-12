@@ -30,7 +30,6 @@
 #include "match.h"
 #include "ratbox_lib.h"
 #include "ircd.h"
-#include "s_gline.h"
 #include "numeric.h"
 #include "s_conf.h"
 #include "s_newconf.h"
@@ -98,44 +97,6 @@ rehash_omotd(struct Client *source_p)
 }
 
 static void
-rehash_glines(struct Client *source_p)
-{
-	struct ConfItem *aconf;
-	rb_dlink_node *ptr, *next_ptr;
-
-	sendto_realops_flags(UMODE_ALL, L_ALL, "%s is clearing G-lines", get_oper_name(source_p));
-
-	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, glines.head)
-	{
-		aconf = ptr->data;
-
-		delete_one_address_conf(aconf->host, aconf);
-		rb_dlinkDestroy(ptr, &glines);
-	}
-}
-
-static void
-rehash_pglines(struct Client *source_p)
-{
-	struct gline_pending *glp_ptr;
-	rb_dlink_node *ptr;
-	rb_dlink_node *next_ptr;
-
-	sendto_realops_flags(UMODE_ALL, L_ALL, "%s is clearing pending glines",
-			     get_oper_name(source_p));
-
-	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, pending_glines.head)
-	{
-		glp_ptr = ptr->data;
-
-		rb_free(glp_ptr->reason1);
-		rb_free(glp_ptr->reason2);
-		rb_free(glp_ptr);
-		rb_dlinkDestroy(ptr, &pending_glines);
-	}
-}
-
-static void
 rehash_tklines(struct Client *source_p)
 {
 	struct ConfItem *aconf;
@@ -179,61 +140,6 @@ rehash_tdlines(struct Client *source_p)
 }
 
 static void
-rehash_txlines(struct Client *source_p)
-{
-	struct ConfItem *aconf;
-	rb_dlink_node *ptr;
-	rb_dlink_node *next_ptr;
-
-	sendto_realops_flags(UMODE_ALL, L_ALL, "%s is clearing temp xlines",
-			     get_oper_name(source_p));
-
-	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, xline_conf_list.head)
-	{
-		aconf = ptr->data;
-
-		if((aconf->flags & CONF_FLAGS_TEMPORARY) == 0)
-			continue;
-
-		free_conf(aconf);
-		rb_dlinkDestroy(ptr, &xline_conf_list);
-	}
-}
-
-static void
-rehash_tresvs(struct Client *source_p)
-{
-	struct ConfItem *aconf;
-	rb_dlink_node *ptr;
-	rb_dlink_node *next_ptr;
-	int i;
-
-	sendto_realops_flags(UMODE_ALL, L_ALL, "%s is clearing temp resvs",
-			     get_oper_name(source_p));
-
-	HASH_WALK_SAFE(i, R_MAX, ptr, next_ptr, resvTable)
-	{
-		aconf = ptr->data;
-
-		if((aconf->flags & CONF_FLAGS_TEMPORARY) == 0)
-			continue;
-
-		free_conf(aconf);
-		rb_dlinkDestroy(ptr, &resvTable[i]);
-	}
-	HASH_WALK_END RB_DLINK_FOREACH_SAFE(ptr, next_ptr, resv_conf_list.head)
-	{
-		aconf = ptr->data;
-
-		if((aconf->flags & CONF_FLAGS_TEMPORARY) == 0)
-			continue;
-
-		free_conf(aconf);
-		rb_dlinkDestroy(ptr, &resv_conf_list);
-	}
-}
-
-static void
 rehash_rejectcache(struct Client *source_p)
 {
 	sendto_realops_flags(UMODE_ALL, L_ALL, "%s is clearing reject cache",
@@ -258,12 +164,8 @@ static struct hash_commands rehash_commands[] =
 	{"DNS", 	rehash_dns		},
 	{"MOTD", 	rehash_motd		},
 	{"OMOTD", 	rehash_omotd		},
-	{"GLINES", 	rehash_glines		},
-	{"PGLINES", 	rehash_pglines		},
 	{"TKLINES", 	rehash_tklines		},
 	{"TDLINES", 	rehash_tdlines		},
-	{"TXLINES",	rehash_txlines		},
-	{"TRESVS",	rehash_tresvs		},
 	{"REJECTCACHE",	rehash_rejectcache	},
 	{"HELP", 	rehash_help		},
 	{NULL, 		NULL 			}

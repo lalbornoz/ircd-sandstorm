@@ -37,7 +37,6 @@ extern struct mapi_header_av1 m_cmessage_mheader;
 extern struct mapi_header_av1 m_connect_mheader;
 extern struct mapi_header_av1 m_dline_mheader;
 extern struct mapi_header_av1 m_encap_mheader;
-extern struct mapi_header_av1 m_gline_mheader;
 extern struct mapi_header_av1 m_help_mheader;
 extern struct mapi_header_av1 m_info_mheader;
 extern struct mapi_header_av1 m_invite_mheader;
@@ -60,7 +59,6 @@ extern struct mapi_header_av1 m_pong_mheader;
 extern struct mapi_header_av1 m_post_mheader;
 extern struct mapi_header_av1 m_rehash_mheader;
 extern struct mapi_header_av1 m_restart_mheader;
-extern struct mapi_header_av1 m_resv_mheader;
 extern struct mapi_header_av1 m_set_mheader;
 extern struct mapi_header_av1 m_stats_mheader;
 extern struct mapi_header_av1 m_svinfo_mheader;
@@ -78,7 +76,6 @@ extern struct mapi_header_av1 m_wallops_mheader;
 extern struct mapi_header_av1 m_who_mheader;
 extern struct mapi_header_av1 m_whois_mheader;
 extern struct mapi_header_av1 m_whowas_mheader;
-extern struct mapi_header_av1 m_xline_mheader;
 extern struct mapi_header_av1 m_die_mheader;
 extern struct mapi_header_av1 m_error_mheader;
 extern struct mapi_header_av1 m_join_mheader;
@@ -103,7 +100,6 @@ const struct mapi_header_av1 *static_mapi_headers[] = {
 	&m_connect_mheader,
 	&m_dline_mheader,
 	&m_encap_mheader,
-	&m_gline_mheader,
 	&m_help_mheader,
 	&m_info_mheader,
 	&m_invite_mheader,
@@ -126,7 +122,6 @@ const struct mapi_header_av1 *static_mapi_headers[] = {
 	&m_post_mheader,
 	&m_rehash_mheader,
 	&m_restart_mheader,
-	&m_resv_mheader,
 	&m_set_mheader,
 	&m_stats_mheader,
 	&m_svinfo_mheader,
@@ -144,7 +139,6 @@ const struct mapi_header_av1 *static_mapi_headers[] = {
 	&m_who_mheader,
 	&m_whois_mheader,
 	&m_whowas_mheader,
-	&m_xline_mheader,
 	&m_die_mheader,
 	&m_error_mheader,
 	&m_join_mheader,

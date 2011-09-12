@@ -7,8 +7,6 @@ typedef enum
 {
 	BANDB_KLINE,
 	BANDB_DLINE,
-	BANDB_XLINE,
-	BANDB_RESV,
 	LAST_BANDB_TYPE
 } bandb_type;
 

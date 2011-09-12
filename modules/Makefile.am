@@ -40,8 +40,6 @@ m_cmessage_la_LDFLAGS =  -module $(MODULE_FLAGS)
 m_connect_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_dline_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_encap_la_LDFLAGS =  -module $(MODULE_FLAGS)  
-m_gline_la_LDFLAGS =  -module $(MODULE_FLAGS)  
-m_gungline_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_help_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_info_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_invite_la_LDFLAGS =  -module $(MODULE_FLAGS)  
@@ -64,7 +62,6 @@ m_pong_la_LDFLAGS =  -module $(MODULE_FLAGS)
 m_post_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_rehash_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_restart_la_LDFLAGS =  -module $(MODULE_FLAGS)  
-m_resv_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_set_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_stats_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_svinfo_la_LDFLAGS =  -module $(MODULE_FLAGS)  
@@ -82,7 +79,6 @@ m_wallops_la_LDFLAGS =  -module $(MODULE_FLAGS)
 m_who_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_whois_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_whowas_la_LDFLAGS =  -module $(MODULE_FLAGS)  
-m_xline_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 
 m_accept_la_SOURCES =	m_accept.c
 m_admin_la_SOURCES =	m_admin.c
@@ -95,8 +91,6 @@ m_cmessage_la_SOURCES =	m_cmessage.c
 m_connect_la_SOURCES =	m_connect.c
 m_dline_la_SOURCES =	m_dline.c
 m_encap_la_SOURCES =	m_encap.c
-m_gline_la_SOURCES =	m_gline.c
-m_gungline_la_SOURCES =	m_gungline.c
 m_help_la_SOURCES =	m_help.c
 m_info_la_SOURCES =	m_info.c
 m_invite_la_SOURCES =	m_invite.c
@@ -119,7 +113,6 @@ m_pong_la_SOURCES =	m_pong.c
 m_post_la_SOURCES =	m_post.c
 m_rehash_la_SOURCES =	m_rehash.c
 m_restart_la_SOURCES =	m_restart.c
-m_resv_la_SOURCES =	m_resv.c
 m_set_la_SOURCES =	m_set.c
 m_stats_la_SOURCES =	m_stats.c
 m_svinfo_la_SOURCES =	m_svinfo.c
@@ -137,7 +130,6 @@ m_wallops_la_SOURCES =	m_wallops.c
 m_who_la_SOURCES =	m_who.c
 m_whois_la_SOURCES =	m_whois.c
 m_whowas_la_SOURCES =	m_whowas.c
-m_xline_la_SOURCES =	m_xline.c
 
 
 m_accept_la_LIBADD = $(MODULE_LIBS)     
@@ -151,8 +143,6 @@ m_cmessage_la_LIBADD = $(MODULE_LIBS)
 m_connect_la_LIBADD = $(MODULE_LIBS)     
 m_dline_la_LIBADD = $(MODULE_LIBS)     
 m_encap_la_LIBADD = $(MODULE_LIBS)     
-m_gline_la_LIBADD = $(MODULE_LIBS)     
-m_gungline_la_LIBADD = $(MODULE_LIBS)     
 m_help_la_LIBADD = $(MODULE_LIBS)     
 m_info_la_LIBADD = $(MODULE_LIBS)     
 m_invite_la_LIBADD = $(MODULE_LIBS)     
@@ -175,7 +165,6 @@ m_pong_la_LIBADD = $(MODULE_LIBS)
 m_post_la_LIBADD = $(MODULE_LIBS)     
 m_rehash_la_LIBADD = $(MODULE_LIBS)     
 m_restart_la_LIBADD = $(MODULE_LIBS)     
-m_resv_la_LIBADD = $(MODULE_LIBS)     
 m_set_la_LIBADD = $(MODULE_LIBS)     
 m_stats_la_LIBADD = $(MODULE_LIBS)     
 m_svinfo_la_LIBADD = $(MODULE_LIBS)     
@@ -193,7 +182,6 @@ m_wallops_la_LIBADD = $(MODULE_LIBS)
 m_who_la_LIBADD = $(MODULE_LIBS)     
 m_whois_la_LIBADD = $(MODULE_LIBS)     
 m_whowas_la_LIBADD = $(MODULE_LIBS)     
-m_xline_la_LIBADD = $(MODULE_LIBS)     
 
 
 core_m_die_la_LDFLAGS = -module $(MODULE_FLAGS) 
@@ -235,8 +223,6 @@ m_cmessage.la	\
 m_connect.la	\
 m_dline.la	\
 m_encap.la	\
-m_gline.la	\
-m_gungline.la	\
 m_help.la	\
 m_info.la	\
 m_invite.la	\
@@ -259,7 +245,6 @@ m_pong.la	\
 m_post.la	\
 m_rehash.la	\
 m_restart.la	\
-m_resv.la	\
 m_set.la	\
 m_stats.la	\
 m_svinfo.la	\
@@ -276,8 +261,7 @@ m_version.la	\
 m_wallops.la	\
 m_who.la	\
 m_whois.la	\
-m_whowas.la	\
-m_xline.la	
+m_whowas.la
 
 core_LTLIBRARIES = \
 core/m_die.la	\
@@ -357,8 +341,6 @@ m_cmessage.c	\
 m_connect.c	\
 m_dline.c	\
 m_encap.c	\
-m_gline.c	\
-m_gungline.c	\
 m_help.c	\
 m_info.c	\
 m_invite.c	\
@@ -381,7 +363,6 @@ m_pong.c	\
 m_post.c	\
 m_rehash.c	\
 m_restart.c	\
-m_resv.c	\
 m_set.c	\
 m_stats.c	\
 m_svinfo.c	\
@@ -398,8 +379,7 @@ m_version.c	\
 m_wallops.c	\
 m_who.c	\
 m_whois.c	\
-m_whowas.c	\
-m_xline.c	
+m_whowas.c
 
 CORE_SRCS = \
 core/m_die.c	\

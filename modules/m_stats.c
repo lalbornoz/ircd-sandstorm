@@ -33,7 +33,6 @@
 #include "match.h"
 #include "ircd.h"		/* me */
 #include "listener.h"		/* show_ports */
-#include "s_gline.h"
 #include "hostmask.h"		/* report_mtrie_conf_links */
 #include "numeric.h"		/* ERR_xxx */
 #include "send.h"		/* sendto_one */
@@ -96,8 +95,6 @@ static void stats_tdeny(struct Client *);
 static void stats_deny(struct Client *);
 static void stats_exempt(struct Client *);
 static void stats_events(struct Client *);
-static void stats_glines(struct Client *);
-static void stats_pending_glines(struct Client *);
 static void stats_hubleaf(struct Client *);
 static void stats_auth(struct Client *);
 static void stats_tklines(struct Client *);
@@ -106,15 +103,11 @@ static void stats_messages(struct Client *);
 static void stats_oper(struct Client *);
 static void stats_operedup(struct Client *);
 static void stats_ports(struct Client *);
-static void stats_tresv(struct Client *);
-static void stats_resv(struct Client *);
 static void stats_usage(struct Client *);
 static void stats_tstats(struct Client *);
 static void stats_uptime(struct Client *);
 static void stats_shared(struct Client *);
 static void stats_servers(struct Client *);
-static void stats_tgecos(struct Client *);
-static void stats_gecos(struct Client *);
 static void stats_class(struct Client *);
 static void stats_memory(struct Client *);
 static void stats_servlinks(struct Client *);
@@ -139,8 +132,6 @@ static struct StatsStruct stats_cmd_table[] = {
 	{'E', stats_events, 1, 1,},
 	{'f', stats_comm, 1, 1,},
 	{'F', stats_comm, 1, 1,},
-	{'g', stats_pending_glines, 1, 0,},
-	{'G', stats_glines, 1, 0,},
 	{'h', stats_hubleaf, 0, 0,},
 	{'H', stats_hubleaf, 0, 0,},
 	{'i', stats_auth, 0, 0,},
@@ -155,8 +146,6 @@ static struct StatsStruct stats_cmd_table[] = {
 	{'O', stats_oper, 0, 0,},
 	{'p', stats_operedup, 0, 0,},
 	{'P', stats_ports, 0, 0,},
-	{'q', stats_tresv, 1, 0,},
-	{'Q', stats_resv, 1, 0,},
 	{'r', stats_usage, 1, 0,},
 	{'R', stats_usage, 1, 0,},
 	{'t', stats_tstats, 1, 0,},
@@ -165,8 +154,6 @@ static struct StatsStruct stats_cmd_table[] = {
 	{'U', stats_shared, 1, 0,},
 	{'v', stats_servers, 0, 0,},
 	{'V', stats_servers, 0, 0,},
-	{'x', stats_tgecos, 1, 0,},
-	{'X', stats_gecos, 1, 0,},
 	{'y', stats_class, 0, 0,},
 	{'Y', stats_class, 0, 0,},
 	{'z', stats_memory, 1, 0,},
@@ -376,88 +363,6 @@ stats_events(struct Client *source_p)
 {
 	rb_dump_events(stats_events_cb, source_p);
 	send_pop_queue(source_p);
-}
-
-/* stats_pending_glines()
- *
- * input	- client pointer
- * output	- none
- * side effects - client is shown list of pending glines
- */
-static void
-stats_pending_glines(struct Client *source_p)
-{
-	if(ConfigFileEntry.glines)
-	{
-		rb_dlink_node *pending_node;
-		struct gline_pending *glp_ptr;
-		char timebuffer[MAX_DATE_STRING];
-		struct tm *tmptr;
-
-		RB_DLINK_FOREACH(pending_node, pending_glines.head)
-		{
-			glp_ptr = pending_node->data;
-
-			tmptr = gmtime(&glp_ptr->time_request1);
-			strftime(timebuffer, MAX_DATE_STRING, "%Y/%m/%d %H:%M:%S", tmptr);
-
-			sendto_one_notice(source_p,
-					  ":1) %s!%s@%s on %s requested gline at %s for %s@%s [%s]",
-					  glp_ptr->oper_nick1,
-					  glp_ptr->oper_user1, glp_ptr->oper_host1,
-					  glp_ptr->oper_server1, timebuffer,
-					  glp_ptr->user, glp_ptr->host, glp_ptr->reason1);
-
-			if(glp_ptr->oper_nick2[0])
-			{
-				tmptr = gmtime(&glp_ptr->time_request2);
-				strftime(timebuffer, MAX_DATE_STRING, "%Y/%m/%d %H:%M:%S", tmptr);
-				sendto_one_notice(source_p,
-						  ":2) %s!%s@%s on %s requested gline at %s for %s@%s [%s]",
-						  glp_ptr->oper_nick2,
-						  glp_ptr->oper_user2, glp_ptr->oper_host2,
-						  glp_ptr->oper_server2, timebuffer,
-						  glp_ptr->user, glp_ptr->host, glp_ptr->reason2);
-			}
-		}
-
-		if(rb_dlink_list_length(&pending_glines) > 0)
-			sendto_one_notice(source_p, ":End of Pending G-lines");
-	}
-	else
-		sendto_one_notice(source_p, ":This server does not support G-Lines");
-
-}
-
-/* stats_glines()
- *
- * input	- client pointer
- * output	- none
- * side effects - client is shown list of glines
- */
-static void
-stats_glines(struct Client *source_p)
-{
-	if(ConfigFileEntry.glines)
-	{
-		rb_dlink_node *gline_node;
-		struct ConfItem *kill_ptr;
-
-		RB_DLINK_FOREACH_PREV(gline_node, glines.tail)
-		{
-			kill_ptr = gline_node->data;
-
-			sendto_one_numeric(source_p, RPL_STATSKLINE,
-					   form_str(RPL_STATSKLINE), 'G',
-					   kill_ptr->host ? kill_ptr->host : "*",
-					   kill_ptr->user ? kill_ptr->user : "*",
-					   kill_ptr->passwd ? kill_ptr->passwd : "No Reason",
-					   kill_ptr->spasswd ? "|" : "",
-					   kill_ptr->spasswd ? kill_ptr->spasswd : "");
-		}
-	}
-	else
-		sendto_one_notice(source_p, ":This server does not support G-Lines");
 }
 
 
@@ -780,59 +685,6 @@ stats_ports(struct Client *source_p)
 }
 
 static void
-stats_tresv(struct Client *source_p)
-{
-	struct ConfItem *aconf;
-	rb_dlink_node *ptr;
-	int i;
-
-	RB_DLINK_FOREACH(ptr, resv_conf_list.head)
-	{
-		aconf = ptr->data;
-		if(aconf->flags & CONF_FLAGS_TEMPORARY)
-			sendto_one_numeric(source_p, RPL_STATSQLINE,
-					   form_str(RPL_STATSQLINE),
-					   'q', aconf->port, aconf->host, aconf->passwd);
-	}
-
-	HASH_WALK(i, R_MAX, ptr, resvTable)
-	{
-		aconf = ptr->data;
-		if(aconf->flags & CONF_FLAGS_TEMPORARY)
-			sendto_one_numeric(source_p, RPL_STATSQLINE,
-					   form_str(RPL_STATSQLINE),
-					   'q', aconf->port, aconf->host, aconf->passwd);
-	}
-HASH_WALK_END}
-
-
-static void
-stats_resv(struct Client *source_p)
-{
-	struct ConfItem *aconf;
-	rb_dlink_node *ptr;
-	int i;
-
-	RB_DLINK_FOREACH(ptr, resv_conf_list.head)
-	{
-		aconf = ptr->data;
-		if((aconf->flags & CONF_FLAGS_TEMPORARY) == 0)
-			sendto_one_numeric(source_p, RPL_STATSQLINE,
-					   form_str(RPL_STATSQLINE),
-					   'Q', aconf->port, aconf->host, aconf->passwd);
-	}
-
-	HASH_WALK(i, R_MAX, ptr, resvTable)
-	{
-		aconf = ptr->data;
-		if((aconf->flags & CONF_FLAGS_TEMPORARY) == 0)
-			sendto_one_numeric(source_p, RPL_STATSQLINE,
-					   form_str(RPL_STATSQLINE),
-					   'Q', aconf->port, aconf->host, aconf->passwd);
-	}
-HASH_WALK_END}
-
-static void
 stats_usage(struct Client *source_p)
 {
 #ifndef _WIN32
@@ -964,12 +816,6 @@ static struct shared_flags shared_flagtable[] = {
 	{SHARED_PKLINE, 'K'},
 	{SHARED_TKLINE, 'k'},
 	{SHARED_UNKLINE, 'U'},
-	{SHARED_PXLINE, 'X'},
-	{SHARED_TXLINE, 'x'},
-	{SHARED_UNXLINE, 'Y'},
-	{SHARED_PRESV, 'Q'},
-	{SHARED_TRESV, 'q'},
-	{SHARED_UNRESV, 'R'},
 	{SHARED_LOCOPS, 'L'},
 	{0, '\0'}
 };
@@ -1071,40 +917,6 @@ stats_servers(struct Client *source_p)
 	}
 
 	sendto_one_numeric(source_p, RPL_STATSDEBUG, "V :%d Server(s)", j);
-}
-
-static void
-stats_tgecos(struct Client *source_p)
-{
-	struct ConfItem *aconf;
-	rb_dlink_node *ptr;
-
-	RB_DLINK_FOREACH(ptr, xline_conf_list.head)
-	{
-		aconf = ptr->data;
-
-		if(aconf->flags & CONF_FLAGS_TEMPORARY)
-			sendto_one_numeric(source_p, RPL_STATSXLINE,
-					   form_str(RPL_STATSXLINE),
-					   'x', aconf->port, aconf->host, aconf->passwd);
-	}
-}
-
-static void
-stats_gecos(struct Client *source_p)
-{
-	struct ConfItem *aconf;
-	rb_dlink_node *ptr;
-
-	RB_DLINK_FOREACH(ptr, xline_conf_list.head)
-	{
-		aconf = ptr->data;
-
-		if((aconf->flags & CONF_FLAGS_TEMPORARY) == 0)
-			sendto_one_numeric(source_p, RPL_STATSXLINE,
-					   form_str(RPL_STATSXLINE),
-					   'X', aconf->port, aconf->host, aconf->passwd);
-	}
 }
 
 static void

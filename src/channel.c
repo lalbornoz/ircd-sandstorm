@@ -399,10 +399,6 @@ can_send(struct Channel *chptr, struct Client *source_p, struct membership *mspt
 	if(IsServer(source_p))
 		return CAN_SEND_OPV;
 
-	if(MyClient(source_p) && hash_find_resv(chptr->chname) &&
-	   !IsOper(source_p) && !IsExemptResv(source_p))
-		return CAN_SEND_NO;
-
 	if(msptr == NULL)
 	{
 		msptr = find_channel_membership(chptr, source_p);

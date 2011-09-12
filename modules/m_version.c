@@ -115,10 +115,6 @@ confopts(void)
 	result[0] = '\0';
 	p = result;
 
-	if(ConfigFileEntry.glines)
-		*p++ = 'g';
-	*p++ = 'G';
-
 	/* might wanna hide this :P */
 	if(ServerInfo.hub)
 		*p++ = 'H';

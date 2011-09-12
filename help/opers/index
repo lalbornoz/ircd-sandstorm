@@ -1,11 +1,10 @@
 Help topics available to opers:
 
 ACCEPT          ADMIN           ADMINDLINE      ADMINKLINE
-ADMINRESV       ADMINWALL       ADMINXLINE      AWAY
-CAPAB           CHALLENGE       CHANTRACE       CLOSE
-CMODE           CNOTICE         CONNECT         CPRIVMSG
-CREDITS         DIE             DLINE           ERROR
-ETRACE          GLINE           GUNGLINE        HELP
+ADMINWALL       AWAY            CAPAB           CHALLENGE
+CHANTRACE       CLOSE           CMODE           CNOTICE
+CONNECT         CPRIVMSG        CREDITS         DIE
+DLINE           ERROR           ETRACE          HELP
 INDEX           INFO            INVITE          ISON
 JOIN            KICK            KILL            KLINE
 KNOCK           LINKS           LIST            LOCOPS
@@ -15,11 +14,9 @@ MOTD            NAMES           NICK            NOTICE
 OPER            OPERSPY         OPERWALL        PART
 PASS            PING            PONG            POST
 PRIVMSG         QUIT            REHASH          RESTART
-RESV            SERVER          SET             SJOIN
-SQUIT           STATS           SVINFO          TESTGECOS
-TESTLINE        TESTMASK        TIME            TOPIC
-TRACE           UHELP           UMODE           UNDLINE
-UNGLINE         UNKLINE         UNREJECT        UNRESV
-UNXLINE         USER            USERHOST        USERS
-VERSION         WALLOPS         WHO             WHOIS
-WHOWAS          XLINE
+SERVER          SET             SJOIN           SQUIT
+STATS           SVINFO          TESTLINE        TESTMASK
+TIME            TOPIC           TRACE           UHELP
+UMODE           UNDLINE         UNKLINE         UNREJECT
+USER            USERHOST        USERS           VERSION
+WALLOPS         WHO             WHOIS           WHOWAS

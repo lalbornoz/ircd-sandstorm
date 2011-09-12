@@ -133,8 +133,6 @@ struct LocalUser;
 #define FLAGS_IOERROR      	0x00000800	/* IO error */
 #define FLAGS_SERVICE	   	0x00001000
 #define FLAGS_TGCHANGE     	0x00002000	/* we're allowed to clear something */
-#define FLAGS_EXEMPTRESV	0x00004000
-#define FLAGS_EXEMPTGLINE       0x00008000
 #define FLAGS_EXEMPTKLINE       0x00010000
 #define FLAGS_EXEMPTFLOOD       0x00020000
 #define FLAGS_NOLIMIT           0x00040000
@@ -144,7 +142,6 @@ struct LocalUser;
 #define FLAGS_IP_SPOOFING       0x00400000
 #define FLAGS_FLOODDONE         0x00800000
 #define FLAGS_EXEMPTSHIDE	0x02000000
-#define FLAGS_EXEMPTJUPE	0x04000000
 
 /* flags for local clients, this needs stuff moved from above to here at some point */
 #define LFLAGS_SSL		0x00000001
@@ -280,16 +277,10 @@ struct LocalUser;
 #define SetExemptKline(x)       ((x)->flags |= FLAGS_EXEMPTKLINE)
 #define IsExemptLimits(x)       ((x)->flags & FLAGS_NOLIMIT)
 #define SetExemptLimits(x)      ((x)->flags |= FLAGS_NOLIMIT)
-#define IsExemptGline(x)        ((x)->flags & FLAGS_EXEMPTGLINE)
-#define SetExemptGline(x)       ((x)->flags |= FLAGS_EXEMPTGLINE)
 #define IsExemptFlood(x)        ((x)->flags & FLAGS_EXEMPTFLOOD)
 #define SetExemptFlood(x)       ((x)->flags |= FLAGS_EXEMPTFLOOD)
 #define IsExemptShide(x)	((x)->flags & FLAGS_EXEMPTSHIDE)
 #define SetExemptShide(x)	((x)->flags |= FLAGS_EXEMPTSHIDE)
-#define IsExemptJupe(x)		((x)->flags & FLAGS_EXEMPTJUPE)
-#define SetExemptJupe(x)	((x)->flags |= FLAGS_EXEMPTJUPE)
-#define IsExemptResv(x)		((x)->flags & FLAGS_EXEMPTRESV)
-#define SetExemptResv(x)	((x)->flags |= FLAGS_EXEMPTRESV)
 #define IsIPSpoof(x)            ((x)->flags & FLAGS_IP_SPOOFING)
 #define SetIPSpoof(x)           ((x)->flags |= FLAGS_IP_SPOOFING)
 

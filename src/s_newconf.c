@@ -47,7 +47,6 @@
 #include "match.h"
 #include "ircd.h"
 #include "class.h"
-#include "s_gline.h"
 #include "s_log.h"
 
 rb_dlink_list shared_conf_list;
@@ -55,10 +54,6 @@ rb_dlink_list cluster_conf_list;
 rb_dlink_list oper_conf_list;
 rb_dlink_list hubleaf_conf_list;
 rb_dlink_list server_conf_list;
-rb_dlink_list xline_conf_list;
-rb_dlink_list resv_conf_list;	/* nicks only! */
-rb_dlink_list pending_glines;
-rb_dlink_list glines;
 static rb_dlink_list nd_list;	/* nick delay */
 rb_dlink_list tgchange_list;
 
@@ -66,9 +61,7 @@ rb_patricia_tree_t *tgchange_tree;
 
 static rb_bh *nd_heap = NULL;
 
-static void expire_temp_rxlines(void *unused);
 static void expire_nd_entries(void *unused);
-static void expire_glines(void *unused);
 
 void
 init_s_newconf(void)
@@ -76,8 +69,6 @@ init_s_newconf(void)
 	tgchange_tree = rb_new_patricia(PATRICIA_BITS);
 	nd_heap = rb_bh_create(sizeof(struct nd_entry), ND_HEAP_SIZE, "nd_heap");
 	rb_event_addish("expire_nd_entries", expire_nd_entries, NULL, 30);
-	rb_event_addish("expire_temp_rxlines", expire_temp_rxlines, NULL, 60);
-	rb_event_addish("expire_glines", expire_glines, NULL, CLEANUP_GLINES_TIME);
 }
 
 void
@@ -124,38 +115,6 @@ clear_s_newconf(void)
 		else
 			server_p->flags |= SERVER_ILLEGAL;
 	}
-}
-
-void
-clear_s_newconf_bans(void)
-{
-	struct ConfItem *aconf;
-	rb_dlink_node *ptr, *next_ptr;
-
-	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, xline_conf_list.head)
-	{
-		aconf = ptr->data;
-
-		if(aconf->flags & CONF_FLAGS_TEMPORARY)
-			continue;
-
-		free_conf(aconf);
-		rb_dlinkDestroy(ptr, &xline_conf_list);
-	}
-
-	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, resv_conf_list.head)
-	{
-		aconf = ptr->data;
-
-		/* temporary resv */
-		if(aconf->flags & CONF_FLAGS_TEMPORARY)
-			continue;
-
-		free_conf(aconf);
-		rb_dlinkDestroy(ptr, &resv_conf_list);
-	}
-
-	clear_resv_hash();
 }
 
 struct remote_conf *
@@ -222,25 +181,6 @@ cluster_generic(struct Client *source_p, const char *command, int cltype, const 
 
 		sendto_match_servs(source_p, shared_p->server, CAP_ENCAP, NOCAPS,
 				   "ENCAP %s %s %s", shared_p->server, command, buffer);
-	}
-}
-
-static void
-expire_glines(void *unused)
-{
-	struct ConfItem *aconf;
-	rb_dlink_node *ptr, *next_ptr;
-
-	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, glines.head)
-	{
-		aconf = ptr->data;
-
-		/* if gline_time changes, these could end up out of order */
-		if(aconf->hold > rb_current_time())
-			continue;
-
-		delete_one_address_conf(aconf->host, aconf);
-		rb_dlinkDestroy(ptr, &glines);
 	}
 }
 
@@ -325,10 +265,7 @@ struct oper_flags
 	char hasnt;
 };
 static struct oper_flags oper_flagtable[] = {
-	{OPER_GLINE, 'G', 'g'},
 	{OPER_KLINE, 'K', 'k'},
-	{OPER_XLINE, 'X', 'x'},
-	{OPER_RESV, 'Q', 'q'},
 	{OPER_GLOBKILL, 'O', 'o'},
 	{OPER_LOCKILL, 'C', 'c'},
 	{OPER_REMOTE, 'R', 'r'},
@@ -532,154 +469,6 @@ set_server_conf_autoconn(struct Client *source_p, char *name, int newval)
 		sendto_one_notice(source_p, ":Can't find %s", name);
 }
 
-struct ConfItem *
-find_xline(const char *gecos, int counter)
-{
-	struct ConfItem *aconf;
-	rb_dlink_node *ptr;
-
-	RB_DLINK_FOREACH(ptr, xline_conf_list.head)
-	{
-		aconf = ptr->data;
-
-		if(match_esc(aconf->host, gecos))
-		{
-			if(counter)
-				aconf->port++;
-			return aconf;
-		}
-	}
-
-	return NULL;
-}
-
-struct ConfItem *
-find_xline_mask(const char *gecos)
-{
-	struct ConfItem *aconf;
-	rb_dlink_node *ptr;
-
-	RB_DLINK_FOREACH(ptr, xline_conf_list.head)
-	{
-		aconf = ptr->data;
-
-		if(!irccmp(aconf->host, gecos))
-			return aconf;
-	}
-
-	return NULL;
-}
-
-struct ConfItem *
-find_nick_resv(const char *name)
-{
-	struct ConfItem *aconf;
-	rb_dlink_node *ptr;
-
-	RB_DLINK_FOREACH(ptr, resv_conf_list.head)
-	{
-		aconf = ptr->data;
-
-		if(match_esc(aconf->host, name))
-		{
-			aconf->port++;
-			return aconf;
-		}
-	}
-
-	return NULL;
-}
-
-struct ConfItem *
-find_nick_resv_mask(const char *name)
-{
-	struct ConfItem *aconf;
-	rb_dlink_node *ptr;
-
-	RB_DLINK_FOREACH(ptr, resv_conf_list.head)
-	{
-		aconf = ptr->data;
-
-		if(!irccmp(aconf->host, name))
-			return aconf;
-	}
-
-	return NULL;
-}
-
-/* clean_resv_nick()
- *
- * inputs	- nick
- * outputs	- 1 if nick is vaild resv, 0 otherwise
- * side effects -
- */
-int
-clean_resv_nick(const char *nick)
-{
-	char tmpch;
-	int as = 0;
-	int q = 0;
-	int ch = 0;
-
-	if(*nick == '-' || IsDigit(*nick))
-		return 0;
-
-	while((tmpch = *nick++))
-	{
-		if(tmpch == '?' || tmpch == '@' || tmpch == '#')
-			q++;
-		else if(tmpch == '*')
-			as++;
-		else if(IsNickChar(tmpch))
-			ch++;
-		else
-			return 0;
-	}
-
-	if(!ch && as)
-		return 0;
-
-	return 1;
-}
-
-/* valid_wild_card_simple()
- *
- * inputs	- "thing" to test
- * outputs	- 1 if enough wildcards, else 0
- * side effects -
- */
-int
-valid_wild_card_simple(const char *data)
-{
-	const char *p;
-	char tmpch;
-	int nonwild = 0;
-
-	/* check the string for minimum number of nonwildcard chars */
-	p = data;
-
-	while((tmpch = *p++))
-	{
-		/* found an escape, p points to the char after it, so skip
-		 * that and move on.
-		 */
-		if(tmpch == '\\')
-		{
-			p++;
-			if(++nonwild >= ConfigFileEntry.min_nonwildcard_simple)
-				return 1;
-		}
-		else if(!IsMWildChar(tmpch))
-		{
-			/* if we have enough nonwildchars, return */
-			if(++nonwild >= ConfigFileEntry.min_nonwildcard_simple)
-				return 1;
-		}
-	}
-
-	return 0;
-}
-
 time_t
 valid_temp_time(const char *p)
 {
@@ -701,60 +490,6 @@ valid_temp_time(const char *p)
 		result = (60 * 24 * 7 * 52);
 
 	return (result * 60);
-}
-
-static void
-expire_temp_rxlines(void *unused)
-{
-	struct ConfItem *aconf;
-	rb_dlink_node *ptr;
-	rb_dlink_node *next_ptr;
-	int i;
-
-	HASH_WALK_SAFE(i, R_MAX, ptr, next_ptr, resvTable)
-	{
-		aconf = ptr->data;
-
-		if((aconf->flags & CONF_FLAGS_TEMPORARY) && aconf->hold <= rb_current_time())
-		{
-			if(ConfigFileEntry.tkline_expire_notices)
-				sendto_realops_flags(UMODE_ALL, L_ALL,
-						     "Temporary RESV for [%s] expired",
-						     aconf->host);
-
-			free_conf(aconf);
-			rb_dlinkDestroy(ptr, &resvTable[i]);
-		}
-	}
-	HASH_WALK_END RB_DLINK_FOREACH_SAFE(ptr, next_ptr, resv_conf_list.head)
-	{
-		aconf = ptr->data;
-
-		if((aconf->flags & CONF_FLAGS_TEMPORARY) && aconf->hold <= rb_current_time())
-		{
-			if(ConfigFileEntry.tkline_expire_notices)
-				sendto_realops_flags(UMODE_ALL, L_ALL,
-						     "Temporary RESV for [%s] expired",
-						     aconf->host);
-			free_conf(aconf);
-			rb_dlinkDestroy(ptr, &resv_conf_list);
-		}
-	}
-
-	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, xline_conf_list.head)
-	{
-		aconf = ptr->data;
-
-		if((aconf->flags & CONF_FLAGS_TEMPORARY) && aconf->hold <= rb_current_time())
-		{
-			if(ConfigFileEntry.tkline_expire_notices)
-				sendto_realops_flags(UMODE_ALL, L_ALL,
-						     "Temporary X-line for [%s] expired",
-						     aconf->host);
-			free_conf(aconf);
-			rb_dlinkDestroy(ptr, &xline_conf_list);
-		}
-	}
 }
 
 unsigned long

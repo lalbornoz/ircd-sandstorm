@@ -44,7 +44,6 @@
 #include "numeric.h"
 #include "s_log.h"
 #include "send.h"
-#include "s_gline.h"
 #include "reject.h"
 #include "cache.h"
 #include "dns.h"
@@ -382,15 +381,6 @@ verify_access(struct Client *client_p, const char *username)
 	{
 		if(ConfigFileEntry.kline_with_reason)
 			sendto_one_notice(client_p, ":*** Banned %s", aconf->passwd);
-		return (BANNED_CLIENT);
-	}
-	else if(aconf->status & CONF_GLINE)
-	{
-		sendto_one_notice(client_p, ":*** G-lined");
-
-		if(ConfigFileEntry.kline_with_reason)
-			sendto_one_notice(client_p, ":*** Banned %s", aconf->passwd);
-
 		return (BANNED_CLIENT);
 	}
 
@@ -780,15 +770,10 @@ set_default_conf(void)
 	ConfigFileEntry.fname_operlog = NULL;
 	ConfigFileEntry.fname_foperlog = NULL;
 	ConfigFileEntry.fname_serverlog = NULL;
-	ConfigFileEntry.fname_glinelog = NULL;
 	ConfigFileEntry.fname_klinelog = NULL;
 	ConfigFileEntry.fname_operspylog = NULL;
 	ConfigFileEntry.fname_ioerrorlog = NULL;
-	ConfigFileEntry.glines = NO;
 	ConfigFileEntry.use_egd = NO;
-	ConfigFileEntry.gline_time = 12 * 3600;
-	ConfigFileEntry.gline_min_cidr = 16;
-	ConfigFileEntry.gline_min_cidr6 = 48;
 	ConfigFileEntry.hide_error_messages = 1;
 	ConfigFileEntry.dots_in_ident = 0;
 	ConfigFileEntry.max_targets = MAX_TARGETS_DEFAULT;
@@ -823,7 +808,6 @@ set_default_conf(void)
 	ConfigServerHide.disable_hidden = 0;
 
 	ConfigFileEntry.min_nonwildcard = 4;
-	ConfigFileEntry.min_nonwildcard_simple = 3;
 	ConfigFileEntry.default_floodcount = 8;
 	ConfigFileEntry.client_flood = CLIENT_FLOOD_DEFAULT;
 	ConfigFileEntry.tkline_expire_notices = 0;
@@ -1205,8 +1189,6 @@ clear_out_old_conf(void)
 	ConfigFileEntry.fname_serverlog = NULL;
 	rb_free(ConfigFileEntry.fname_killlog);
 	ConfigFileEntry.fname_killlog = NULL;
-	rb_free(ConfigFileEntry.fname_glinelog);
-	ConfigFileEntry.fname_glinelog = NULL;
 	rb_free(ConfigFileEntry.fname_klinelog);
 	ConfigFileEntry.fname_klinelog = NULL;
 	rb_free(ConfigFileEntry.fname_operspylog);

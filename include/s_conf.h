@@ -62,10 +62,6 @@ struct ConfItem
 #define CONF_SKIPUSER		0x0001	/* skip username checks (ie, *@x) */
 #define CONF_CLIENT             0x0002
 #define CONF_KILL               0x0040
-#define CONF_XLINE		0x0080
-#define CONF_RESV_CHANNEL	0x0100
-#define CONF_RESV_NICK		0x0200
-#define CONF_GLINE             0x10000
 #define CONF_DLINE             0x20000
 #define CONF_EXEMPTDLINE      0x100000
 
@@ -82,11 +78,8 @@ struct ConfItem
 #define CONF_FLAGS_SPOOF_IP             0x00000010
 #define CONF_FLAGS_SPOOF_NOTICE		0x00000020
 #define CONF_FLAGS_REDIR                0x00000040
-#define CONF_FLAGS_EXEMPTGLINE          0x00000080
-#define CONF_FLAGS_EXEMPTRESV		0x00000100	/* exempt from resvs */
 #define CONF_FLAGS_EXEMPTFLOOD          0x00000200
 #define CONF_FLAGS_EXEMPTSHIDE		0x00000800
-#define CONF_FLAGS_EXEMPTJUPE		0x00001000	/* exempt from resv generating warnings */
 #define CONF_FLAGS_NEED_SSL		0x00002000
 /* server flags */
 #define CONF_FLAGS_ENCRYPTED            0x00004000
@@ -96,18 +89,14 @@ struct ConfItem
 #define CONF_FLAGS_LOCKED		0x00040000
 
 /* Macros for struct ConfItem */
-#define IsConfBan(x)		((x)->status & (CONF_KILL|CONF_XLINE|CONF_DLINE|\
-						CONF_RESV_CHANNEL|CONF_RESV_NICK))
+#define IsConfBan(x)		((x)->status & (CONF_KILL|CONF_DLINE))
 
 #define IsNoTilde(x)            ((x)->flags & CONF_FLAGS_NO_TILDE)
 #define IsNeedIdentd(x)         ((x)->flags & CONF_FLAGS_NEED_IDENTD)
 #define IsConfExemptKline(x)    ((x)->flags & CONF_FLAGS_EXEMPTKLINE)
 #define IsConfExemptLimits(x)   ((x)->flags & CONF_FLAGS_NOLIMIT)
-#define IsConfExemptGline(x)    ((x)->flags & CONF_FLAGS_EXEMPTGLINE)
 #define IsConfExemptFlood(x)    ((x)->flags & CONF_FLAGS_EXEMPTFLOOD)
 #define IsConfExemptShide(x)	((x)->flags & CONF_FLAGS_EXEMPTSHIDE)
-#define IsConfExemptJupe(x)	((x)->flags & CONF_FLAGS_EXEMPTJUPE)
-#define IsConfExemptResv(x)	((x)->flags & CONF_FLAGS_EXEMPTRESV)
 #define IsConfDoSpoofIp(x)      ((x)->flags & CONF_FLAGS_SPOOF_IP)
 #define IsConfSpoofNotice(x)    ((x)->flags & CONF_FLAGS_SPOOF_NOTICE)
 #define IsConfEncrypted(x)      ((x)->flags & CONF_FLAGS_ENCRYPTED)
@@ -135,7 +124,6 @@ struct config_file_entry
 	char *fname_foperlog;
 	char *fname_serverlog;
 	char *fname_killlog;
-	char *fname_glinelog;
 	char *fname_klinelog;
 	char *fname_operspylog;
 	char *fname_ioerrorlog;
@@ -172,10 +160,6 @@ struct config_file_entry
 	int pace_wait_simple;
 	int short_motd;
 	int no_oper_flood;
-	int glines;
-	int gline_time;
-	int gline_min_cidr;
-	int gline_min_cidr6;
 	int hide_server;
 	int hide_error_messages;
 	int client_exit;
@@ -184,7 +168,6 @@ struct config_file_entry
 	int max_targets;
 	int caller_id_wait;
 	int min_nonwildcard;
-	int min_nonwildcard_simple;
 	int default_floodcount;
 	int client_flood;
 	int use_egd;
@@ -223,7 +206,6 @@ struct config_channel_entry
 	int no_join_on_split;
 	int default_split_server_count;
 	int default_split_user_count;
-	int no_oper_resvs;
 	int burst_topicwho;
 	int topiclen;
 };

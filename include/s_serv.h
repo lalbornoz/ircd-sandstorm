@@ -54,7 +54,6 @@ struct Capability
 #define CAP_CAP         0x00001	/* received a CAP to begin with */
 #define CAP_QS          0x00002	/* Can handle quit storm removal */
 #define CAP_CHW         0x00008	/* Can do channel wall @# */
-#define CAP_GLN	        0x00080	/* Can do GLINE message */
 #define CAP_ZIP         0x00100	/* Can do ZIPlinks */
 #define CAP_KNOCK	0x00400	/* supports KNOCK */
 #define CAP_TB		0x00800	/* supports TBURST */
@@ -71,7 +70,7 @@ struct Capability
 
 #define CAP_MASK        (CAP_QS  | CAP_CHW  | \
 			 CAP_SERVICE |\
-			 CAP_GLN | CAP_ENCAP | \
+			 CAP_ENCAP | \
 			 CAP_ZIP  | CAP_KNOCK  | \
 			 CAP_RSFNC | CAP_SAVE | CAP_SAVETS_100 | \
 			 CAP_WIDE_MOTD | CAP_GCLICONN | CAP_EXT_CHARS | \

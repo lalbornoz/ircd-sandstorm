@@ -185,14 +185,14 @@ core_m_squit_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 libmodules_la_LIBADD =
 am__libmodules_la_SOURCES_DIST = m_accept.c m_admin.c m_adminwall.c \
 	m_away.c m_capab.c m_cap.c m_close.c m_cmessage.c m_connect.c \
-	m_dline.c m_encap.c m_gline.c m_gungline.c m_help.c m_info.c \
+	m_dline.c m_encap.c m_help.c m_info.c \
 	m_invite.c m_ison.c m_kline.c m_knock.c m_links.c m_list.c \
 	m_locops.c m_lusers.c m_map.c m_monitor.c m_motd.c m_names.c \
 	m_oper.c m_operspy.c m_pass.c m_ping.c m_pong.c m_post.c \
-	m_rehash.c m_restart.c m_resv.c m_set.c m_stats.c m_svinfo.c \
+	m_rehash.c m_restart.c m_set.c m_stats.c m_svinfo.c \
 	m_tb.c m_testline.c m_testmask.c m_time.c m_topic.c m_trace.c \
 	m_unreject.c m_user.c m_userhost.c m_version.c m_wallops.c \
-	m_who.c m_whois.c m_whowas.c m_xline.c core/m_die.c \
+	m_who.c m_whois.c m_whowas.c core/m_die.c \
 	core/m_error.c core/m_join.c core/m_kick.c core/m_kill.c \
 	core/m_message.c core/m_mode.c core/m_nick.c core/m_part.c \
 	core/m_quit.c core/m_server.c core/m_squit.c m_services.c
@@ -200,20 +200,20 @@ am__libmodules_la_SOURCES_DIST = m_accept.c m_admin.c m_adminwall.c \
 @STATIC_MODULES_TRUE@	m_adminwall.lo m_away.lo m_capab.lo \
 @STATIC_MODULES_TRUE@	m_cap.lo m_close.lo m_cmessage.lo \
 @STATIC_MODULES_TRUE@	m_connect.lo m_dline.lo m_encap.lo \
-@STATIC_MODULES_TRUE@	m_gline.lo m_gungline.lo m_help.lo \
+@STATIC_MODULES_TRUE@	m_help.lo \
 @STATIC_MODULES_TRUE@	m_info.lo m_invite.lo m_ison.lo \
 @STATIC_MODULES_TRUE@	m_kline.lo m_knock.lo m_links.lo \
 @STATIC_MODULES_TRUE@	m_list.lo m_locops.lo m_lusers.lo \
 @STATIC_MODULES_TRUE@	m_map.lo m_monitor.lo m_motd.lo \
 @STATIC_MODULES_TRUE@	m_names.lo m_oper.lo m_operspy.lo \
 @STATIC_MODULES_TRUE@	m_pass.lo m_ping.lo m_pong.lo m_post.lo \
-@STATIC_MODULES_TRUE@	m_rehash.lo m_restart.lo m_resv.lo \
+@STATIC_MODULES_TRUE@	m_rehash.lo m_restart.lo \
 @STATIC_MODULES_TRUE@	m_set.lo m_stats.lo m_svinfo.lo m_tb.lo \
 @STATIC_MODULES_TRUE@	m_testline.lo m_testmask.lo m_time.lo \
 @STATIC_MODULES_TRUE@	m_topic.lo m_trace.lo m_unreject.lo \
 @STATIC_MODULES_TRUE@	m_user.lo m_userhost.lo m_version.lo \
 @STATIC_MODULES_TRUE@	m_wallops.lo m_who.lo m_whois.lo \
-@STATIC_MODULES_TRUE@	m_whowas.lo m_xline.lo
+@STATIC_MODULES_TRUE@	m_whowas.lo
 @STATIC_MODULES_TRUE@am__objects_2 = core/m_die.lo core/m_error.lo \
 @STATIC_MODULES_TRUE@	core/m_join.lo core/m_kick.lo \
 @STATIC_MODULES_TRUE@	core/m_kill.lo core/m_message.lo \
@@ -318,23 +318,6 @@ m_encap_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(m_encap_la_LDFLAGS) $(LDFLAGS) -o $@
 @STATIC_MODULES_FALSE@am_m_encap_la_rpath = -rpath $(modulesdir)
-@STATIC_MODULES_FALSE@m_gline_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
-am__m_gline_la_SOURCES_DIST = m_gline.c
-@STATIC_MODULES_FALSE@am_m_gline_la_OBJECTS = m_gline.lo
-m_gline_la_OBJECTS = $(am_m_gline_la_OBJECTS)
-m_gline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(m_gline_la_LDFLAGS) $(LDFLAGS) -o $@
-@STATIC_MODULES_FALSE@am_m_gline_la_rpath = -rpath $(modulesdir)
-@STATIC_MODULES_FALSE@m_gungline_la_DEPENDENCIES =  \
-@STATIC_MODULES_FALSE@	$(am__DEPENDENCIES_1)
-am__m_gungline_la_SOURCES_DIST = m_gungline.c
-@STATIC_MODULES_FALSE@am_m_gungline_la_OBJECTS = m_gungline.lo
-m_gungline_la_OBJECTS = $(am_m_gungline_la_OBJECTS)
-m_gungline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(m_gungline_la_LDFLAGS) $(LDFLAGS) -o $@
-@STATIC_MODULES_FALSE@am_m_gungline_la_rpath = -rpath $(modulesdir)
 @STATIC_MODULES_FALSE@m_help_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am__m_help_la_SOURCES_DIST = m_help.c
 @STATIC_MODULES_FALSE@am_m_help_la_OBJECTS = m_help.lo
@@ -518,14 +501,6 @@ m_restart_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(m_restart_la_LDFLAGS) $(LDFLAGS) -o $@
 @STATIC_MODULES_FALSE@am_m_restart_la_rpath = -rpath $(modulesdir)
-@STATIC_MODULES_FALSE@m_resv_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
-am__m_resv_la_SOURCES_DIST = m_resv.c
-@STATIC_MODULES_FALSE@am_m_resv_la_OBJECTS = m_resv.lo
-m_resv_la_OBJECTS = $(am_m_resv_la_OBJECTS)
-m_resv_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(m_resv_la_LDFLAGS) $(LDFLAGS) -o $@
-@STATIC_MODULES_FALSE@am_m_resv_la_rpath = -rpath $(modulesdir)
 @ENABLE_SERVICES_TRUE@@STATIC_MODULES_FALSE@m_services_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am__m_services_la_SOURCES_DIST = m_services.c
 @ENABLE_SERVICES_TRUE@@STATIC_MODULES_FALSE@am_m_services_la_OBJECTS =  \
@@ -681,14 +656,6 @@ m_whowas_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(m_whowas_la_LDFLAGS) $(LDFLAGS) -o $@
 @STATIC_MODULES_FALSE@am_m_whowas_la_rpath = -rpath $(modulesdir)
-@STATIC_MODULES_FALSE@m_xline_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
-am__m_xline_la_SOURCES_DIST = m_xline.c
-@STATIC_MODULES_FALSE@am_m_xline_la_OBJECTS = m_xline.lo
-m_xline_la_OBJECTS = $(am_m_xline_la_OBJECTS)
-m_xline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(m_xline_la_LDFLAGS) $(LDFLAGS) -o $@
-@STATIC_MODULES_FALSE@am_m_xline_la_rpath = -rpath $(modulesdir)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -713,8 +680,8 @@ SOURCES = $(core_m_die_la_SOURCES) $(core_m_error_la_SOURCES) \
 	$(m_away_la_SOURCES) $(m_cap_la_SOURCES) $(m_capab_la_SOURCES) \
 	$(m_close_la_SOURCES) $(m_cmessage_la_SOURCES) \
 	$(m_connect_la_SOURCES) $(m_dline_la_SOURCES) \
-	$(m_encap_la_SOURCES) $(m_gline_la_SOURCES) \
-	$(m_gungline_la_SOURCES) $(m_help_la_SOURCES) \
+	$(m_encap_la_SOURCES) \
+	$(m_help_la_SOURCES) \
 	$(m_info_la_SOURCES) $(m_invite_la_SOURCES) \
 	$(m_ison_la_SOURCES) $(m_kline_la_SOURCES) \
 	$(m_knock_la_SOURCES) $(m_links_la_SOURCES) \
@@ -725,7 +692,7 @@ SOURCES = $(core_m_die_la_SOURCES) $(core_m_error_la_SOURCES) \
 	$(m_operspy_la_SOURCES) $(m_pass_la_SOURCES) \
 	$(m_ping_la_SOURCES) $(m_pong_la_SOURCES) $(m_post_la_SOURCES) \
 	$(m_rehash_la_SOURCES) $(m_restart_la_SOURCES) \
-	$(m_resv_la_SOURCES) $(m_services_la_SOURCES) \
+	$(m_services_la_SOURCES) \
 	$(m_set_la_SOURCES) $(m_stats_la_SOURCES) \
 	$(m_svinfo_la_SOURCES) $(m_tb_la_SOURCES) \
 	$(m_testline_la_SOURCES) $(m_testmask_la_SOURCES) \
@@ -734,7 +701,7 @@ SOURCES = $(core_m_die_la_SOURCES) $(core_m_error_la_SOURCES) \
 	$(m_user_la_SOURCES) $(m_userhost_la_SOURCES) \
 	$(m_version_la_SOURCES) $(m_wallops_la_SOURCES) \
 	$(m_who_la_SOURCES) $(m_whois_la_SOURCES) \
-	$(m_whowas_la_SOURCES) $(m_xline_la_SOURCES)
+	$(m_whowas_la_SOURCES)
 DIST_SOURCES = $(am__core_m_die_la_SOURCES_DIST) \
 	$(am__core_m_error_la_SOURCES_DIST) \
 	$(am__core_m_join_la_SOURCES_DIST) \
@@ -755,8 +722,6 @@ DIST_SOURCES = $(am__core_m_die_la_SOURCES_DIST) \
 	$(am__m_cmessage_la_SOURCES_DIST) \
 	$(am__m_connect_la_SOURCES_DIST) \
 	$(am__m_dline_la_SOURCES_DIST) $(am__m_encap_la_SOURCES_DIST) \
-	$(am__m_gline_la_SOURCES_DIST) \
-	$(am__m_gungline_la_SOURCES_DIST) \
 	$(am__m_help_la_SOURCES_DIST) $(am__m_info_la_SOURCES_DIST) \
 	$(am__m_invite_la_SOURCES_DIST) $(am__m_ison_la_SOURCES_DIST) \
 	$(am__m_kline_la_SOURCES_DIST) $(am__m_knock_la_SOURCES_DIST) \
@@ -768,7 +733,7 @@ DIST_SOURCES = $(am__core_m_die_la_SOURCES_DIST) \
 	$(am__m_operspy_la_SOURCES_DIST) $(am__m_pass_la_SOURCES_DIST) \
 	$(am__m_ping_la_SOURCES_DIST) $(am__m_pong_la_SOURCES_DIST) \
 	$(am__m_post_la_SOURCES_DIST) $(am__m_rehash_la_SOURCES_DIST) \
-	$(am__m_restart_la_SOURCES_DIST) $(am__m_resv_la_SOURCES_DIST) \
+	$(am__m_restart_la_SOURCES_DIST) \
 	$(am__m_services_la_SOURCES_DIST) $(am__m_set_la_SOURCES_DIST) \
 	$(am__m_stats_la_SOURCES_DIST) $(am__m_svinfo_la_SOURCES_DIST) \
 	$(am__m_tb_la_SOURCES_DIST) $(am__m_testline_la_SOURCES_DIST) \
@@ -780,8 +745,7 @@ DIST_SOURCES = $(am__core_m_die_la_SOURCES_DIST) \
 	$(am__m_userhost_la_SOURCES_DIST) \
 	$(am__m_version_la_SOURCES_DIST) \
 	$(am__m_wallops_la_SOURCES_DIST) $(am__m_who_la_SOURCES_DIST) \
-	$(am__m_whois_la_SOURCES_DIST) $(am__m_whowas_la_SOURCES_DIST) \
-	$(am__m_xline_la_SOURCES_DIST)
+	$(am__m_whois_la_SOURCES_DIST) $(am__m_whowas_la_SOURCES_DIST)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -954,8 +918,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_connect_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_dline_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_encap_la_LDFLAGS = -module $(MODULE_FLAGS)  
-@STATIC_MODULES_FALSE@m_gline_la_LDFLAGS = -module $(MODULE_FLAGS)  
-@STATIC_MODULES_FALSE@m_gungline_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_help_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_info_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_invite_la_LDFLAGS = -module $(MODULE_FLAGS)  
@@ -978,7 +940,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_post_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_rehash_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_restart_la_LDFLAGS = -module $(MODULE_FLAGS)  
-@STATIC_MODULES_FALSE@m_resv_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_set_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_stats_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_svinfo_la_LDFLAGS = -module $(MODULE_FLAGS)  
@@ -996,7 +957,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_who_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_whois_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_whowas_la_LDFLAGS = -module $(MODULE_FLAGS)  
-@STATIC_MODULES_FALSE@m_xline_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_accept_la_SOURCES = m_accept.c
 @STATIC_MODULES_FALSE@m_admin_la_SOURCES = m_admin.c
 @STATIC_MODULES_FALSE@m_adminwall_la_SOURCES = m_adminwall.c
@@ -1008,8 +968,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_connect_la_SOURCES = m_connect.c
 @STATIC_MODULES_FALSE@m_dline_la_SOURCES = m_dline.c
 @STATIC_MODULES_FALSE@m_encap_la_SOURCES = m_encap.c
-@STATIC_MODULES_FALSE@m_gline_la_SOURCES = m_gline.c
-@STATIC_MODULES_FALSE@m_gungline_la_SOURCES = m_gungline.c
 @STATIC_MODULES_FALSE@m_help_la_SOURCES = m_help.c
 @STATIC_MODULES_FALSE@m_info_la_SOURCES = m_info.c
 @STATIC_MODULES_FALSE@m_invite_la_SOURCES = m_invite.c
@@ -1032,7 +990,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_post_la_SOURCES = m_post.c
 @STATIC_MODULES_FALSE@m_rehash_la_SOURCES = m_rehash.c
 @STATIC_MODULES_FALSE@m_restart_la_SOURCES = m_restart.c
-@STATIC_MODULES_FALSE@m_resv_la_SOURCES = m_resv.c
 @STATIC_MODULES_FALSE@m_set_la_SOURCES = m_set.c
 @STATIC_MODULES_FALSE@m_stats_la_SOURCES = m_stats.c
 @STATIC_MODULES_FALSE@m_svinfo_la_SOURCES = m_svinfo.c
@@ -1050,7 +1007,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_who_la_SOURCES = m_who.c
 @STATIC_MODULES_FALSE@m_whois_la_SOURCES = m_whois.c
 @STATIC_MODULES_FALSE@m_whowas_la_SOURCES = m_whowas.c
-@STATIC_MODULES_FALSE@m_xline_la_SOURCES = m_xline.c
 @STATIC_MODULES_FALSE@m_accept_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_admin_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_adminwall_la_LIBADD = $(MODULE_LIBS)     
@@ -1062,8 +1018,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_connect_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_dline_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_encap_la_LIBADD = $(MODULE_LIBS)     
-@STATIC_MODULES_FALSE@m_gline_la_LIBADD = $(MODULE_LIBS)     
-@STATIC_MODULES_FALSE@m_gungline_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_help_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_info_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_invite_la_LIBADD = $(MODULE_LIBS)     
@@ -1086,7 +1040,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_post_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_rehash_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_restart_la_LIBADD = $(MODULE_LIBS)     
-@STATIC_MODULES_FALSE@m_resv_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_set_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_stats_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_svinfo_la_LIBADD = $(MODULE_LIBS)     
@@ -1104,7 +1057,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_who_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_whois_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_whowas_la_LIBADD = $(MODULE_LIBS)     
-@STATIC_MODULES_FALSE@m_xline_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@core_m_die_la_LDFLAGS = -module $(MODULE_FLAGS) 
 @STATIC_MODULES_FALSE@core_m_error_la_LDFLAGS = -module $(MODULE_FLAGS) 
 @STATIC_MODULES_FALSE@core_m_join_la_LDFLAGS = -module $(MODULE_FLAGS) 
@@ -1141,8 +1093,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_connect.la	\
 @STATIC_MODULES_FALSE@m_dline.la	\
 @STATIC_MODULES_FALSE@m_encap.la	\
-@STATIC_MODULES_FALSE@m_gline.la	\
-@STATIC_MODULES_FALSE@m_gungline.la	\
 @STATIC_MODULES_FALSE@m_help.la	\
 @STATIC_MODULES_FALSE@m_info.la	\
 @STATIC_MODULES_FALSE@m_invite.la	\
@@ -1165,7 +1115,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_post.la	\
 @STATIC_MODULES_FALSE@m_rehash.la	\
 @STATIC_MODULES_FALSE@m_restart.la	\
-@STATIC_MODULES_FALSE@m_resv.la	\
 @STATIC_MODULES_FALSE@m_set.la	\
 @STATIC_MODULES_FALSE@m_stats.la	\
 @STATIC_MODULES_FALSE@m_svinfo.la	\
@@ -1182,8 +1131,7 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_wallops.la	\
 @STATIC_MODULES_FALSE@m_who.la	\
 @STATIC_MODULES_FALSE@m_whois.la	\
-@STATIC_MODULES_FALSE@m_whowas.la	\
-@STATIC_MODULES_FALSE@m_xline.la	
+@STATIC_MODULES_FALSE@m_whowas.la
 
 @STATIC_MODULES_FALSE@core_LTLIBRARIES = \
 @STATIC_MODULES_FALSE@core/m_die.la	\
@@ -1227,8 +1175,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_TRUE@m_connect.c	\
 @STATIC_MODULES_TRUE@m_dline.c	\
 @STATIC_MODULES_TRUE@m_encap.c	\
-@STATIC_MODULES_TRUE@m_gline.c	\
-@STATIC_MODULES_TRUE@m_gungline.c	\
 @STATIC_MODULES_TRUE@m_help.c	\
 @STATIC_MODULES_TRUE@m_info.c	\
 @STATIC_MODULES_TRUE@m_invite.c	\
@@ -1251,7 +1197,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_TRUE@m_post.c	\
 @STATIC_MODULES_TRUE@m_rehash.c	\
 @STATIC_MODULES_TRUE@m_restart.c	\
-@STATIC_MODULES_TRUE@m_resv.c	\
 @STATIC_MODULES_TRUE@m_set.c	\
 @STATIC_MODULES_TRUE@m_stats.c	\
 @STATIC_MODULES_TRUE@m_svinfo.c	\
@@ -1268,8 +1213,7 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_TRUE@m_wallops.c	\
 @STATIC_MODULES_TRUE@m_who.c	\
 @STATIC_MODULES_TRUE@m_whois.c	\
-@STATIC_MODULES_TRUE@m_whowas.c	\
-@STATIC_MODULES_TRUE@m_xline.c	
+@STATIC_MODULES_TRUE@m_whowas.c
 
 @STATIC_MODULES_TRUE@CORE_SRCS = \
 @STATIC_MODULES_TRUE@core/m_die.c	\
@@ -1513,10 +1457,6 @@ m_dline.la: $(m_dline_la_OBJECTS) $(m_dline_la_DEPENDENCIES)
 	$(m_dline_la_LINK) $(am_m_dline_la_rpath) $(m_dline_la_OBJECTS) $(m_dline_la_LIBADD) $(LIBS)
 m_encap.la: $(m_encap_la_OBJECTS) $(m_encap_la_DEPENDENCIES) 
 	$(m_encap_la_LINK) $(am_m_encap_la_rpath) $(m_encap_la_OBJECTS) $(m_encap_la_LIBADD) $(LIBS)
-m_gline.la: $(m_gline_la_OBJECTS) $(m_gline_la_DEPENDENCIES) 
-	$(m_gline_la_LINK) $(am_m_gline_la_rpath) $(m_gline_la_OBJECTS) $(m_gline_la_LIBADD) $(LIBS)
-m_gungline.la: $(m_gungline_la_OBJECTS) $(m_gungline_la_DEPENDENCIES) 
-	$(m_gungline_la_LINK) $(am_m_gungline_la_rpath) $(m_gungline_la_OBJECTS) $(m_gungline_la_LIBADD) $(LIBS)
 m_help.la: $(m_help_la_OBJECTS) $(m_help_la_DEPENDENCIES) 
 	$(m_help_la_LINK) $(am_m_help_la_rpath) $(m_help_la_OBJECTS) $(m_help_la_LIBADD) $(LIBS)
 m_info.la: $(m_info_la_OBJECTS) $(m_info_la_DEPENDENCIES) 
@@ -1561,8 +1501,6 @@ m_rehash.la: $(m_rehash_la_OBJECTS) $(m_rehash_la_DEPENDENCIES)
 	$(m_rehash_la_LINK) $(am_m_rehash_la_rpath) $(m_rehash_la_OBJECTS) $(m_rehash_la_LIBADD) $(LIBS)
 m_restart.la: $(m_restart_la_OBJECTS) $(m_restart_la_DEPENDENCIES) 
 	$(m_restart_la_LINK) $(am_m_restart_la_rpath) $(m_restart_la_OBJECTS) $(m_restart_la_LIBADD) $(LIBS)
-m_resv.la: $(m_resv_la_OBJECTS) $(m_resv_la_DEPENDENCIES) 
-	$(m_resv_la_LINK) $(am_m_resv_la_rpath) $(m_resv_la_OBJECTS) $(m_resv_la_LIBADD) $(LIBS)
 m_services.la: $(m_services_la_OBJECTS) $(m_services_la_DEPENDENCIES) 
 	$(m_services_la_LINK) $(am_m_services_la_rpath) $(m_services_la_OBJECTS) $(m_services_la_LIBADD) $(LIBS)
 m_set.la: $(m_set_la_OBJECTS) $(m_set_la_DEPENDENCIES) 
@@ -1599,8 +1537,6 @@ m_whois.la: $(m_whois_la_OBJECTS) $(m_whois_la_DEPENDENCIES)
 	$(m_whois_la_LINK) $(am_m_whois_la_rpath) $(m_whois_la_OBJECTS) $(m_whois_la_LIBADD) $(LIBS)
 m_whowas.la: $(m_whowas_la_OBJECTS) $(m_whowas_la_DEPENDENCIES) 
 	$(m_whowas_la_LINK) $(am_m_whowas_la_rpath) $(m_whowas_la_OBJECTS) $(m_whowas_la_LIBADD) $(LIBS)
-m_xline.la: $(m_xline_la_OBJECTS) $(m_xline_la_DEPENDENCIES) 
-	$(m_xline_la_LINK) $(am_m_xline_la_rpath) $(m_xline_la_OBJECTS) $(m_xline_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -1643,8 +1579,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_connect.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_dline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_encap.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_gline.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_gungline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_help.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_info.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_invite.Plo@am__quote@
@@ -1667,7 +1601,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_post.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_rehash.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_restart.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_resv.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_services.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_set.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_stats.Plo@am__quote@
@@ -1686,7 +1619,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_who.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_whois.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_whowas.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_xline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/m_die.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/m_error.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/m_join.Plo@am__quote@

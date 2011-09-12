@@ -14,11 +14,7 @@
    Ever wondered what those funny chars mean after the version number? Well
    here they are:
 
-   +----------------------------+
-   | 'g'  | NO_FAKE_GLINES      |
-   |------+---------------------|
-   | 'G'  | GLINES              |
-   |------+---------------------|
+   +------+---------------------+
    | 'H'  | HUB                 |
    |------+---------------------|
    | 'K'  | USE_KNOCK           |

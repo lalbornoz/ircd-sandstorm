@@ -464,15 +464,6 @@ find_address_conf(const char *host, const char *sockhost, const char *user,
 			return kconf;
 	}
 
-	/* hunt for a gline */
-	if(ConfigFileEntry.glines)
-	{
-		kconf = find_conf_by_address(host, sockhost, ip, CONF_GLINE, aftype, user);
-
-		if((kconf != NULL) && !IsConfExemptGline(iconf))
-			return kconf;
-	}
-
 	return iconf;
 }
 

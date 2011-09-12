@@ -46,19 +46,13 @@
 #include "hash.h"
 
 static int mo_testline(struct Client *, struct Client *, int, const char **);
-static int mo_testgecos(struct Client *, struct Client *, int, const char **);
 
 struct Message testline_msgtab = {
 	"TESTLINE", 0, 0, 0, MFLG_SLOW,
 	{mg_unreg, mg_ignore, mg_ignore, mg_ignore, mg_ignore, {mo_testline, 2}}
 };
 
-struct Message testgecos_msgtab = {
-	"TESTGECOS", 0, 0, 0, MFLG_SLOW,
-	{mg_unreg, mg_ignore, mg_ignore, mg_ignore, mg_ignore, {mo_testgecos, 2}}
-};
-
-mapi_clist_av1 testline_clist[] = { &testline_msgtab, &testgecos_msgtab, NULL };
+mapi_clist_av1 testline_clist[] = { &testline_msgtab, NULL };
 
 DECLARE_MODULE_AV1(testline, NULL, NULL, testline_clist, NULL, NULL, "$Revision: 26094 $");
 
@@ -66,7 +60,6 @@ static int
 mo_testline(struct Client *client_p, struct Client *source_p, int parc, const char *parv[])
 {
 	struct ConfItem *aconf;
-	struct ConfItem *resv_p;
 	struct rb_sockaddr_storage ip;
 	const char *name = NULL;
 	const char *username = NULL;
@@ -77,29 +70,6 @@ mo_testline(struct Client *client_p, struct Client *source_p, int parc, const ch
 	int type;
 
 	mask = LOCAL_COPY(parv[1]);
-
-	if(IsChannelName(mask))
-	{
-		resv_p = hash_find_resv(mask);
-		if(resv_p != NULL)
-		{
-			sendto_one(source_p, form_str(RPL_TESTLINE),
-				   me.name, source_p->name,
-				   (resv_p->flags & CONF_FLAGS_TEMPORARY) ? 'q' : 'Q',
-				   (resv_p->flags & CONF_FLAGS_TEMPORARY) ? (long)((resv_p->hold -
-										    rb_current_time
-										    ()) / 60) : 0L,
-				   resv_p->host, resv_p->passwd);
-			/* this is a false positive, so make sure it isn't counted in stats q
-			 * --nenolod
-			 */
-			resv_p->port--;
-		}
-		else
-			sendto_one(source_p, form_str(RPL_NOTESTLINE),
-				   me.name, source_p->name, parv[1]);
-		return 0;
-	}
 
 	if((p = strchr(mask, '!')))
 	{
@@ -165,36 +135,9 @@ mo_testline(struct Client *client_p, struct Client *source_p, int parc, const ch
 				   buf, aconf->passwd);
 			return 0;
 		}
-		else if(aconf->status & CONF_GLINE)
-		{
-			rb_snprintf(buf, sizeof(buf), "%s@%s", aconf->user, aconf->host);
-			sendto_one(source_p, form_str(RPL_TESTLINE),
-				   me.name, source_p->name,
-				   'G', (long)((aconf->hold - rb_current_time()) / 60),
-				   buf, aconf->passwd);
-			return 0;
-		}
 	}
 
-	/* they asked us to check a nick, so hunt for resvs.. */
-	if(name && (resv_p = find_nick_resv(name)))
-	{
-		sendto_one(source_p, form_str(RPL_TESTLINE),
-			   me.name, source_p->name,
-			   (resv_p->flags & CONF_FLAGS_TEMPORARY) ? 'q' : 'Q',
-			   (resv_p->flags & CONF_FLAGS_TEMPORARY) ? (long)((resv_p->hold -
-									    rb_current_time()) /
-									   60) : 0L, resv_p->host,
-			   resv_p->passwd);
-
-		/* this is a false positive, so make sure it isn't counted in stats q
-		 * --nenolod
-		 */
-		resv_p->port--;
-		return 0;
-	}
-
-	/* no matching resv, we can print the I: if it exists */
+	/* we can print the I: if it exists */
 	if(aconf && aconf->status & CONF_CLIENT)
 	{
 		sendto_one_numeric(source_p, RPL_STATSILINE, form_str(RPL_STATSILINE),
@@ -206,25 +149,5 @@ mo_testline(struct Client *client_p, struct Client *source_p, int parc, const ch
 
 	/* nothing matches.. */
 	sendto_one(source_p, form_str(RPL_NOTESTLINE), me.name, source_p->name, parv[1]);
-	return 0;
-}
-
-static int
-mo_testgecos(struct Client *client_p, struct Client *source_p, int parc, const char *parv[])
-{
-	struct ConfItem *aconf;
-
-	if(!(aconf = find_xline(parv[1], 0)))
-	{
-		sendto_one(source_p, form_str(RPL_NOTESTLINE), me.name, source_p->name, parv[1]);
-		return 0;
-	}
-
-	sendto_one(source_p, form_str(RPL_TESTLINE),
-		   me.name, source_p->name,
-		   (aconf->flags & CONF_FLAGS_TEMPORARY) ? 'x' : 'X',
-		   (aconf->flags & CONF_FLAGS_TEMPORARY) ? (long)((aconf->hold -
-								   rb_current_time()) / 60) : 0L,
-		   aconf->host, aconf->passwd);
 	return 0;
 }

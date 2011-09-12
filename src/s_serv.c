@@ -66,7 +66,6 @@ struct Capability captab[] = {
 /*  name     cap     */
 	{"QS", CAP_QS},
 	{"CHW", CAP_CHW},
-	{"GLN", CAP_GLN},
 	{"KNOCK", CAP_KNOCK},
 	{"ZIP", CAP_ZIP},
 	{"TB", CAP_TB},

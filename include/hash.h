@@ -27,7 +27,6 @@
 #ifndef INCLUDED_hash_h
 #define INCLUDED_hash_h
 
-extern rb_dlink_list resvTable[];
 extern rb_dlink_list ndTable[];
 
 /* Magic value for FNV hash functions */
@@ -48,10 +47,6 @@ extern rb_dlink_list ndTable[];
 #define HOST_MAX_BITS 17
 #define HOST_MAX (1<<HOST_MAX_BITS)	/* 2^17 */
 
-/* RESV/XLINE hash table size, used in hash.c */
-#define R_MAX_BITS 10
-#define R_MAX (1<<R_MAX_BITS)	/* 2^10 */
-
 
 #define HASH_WALK(i, max, ptr, table) for (i = 0; i < max; i++) { RB_DLINK_FOREACH(ptr, table[i].head)
 #define HASH_WALK_SAFE(i, max, ptr, nptr, table) for (i = 0; i < max; i++) { RB_DLINK_FOREACH_SAFE(ptr, nptr, table[i].head)
@@ -63,7 +58,6 @@ typedef enum
 	HASH_ID,
 	HASH_CHANNEL,
 	HASH_HOSTNAME,
-	HASH_RESV
 } hash_type;
 
 struct Client;
@@ -93,9 +87,6 @@ struct Channel *get_or_create_channel(struct Client *client_p, const char *chnam
 struct Channel *find_channel(const char *name);
 
 rb_dlink_node *find_hostname(const char *);
-
-struct ConfItem *hash_find_resv(const char *name);
-void clear_resv_hash(void);
 
 void add_to_help_hash(const char *name, struct cachefile *hptr);
 void clear_help_hash(void);

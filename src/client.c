@@ -32,7 +32,6 @@
 #include "hash.h"
 #include "match.h"
 #include "ircd.h"
-#include "s_gline.h"
 #include "numeric.h"
 #include "packet.h"
 #include "s_auth.h"
@@ -405,7 +404,7 @@ notify_banned_client(struct Client *client_p, struct ConfItem *aconf, int ban)
  * check_banned_lines
  * inputs	- NONE
  * output	- NONE
- * side effects - Check all connections for a pending k/d/gline against the
+ * side effects - Check all connections for a pending k/dline against the
  * 		  client, exit the client if found.
  */
 void
@@ -454,50 +453,6 @@ check_banned_lines(void)
 					     "KLINE active for %s",
 					     get_client_name(client_p, HIDE_IP));
 			notify_banned_client(client_p, aconf, K_LINED);
-			continue;
-		}
-		else if((aconf = find_gline(client_p)) != NULL)
-		{
-			if(IsExemptKline(client_p))
-			{
-				sendto_realops_flags(UMODE_ALL, L_ALL,
-						     "GLINE over-ruled for %s, client is kline_exempt [%s@%s]",
-						     get_client_name(client_p, HIDE_IP),
-						     aconf->user, aconf->host);
-				continue;
-			}
-
-			if(IsExemptGline(client_p))
-			{
-				sendto_realops_flags(UMODE_ALL, L_ALL,
-						     "GLINE over-ruled for %s, client is gline_exempt [%s@%s]",
-						     get_client_name(client_p, HIDE_IP),
-						     aconf->user, aconf->host);
-				continue;
-			}
-
-			sendto_realops_flags(UMODE_ALL, L_ALL,
-					     "GLINE active for %s",
-					     get_client_name(client_p, HIDE_IP));
-
-			notify_banned_client(client_p, aconf, G_LINED);
-			continue;
-		}
-		else if((aconf = find_xline(client_p->info, 1)) != NULL)
-		{
-			if(IsExemptKline(client_p))
-			{
-				sendto_realops_flags(UMODE_ALL, L_ALL,
-						     "XLINE over-ruled for %s, client is kline_exempt [%s]",
-						     get_client_name(client_p, HIDE_IP),
-						     aconf->info.oper);
-				continue;
-			}
-
-			sendto_realops_flags(UMODE_ALL, L_ALL, "XLINE active for %s",
-					     get_client_name(client_p, HIDE_IP));
-
-			(void)exit_client(client_p, client_p, &me, "Bad user info");
 			continue;
 		}
 	}

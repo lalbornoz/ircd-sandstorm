@@ -116,28 +116,6 @@ m_join(struct Client *client_p, struct Client *source_p, int parc, const char *p
 			continue;
 		}
 
-		/* see if its resv'd */
-		if(!IsExemptResv(source_p) && (aconf = hash_find_resv(name)))
-		{
-			sendto_one_numeric(source_p, ERR_BADCHANNAME,
-					   form_str(ERR_BADCHANNAME), name);
-
-			/* dont warn for opers */
-			if(!IsExemptJupe(source_p) && !IsOper(source_p))
-				sendto_realops_flags(UMODE_SPY, L_ALL,
-						     "User %s (%s@%s) is attempting to join locally juped channel %s (%s)",
-						     source_p->name, source_p->username,
-						     source_p->host, name, aconf->passwd);
-
-			/* dont update tracking for jupe exempt users, these
-			 * are likely to be spamtrap leaves
-			 */
-			else if(IsExemptJupe(source_p))
-				aconf->port--;
-
-			continue;
-		}
-
 		if(splitmode && !IsOper(source_p) && (*name != '&') &&
 		   ConfigChannel.no_join_on_split)
 		{
