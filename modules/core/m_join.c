@@ -441,11 +441,6 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 	{
 		switch (*(s++))
 		{
-#ifdef ENABLE_SERVICES
-		case 'r':
-			mode.mode |= MODE_REGONLY;
-			break;
-#endif
 		case 'S':
 			mode.mode |= MODE_SSLONLY;
 			break;
@@ -821,11 +816,6 @@ can_join(struct Client *source_p, struct Channel *chptr, char *key)
 	rb_sprintf(src_host, "%s!%s@%s", source_p->name, source_p->username, source_p->host);
 	rb_sprintf(src_iphost, "%s!%s@%s", source_p->name, source_p->username, source_p->sockhost);
 
-#ifdef ENABLE_SERVICES
-	if(chptr->mode.mode & MODE_REGONLY && EmptyString(source_p->user->suser))
-		return ERR_NEEDREGGEDNICK;
-#endif
-
 	if(ConfigChannel.use_sslonly && chptr->mode.mode & MODE_SSLONLY && !IsSSL(source_p))
 		return ERR_SSLONLYCHAN;
 
@@ -838,10 +828,6 @@ static struct mode_letter
 	char letter;
 } flags[] =
 {
-#ifdef ENABLE_SERVICES
-	{
-	MODE_REGONLY, 'r'},
-#endif
 	{
 	MODE_SSLONLY, 'S'},
 	{

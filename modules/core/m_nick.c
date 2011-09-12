@@ -973,29 +973,6 @@ register_client(struct Client *client_p, struct Client *server,
 	{
 		flag = UserModeBitmask(*m);
 
-#ifdef ENABLE_SERVICES
-		if(flag & UMODE_SERVICE)
-		{
-			int hit = 0;
-			rb_dlink_node *ptr;
-
-			RB_DLINK_FOREACH(ptr, service_list.head)
-			{
-				if(!irccmp((const char *)ptr->data, source_p->servptr->name))
-				{
-					hit++;
-					break;
-				}
-			}
-
-			if(!hit)
-			{
-				m++;
-				continue;
-			}
-		}
-#endif
-
 		/* increment opered count if theyre opered */
 		if(!(source_p->umodes & UMODE_OPER) && (flag & UMODE_OPER))
 			Count.oper++;

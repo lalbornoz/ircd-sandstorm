@@ -2033,38 +2033,6 @@ conf_set_shared_flags(confentry_t * entry, conf_t * conf, struct conf_items *ite
 	t_shared = NULL;
 }
 
-#ifdef ENABLE_SERVICES
-static void
-conf_set_service_start(conf_t * conf)
-{
-	struct Client *target_p;
-	rb_dlink_node *ptr;
-
-	RB_DLINK_FOREACH(ptr, global_serv_list.head)
-	{
-		target_p = ptr->data;
-		target_p->flags &= ~FLAGS_SERVICE;
-	}
-}
-
-static void
-conf_set_service_name(confentry_t * entry, conf_t * conf, struct conf_items *item)
-{
-	struct Client *target_p;
-
-	if(!valid_servername(entry->string))
-	{
-		conf_report_warning_nl("Ignoring service::name at %s:%d -- Invalid servername",
-				       entry->filename, entry->line);
-		return;
-	}
-
-	rb_dlinkAddAlloc(rb_strdup(entry->string), &service_list);
-	if((target_p = find_server(NULL, entry->string)))
-		target_p->flags |= FLAGS_SERVICE;
-}
-#endif
-
 
 static void
 add_top_conf(const char *name, void (*startfunc) (conf_t * conf), void (*endfunc) (conf_t * conf),
@@ -2436,14 +2404,6 @@ static struct conf_items conf_cluster_table[] =
 	{ "\0",	0, NULL, 0, NULL }
 };
 
-#ifdef ENABLE_SERVICES
-static struct conf_items conf_service_table[] =
-{
-	{ "name",  CF_QSTRING,		  conf_set_service_name,  0, NULL },
-	{ "\0",	0, NULL, 0, NULL }
-};
-#endif
-
 struct top_conf_table_t
 {
 	const char *name;
@@ -2470,9 +2430,6 @@ static struct top_conf_table_t top_conf_table[] =
 	{ "connect",	conf_set_start_connect,  conf_set_end_connect,	conf_connect_table,	1},
 	{ "shared",	conf_set_shared_cleanup, conf_set_shared_cleanup,conf_shared_table,	0},
 	{ "cluster",	conf_set_cluster_cleanup,conf_set_cluster_cleanup,conf_cluster_table,	0},
-#ifdef ENABLE_SERVICES
-	{ "service",	conf_set_service_start,  NULL,			conf_service_table,	0},
-#endif
 	{ NULL,		NULL,			 NULL,			NULL,			0},
 };
 

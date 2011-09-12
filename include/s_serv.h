@@ -60,7 +60,6 @@ struct Capability
 #define CAP_ENCAP	0x04000	/* supports ENCAP */
 #define CAP_TS6		0x08000	/* supports TS6 or above */
 #define CAP_SERVICE	0x10000
-#define CAP_RSFNC	0x20000	/* rserv FNC */
 #define CAP_SAVE	0x40000	/* supports SAVE (nick collision FNC) */
 #define CAP_SAVETS_100	0x80000	/* supports SAVE at TS 100 */
 #define CAP_WIDE_MOTD	0x100000/* increased MOTD line length */
@@ -72,7 +71,7 @@ struct Capability
 			 CAP_SERVICE |\
 			 CAP_ENCAP | \
 			 CAP_ZIP  | CAP_KNOCK  | \
-			 CAP_RSFNC | CAP_SAVE | CAP_SAVETS_100 | \
+			 CAP_SAVE | CAP_SAVETS_100 | \
 			 CAP_WIDE_MOTD | CAP_GCLICONN | CAP_EXT_CHARS | \
 			 CAP_NOCMODES)
 /*

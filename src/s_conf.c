@@ -61,10 +61,6 @@ static rb_bh *confitem_heap = NULL;
 rb_dlink_list temp_klines[LAST_TEMP_TYPE];
 rb_dlink_list temp_dlines[LAST_TEMP_TYPE];
 
-#ifdef ENABLE_SERVICES
-rb_dlink_list service_list;
-#endif
-
 /* internally defined functions */
 void set_default_conf(void);
 static void clear_out_old_conf(void);
@@ -1133,9 +1129,6 @@ clear_out_old_conf(void)
 {
 	struct Class *cltmp;
 	rb_dlink_node *ptr;
-#ifdef ENABLE_SERVICES
-	rb_dlink_node *next_ptr;
-#endif
 
 	/*
 	 * don't delete the class table, rather mark all entries
@@ -1213,14 +1206,6 @@ clear_out_old_conf(void)
 	/* clean out general */
 	rb_free(ConfigFileEntry.kline_reason);
 	ConfigFileEntry.kline_reason = NULL;
-
-#ifdef ENABLE_SERVICES
-	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, service_list.head)
-	{
-		rb_free(ptr->data);
-		rb_dlinkDestroy(ptr, &service_list);
-	}
-#endif
 
 	/* OK, that should be everything... */
 }

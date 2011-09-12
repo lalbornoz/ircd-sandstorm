@@ -32,9 +32,6 @@
 /* Size of the dlink_node heap. */
 #undef DNODE_HEAP_SIZE
 
-/* ratbox-services compatibility code */
-#undef ENABLE_SERVICES
-
 /* Define if SSP C support is enabled. */
 #undef ENABLE_SSP_CC
 

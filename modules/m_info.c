@@ -147,16 +147,6 @@ static struct InfoStruct info_table[] = {
 		{ DPATH },
 		"Directory Containing Configuration Files"
 	},
-	{	
-		"ENABLE_SERVICES", 
-		OUTPUT_BOOLEAN_RAW,
-#ifdef ENABLE_SERVICES
-		{ (void *)1 },
-#else
-		{ (void *)0 },
-#endif
-		"ratbox-services compatibility code",
-	},
 	{
 		"HPATH",
 		OUTPUT_STRING_PTR,

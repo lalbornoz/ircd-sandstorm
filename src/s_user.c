@@ -80,9 +80,6 @@ static struct flag_item user_modes[] = {
 	{UMODE_OPER,		'o'},
 	{UMODE_REJ,		'r'},
 	{UMODE_SERVNOTICE,	's'},
-#ifdef ENABLE_SERVICES
-	{UMODE_SERVICE,		'S'},
-#endif
 	{UMODE_UNAUTH,		'u'},
 	{UMODE_WALLOP,		'w'},
 	{UMODE_EXTERNAL,	'x'},
@@ -117,11 +114,7 @@ int user_modes_from_c_to_bitmask[] = {
 	0,			/* P */
 	0,			/* Q */
 	0,			/* R */
-#ifdef ENABLE_SERVICES
-	UMODE_SERVICE,		/* S */
-#else
 	0,			/* S */
-#endif
 	0,			/* T */
 	0,			/* U */
 	0,			/* V */
@@ -741,9 +734,6 @@ user_mode(struct Client *client_p, struct Client *source_p, int parc, const char
 				 */
 
 				/* can only be set on burst */
-#ifdef ENABLE_SERVICES
-			case 'S':
-#endif
 			case ' ':
 			case '\n':
 			case '\r':

@@ -760,8 +760,6 @@ SEDOBJ
 PICFLAGS
 SSL_LIBS
 SSL_INCLUDES
-ENABLE_SERVICES_FALSE
-ENABLE_SERVICES_TRUE
 moduledir
 MODULE_DIR
 helpdir
@@ -927,7 +925,6 @@ with_moduledir
 enable_assert
 enable_iodebug
 enable_profile
-enable_services
 enable_small_net
 with_nicklen
 enable_backups
@@ -1579,7 +1576,6 @@ Optional Features:
                           hard(aborts the daemon)
   --enable-iodebug        Enable IO Debugging hooks
   --enable-profile        Enable profiling
-  --enable-services       Enable ratbox-services compatibility code.
   --enable-small-net      Enable small network support.
 
 
@@ -13478,32 +13474,6 @@ $as_echo "no" >&6; }
 fi
 
 
-# Check whether --enable-services was given.
-if test "${enable_services+set}" = set; then :
-  enableval=$enable_services; ratbox_services=$enableval
-else
-  ratbox_services=no
-fi
-
-
-M_SERVICES=""
-
-if test "x$ratbox_services" = "xyes"; then
-
-$as_echo "#define ENABLE_SERVICES 1" >>confdefs.h
-
-	M_SERVICES="m_services.la"
-fi
-
- if test x"$M_SERVICES" != "x"; then
-  ENABLE_SERVICES_TRUE=
-  ENABLE_SERVICES_FALSE='#'
-else
-  ENABLE_SERVICES_TRUE='#'
-  ENABLE_SERVICES_FALSE=
-fi
-
-
 # Check whether --enable-small-net was given.
 if test "${enable_small_net+set}" = set; then :
   enableval=$enable_small_net; small_net=$enableval
@@ -13859,10 +13829,6 @@ fi
 
 if test -z "${BUILD_SQLITE_TRUE}" && test -z "${BUILD_SQLITE_FALSE}"; then
   as_fn_error "conditional \"BUILD_SQLITE\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${ENABLE_SERVICES_TRUE}" && test -z "${ENABLE_SERVICES_FALSE}"; then
-  as_fn_error "conditional \"ENABLE_SERVICES\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${DISABLE_BACKUPS_TRUE}" && test -z "${DISABLE_BACKUPS_FALSE}"; then
@@ -16255,7 +16221,6 @@ echo "Modules ........................ $tmpresult"
 echo "IO Debugging hooks ............. $iodebug"
 echo "Assert debugging ............... $assert"
 echo "Small network .................. $small_net"
-echo "ratbox-services compatibility .. $ratbox_services"
 echo
 echo "Configured limits:"
 echo "NICKLEN ................. $NICKLEN"

@@ -470,19 +470,6 @@ fi
 dnl Server Tweaks
 dnl =============
 
-AC_ARG_ENABLE(services,
-AC_HELP_STRING([--enable-services],[Enable ratbox-services compatibility code.]),
-[ratbox_services=$enableval], [ratbox_services=no])
-
-M_SERVICES=""
-
-if test "x$ratbox_services" = "xyes"; then
-	AC_DEFINE([ENABLE_SERVICES], 1, [ratbox-services compatibility code])
-	M_SERVICES="m_services.la"
-fi
-
-AM_CONDITIONAL([ENABLE_SERVICES], [test x"$M_SERVICES" != "x"])
-
 AC_ARG_ENABLE(small-net,
 AC_HELP_STRING([--enable-small-net],[Enable small network support.]),
 [small_net=$enableval], [small_net=no])

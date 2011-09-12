@@ -291,13 +291,6 @@ core_m_quit_la_LIBADD = $(MODULE_LIBS)
 core_m_server_la_LIBADD = $(MODULE_LIBS)
 core_m_squit_la_LIBADD = $(MODULE_LIBS) 
 
-if ENABLE_SERVICES
-m_services_la_LDFLAGS = -module $(MODULE_FLAGS)  
-m_services_la_SOURCES =	m_services.c
-m_services_la_LIBADD = $(MODULE_LIBS)     
-services_LTLIBRARIES = m_services.la
-endif
-
 
 modules: $(modules_LTLIBRARIES) $(services_LTLIBRARIES)
 modules_core: $(core_LTLIBRARIES)
@@ -394,10 +387,6 @@ core/m_part.c	\
 core/m_quit.c	\
 core/m_server.c \
 core/m_squit.c	
-
-if ENABLE_SERVICES
-SERVICES_SRCS = m_services.c
-endif
 
 BUILT_SOURCE = static_modules.c
 static_modules.c: static_modules.c.SH

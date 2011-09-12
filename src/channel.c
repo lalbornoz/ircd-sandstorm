@@ -49,9 +49,6 @@ static rb_bh *member_heap;
 struct ev_entry *checksplit_ev;
 
 static int channel_capabs[] = {
-#ifdef ENABLE_SERVICES
-	CAP_SERVICE,
-#endif
 	CAP_TS6
 };
 
@@ -532,10 +529,6 @@ channel_modes(struct Channel *chptr, struct Client *client_p)
 
 	*mbuf++ = '+';
 
-#ifdef ENABLE_SERVICES
-	if(chptr->mode.mode & MODE_REGONLY)
-		*mbuf++ = 'r';
-#endif
 	if(chptr->mode.mode & MODE_SSLONLY)
 		*mbuf++ = 'S';
 
