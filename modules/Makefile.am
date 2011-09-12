@@ -36,7 +36,6 @@ m_away_la_LDFLAGS =  -module $(MODULE_FLAGS)
 m_capab_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_cap_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_close_la_LDFLAGS =  -module $(MODULE_FLAGS)  
-m_cmessage_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_connect_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_dline_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_encap_la_LDFLAGS =  -module $(MODULE_FLAGS)  
@@ -87,7 +86,6 @@ m_away_la_SOURCES =	m_away.c
 m_capab_la_SOURCES =	m_capab.c
 m_cap_la_SOURCES =	m_cap.c
 m_close_la_SOURCES =	m_close.c
-m_cmessage_la_SOURCES =	m_cmessage.c
 m_connect_la_SOURCES =	m_connect.c
 m_dline_la_SOURCES =	m_dline.c
 m_encap_la_SOURCES =	m_encap.c
@@ -139,7 +137,6 @@ m_away_la_LIBADD = $(MODULE_LIBS)
 m_capab_la_LIBADD = $(MODULE_LIBS)     
 m_cap_la_LIBADD = $(MODULE_LIBS)     
 m_close_la_LIBADD = $(MODULE_LIBS)     
-m_cmessage_la_LIBADD = $(MODULE_LIBS)     
 m_connect_la_LIBADD = $(MODULE_LIBS)     
 m_dline_la_LIBADD = $(MODULE_LIBS)     
 m_encap_la_LIBADD = $(MODULE_LIBS)     
@@ -219,7 +216,6 @@ m_away.la	\
 m_capab.la	\
 m_cap.la	\
 m_close.la	\
-m_cmessage.la	\
 m_connect.la	\
 m_dline.la	\
 m_encap.la	\
@@ -330,7 +326,6 @@ m_away.c	\
 m_capab.c	\
 m_cap.c	\
 m_close.c	\
-m_cmessage.c	\
 m_connect.c	\
 m_dline.c	\
 m_encap.c	\
