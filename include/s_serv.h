@@ -66,6 +66,7 @@ struct Capability
 #define CAP_GCLICONN	0x200000/* global CLICONN/EXIT SNOTICEs */
 #define CAP_EXT_CHARS	0x400000/* extended nick/user/spoof name charset */
 #define CAP_NOCMODES	0x800000/* no (meaningful) CMODEs */
+#define CAP_OPERCMODES 0x1000000/* oper-only CMODEs +[APS] */
 
 #define CAP_MASK        (CAP_QS  | CAP_CHW  | \
 			 CAP_SERVICE |\
@@ -73,7 +74,7 @@ struct Capability
 			 CAP_ZIP  | CAP_KNOCK  | \
 			 CAP_SAVE | CAP_SAVETS_100 | \
 			 CAP_WIDE_MOTD | CAP_GCLICONN | CAP_EXT_CHARS | \
-			 CAP_NOCMODES)
+			 CAP_NOCMODES | CAP_OPERCMODES)
 /*
  * Capability macros.
  */

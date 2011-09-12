@@ -271,6 +271,7 @@ const char *form_str(int);
 #define ERR_ISCHANSERVICE    484
 /* #define ERR_RESTRICTED       484 	- hyb derived, no longer here */
 #define ERR_BANNEDNICK       485
+#define ERR_OPERONLYCHAN     486
 
 #define ERR_VOICENEEDED		489
 

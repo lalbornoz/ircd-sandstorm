@@ -7,5 +7,7 @@ WITH PARAMETERS:
               PARAMS: /mode #channel +v nick
      +o     - Op.
               PARAMS: /mode #channel +o nick
-     +S       Requires SSL/TLS connections to join. May only set by admins.
+     +A       Aaa aaa aa aaaa aa a aa aaaa. Aaa aaaa aaa aa aaaaa.
+     +P       Requires +o (oper) to join. May only set by opers.
+     +S       Requires SSL/TLS connections to join. May only set by opers.
 

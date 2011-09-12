@@ -76,6 +76,7 @@ struct Capability captab[] = {
 	{"GLOBAL_CLICONN", CAP_GCLICONN},
 	{"EXT_CHARSET", CAP_EXT_CHARS},
 	{"NOCMODES", CAP_NOCMODES},
+	{"OPERCMODES", CAP_OPERCMODES},
 	{0, 0}
 };
 

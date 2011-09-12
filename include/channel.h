@@ -122,6 +122,8 @@ struct ChCapCombo
 /* channel modes ONLY */
 #define MODE_REGONLY	0x0040
 #define MODE_SSLONLY	0x0080
+#define MODE_OPERONLY	0x0100
+#define MODE_A		0x0200
 
 /* mode flags for direction indication */
 #define MODE_QUERY     0

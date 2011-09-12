@@ -508,7 +508,7 @@ static  const char *  replies[] = {
 /* 483 ERR_CANTKILLSERVER, */   ":You can't kill a server!",
 /* 484 ERR_ISCHANSERVICE */     ":%s 484 %s %s %s :Cannot kick or deop a network service",
 /* 485 ERR_BANNEDNICK, */	NULL,
-/* 486 */       NULL,
+/* 486 ERR_OPERONLYCHAN */	":%s 480 %s %s :Cannot join channel (+P) - +o (oper) required",
 /* 487 */       NULL,
 /* 488 */       NULL,
 /* 489 ERR_VOICENEEDED */	":%s 489 %s %s :You're neither voiced nor channel operator",

@@ -416,13 +416,24 @@ chm_limit(struct Client *source_p, struct Channel *chptr,
 		return;
 }
 
-
 static void
-chm_sslonly(struct Client *source_p, struct Channel *chptr,
+chm_operonly(struct Client *source_p, struct Channel *chptr,
 	    int alevel, int parc, int *parn,
 	    const char **parv, int *errors, int dir, char c, long mode_type)
 {
-	if(!IsOperAdmin(source_p))
+	char modec;
+
+	switch(mode_type) {
+	case MODE_A: modec = 'A'; break;
+	case MODE_OPERONLY: modec = 'P'; break;
+	case MODE_SSLONLY: modec = 'S'; break;
+	default:
+		sendto_realops_flags(UMODE_ALL, L_ALL,
+			"chm_operonly() called with unknown mode %lu", mode_type);
+		return;
+	}
+
+	if(!IsOper(source_p))
 	{
 		if(!(*errors & SM_ERR_NOOPS))
 			sendto_one_numeric(source_p, ERR_NOPRIVILEGES, form_str(ERR_NOPRIVILEGES));
@@ -433,20 +444,27 @@ chm_sslonly(struct Client *source_p, struct Channel *chptr,
 	if(dir == MODE_QUERY)
 		return;
 
-	if(((dir == MODE_ADD) && (chptr->mode.mode & MODE_SSLONLY)) ||
-	   ((dir == MODE_DEL) && !(chptr->mode.mode & MODE_SSLONLY)))
+	if(((dir == MODE_ADD) && (chptr->mode.mode & mode_type)) ||
+	   ((dir == MODE_DEL) && !(chptr->mode.mode & mode_type)))
 		return;
 
 	/* do not allow our clients to set use_sslonly if it is disabled
 	 * we do however allow them to remove it if it gets set 
 	 */
-	if(dir == MODE_ADD && MyClient(source_p) && ConfigChannel.use_sslonly == FALSE)
+	if((mode_type == MODE_OPERONLY) &&
+	dir == MODE_ADD && MyClient(source_p) && ConfigChannel.use_sslonly == FALSE)
 		return;
 
 	if(dir == MODE_ADD)
-		chptr->mode.mode |= MODE_SSLONLY;
+		chptr->mode.mode |= mode_type;
 	else
-		chptr->mode.mode &= ~MODE_SSLONLY;
+		chptr->mode.mode &= ~mode_type;
+
+	if(dir == MODE_ADD || dir == MODE_DEL)
+		sendto_realops_flags(UMODE_FULL, L_ALL,
+			"%s (%s@%s) set CMODE %c%c on channel %s",
+			source_p->name, source_p->username, source_p->host,
+			(dir == MODE_ADD ? '+' : '-'), modec, chptr->chname);
 
 	mode_changes[mode_count].letter = c;
 	mode_changes[mode_count].dir = dir;
@@ -470,7 +488,7 @@ struct ChannelMode
 static struct ChannelMode ModeTable[255] =
 {
   {chm_nosuch,	0 },
-  {chm_nosuch,	0 },			/* A */
+  {chm_operonly,  MODE_A },		/* A */
   {chm_nosuch,	0 },			/* B */
   {chm_nosuch,	0 },			/* C */
   {chm_nosuch,	0 },			/* D */
@@ -485,10 +503,10 @@ static struct ChannelMode ModeTable[255] =
   {chm_nosuch,	0 },			/* M */
   {chm_nosuch,	0 },			/* N */
   {chm_nosuch,	0 },			/* O */
-  {chm_nosuch,	0 },			/* P */
+  {chm_operonly,  MODE_OPERONLY },	/* P */
   {chm_nosuch,	0 },			/* Q */
   {chm_nosuch,	0 },			/* R */
-  {chm_sslonly,  MODE_SSLONLY },         /* S */
+  {chm_operonly,  MODE_SSLONLY },       /* S */
   {chm_nosuch,	0 },			/* T */
   {chm_nosuch,	0 },			/* U */
   {chm_nosuch,	0 },			/* V */

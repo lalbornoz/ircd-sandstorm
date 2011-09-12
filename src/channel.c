@@ -396,6 +396,9 @@ can_send(struct Channel *chptr, struct Client *source_p, struct membership *mspt
 	if(IsServer(source_p))
 		return CAN_SEND_OPV;
 
+	if(chptr->mode.mode & MODE_OPERONLY && !IsOper(source_p))
+		return CAN_SEND_NO;
+
 	if(msptr == NULL)
 	{
 		msptr = find_channel_membership(chptr, source_p);
@@ -528,6 +531,12 @@ channel_modes(struct Channel *chptr, struct Client *client_p)
 	char *mbuf = buf;
 
 	*mbuf++ = '+';
+
+	if(chptr->mode.mode & MODE_A)
+		*mbuf++ = 'A';
+
+	if(chptr->mode.mode & MODE_OPERONLY)
+		*mbuf++ = 'P';
 
 	if(chptr->mode.mode & MODE_SSLONLY)
 		*mbuf++ = 'S';

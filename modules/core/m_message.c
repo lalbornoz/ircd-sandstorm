@@ -192,6 +192,24 @@ m_message(int p_or_n,
 		switch (targets[i].type)
 		{
 		case ENTITY_CHANNEL:
+		case ENTITY_CHANOPS_ON_CHANNEL: {
+		struct Channel *chptr = targets[i].ptr;
+
+			if(chptr->mode.mode & MODE_A) {
+				for(char *p = parv[2]; '\0' != (*p); p++) {
+					if(((*p) >= 'a') && ((*p) <= 'z'))
+						(*p) = 'a';
+					else
+					if(((*p) >= 'A') && ((*p) <= 'Z'))
+						(*p) = 'A';
+				}
+			}
+		}
+		}
+
+		switch (targets[i].type)
+		{
+		case ENTITY_CHANNEL:
 			msg_channel(p_or_n, command, client_p, source_p,
 				    (struct Channel *)targets[i].ptr, parv[2]);
 			break;
