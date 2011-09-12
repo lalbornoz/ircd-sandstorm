@@ -252,7 +252,7 @@ init_isupport(void)
 	add_isupport("CHANTYPES", isupport_string, "&#");
 	add_isupport("CHANMODES", isupport_chanmodes, NULL);
 	add_isupport("CHANLIMIT", isupport_chanlimit, NULL);
-	add_isupport("PREFIX", isupport_string, "(ov)@+");
+	add_isupport("PREFIX", isupport_string, "(ovacdefghijkmnopqrstuvwxyzBCDEFGHIJKLMNOQRTUVWXYZ)@+!#$%^&*()~+_-`='\\][{}/?.<>;:|ABCDEFGHIJKLMNOPQR");
 	add_isupport("MODES", isupport_intptr, &maxmodes);
 	add_isupport("NETWORK", isupport_stringptr, &ServerInfo.network_name);
 	add_isupport("KNOCK", isupport_boolean, &ConfigChannel.use_knock);

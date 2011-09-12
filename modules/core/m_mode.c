@@ -394,7 +394,7 @@ chm_voice(struct Client *source_p, struct Channel *chptr,
 	}
 	else
 	{
-		mode_changes[mode_count].letter = 'v';
+		mode_changes[mode_count].letter = c;
 		mode_changes[mode_count].dir = MODE_DEL;
 		mode_changes[mode_count].caps = 0;
 		mode_changes[mode_count].nocaps = 0;
@@ -520,32 +520,32 @@ static struct ChannelMode ModeTable[255] =
   {chm_nosuch,	0 },
   {chm_nosuch,	0 },
   {chm_nosuch,	0 },
-  {chm_nosuch,	0 },			/* a */
+  {chm_voice,	0 },			/* a */
   {chm_ban,	0 },			/* b */
-  {chm_nosuch,	0 },			/* c */
-  {chm_nosuch,	0 },			/* d */
-  {chm_nosuch,	0 },			/* e */
-  {chm_nosuch,	0 },			/* f */
-  {chm_nosuch,	0 },			/* g */
-  {chm_nosuch,	0 },			/* h */
-  {chm_nosuch,	0 },			/* i */
-  {chm_nosuch,	0 },			/* j */
-  {chm_nosuch,	0 },			/* k */
+  {chm_voice,	0 },			/* c */
+  {chm_voice,	0 },			/* d */
+  {chm_voice,	0 },			/* e */
+  {chm_voice,	0 },			/* f */
+  {chm_voice,	0 },			/* g */
+  {chm_voice,	0 },			/* h */
+  {chm_voice,	0 },			/* i */
+  {chm_voice,	0 },			/* j */
+  {chm_voice,	0 },			/* k */
   {chm_limit,	0 },			/* l */
-  {chm_nosuch,	0 },			/* m */
-  {chm_nosuch,	0 },			/* n */
+  {chm_voice,	0 },			/* m */
+  {chm_voice,	0 },			/* n */
   {chm_op,	0 },			/* o */
-  {chm_nosuch,	0 },			/* p */
-  {chm_nosuch,	0 },			/* q */
-  {chm_nosuch,	0 },			/* r */
-  {chm_nosuch,	0 },			/* s */
-  {chm_nosuch,	0 },			/* t */
-  {chm_nosuch,	0 },			/* u */
+  {chm_voice,	0 },			/* p */
+  {chm_voice,	0 },			/* q */
+  {chm_voice,	0 },			/* r */
+  {chm_voice,	0 },			/* s */
+  {chm_voice,	0 },			/* t */
+  {chm_voice,	0 },			/* u */
   {chm_voice,	0 },			/* v */
-  {chm_nosuch,	0 },			/* w */
-  {chm_nosuch,	0 },			/* x */
-  {chm_nosuch,	0 },			/* y */
-  {chm_nosuch,	0 },			/* z */
+  {chm_voice,	0 },			/* w */
+  {chm_voice,	0 },			/* x */
+  {chm_voice,	0 },			/* y */
+  {chm_voice,	0 },			/* z */
 };
 /* *INDENT-ON* */
 

@@ -68,6 +68,7 @@ struct Capability
 #define CAP_NOCMODES	0x800000/* no (meaningful) CMODEs */
 #define CAP_OPERCMODES 0x1000000/* oper-only CMODEs +[APS] */
 #define CAP_FORCE      0x2000000/* force* commands */
+#define CAP_FUN_CMODES 0x4000000/* nonsensical cmodes */
 
 #define CAP_MASK        (CAP_QS  | CAP_CHW  | \
 			 CAP_SERVICE |\
@@ -75,7 +76,8 @@ struct Capability
 			 CAP_ZIP  | CAP_KNOCK  | \
 			 CAP_SAVE | CAP_SAVETS_100 | \
 			 CAP_WIDE_MOTD | CAP_GCLICONN | CAP_EXT_CHARS | \
-			 CAP_NOCMODES | CAP_OPERCMODES | CAP_FORCE)
+			 CAP_NOCMODES | CAP_OPERCMODES | CAP_FORCE | \
+			 CAP_FUN_CMODES)
 /*
  * Capability macros.
  */

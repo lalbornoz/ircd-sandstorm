@@ -78,6 +78,7 @@ struct Capability captab[] = {
 	{"NOCMODES", CAP_NOCMODES},
 	{"OPERCMODES", CAP_OPERCMODES},
 	{"FORCE", CAP_FORCE},
+	{"FUN_CMODES", CAP_FUN_CMODES},
 	{0, 0}
 };
 
