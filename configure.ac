@@ -515,7 +515,7 @@ dnl so enable small net unless you really need this much support
 fi
 
 AC_ARG_WITH(nicklen,
-AC_HELP_STRING([--with-nicklen=LENGTH],[Set the nick length to LENGTH (default 9, max 50)]),
+AC_HELP_STRING([--with-nicklen=LENGTH],[Set the nick length to LENGTH (default 50, max 50)]),
 [
   if ! expr "$withval" + 0 >/dev/null 2>&1; then 
 	AC_ERROR([NICKLEN must be a numeric value])
@@ -526,7 +526,7 @@ AC_HELP_STRING([--with-nicklen=LENGTH],[Set the nick length to LENGTH (default 9
   else
 	NICKLEN="$withval"
   fi
-], [NICKLEN=9])
+], [NICKLEN=50])
 
 AC_DEFINE_UNQUOTED(NICKLEN, (${NICKLEN}+1), [Nickname length])
 AC_DEFINE_UNQUOTED(RATBOX_CONFIGURE_OPTS, "$ac_configure_args", [configure arguments])
