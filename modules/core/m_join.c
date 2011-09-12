@@ -823,10 +823,24 @@ can_join(struct Client *source_p, struct Channel *chptr, char *key)
 	rb_sprintf(src_iphost, "%s!%s@%s", source_p->name, source_p->username, source_p->sockhost);
 
 	if(chptr->mode.mode & MODE_OPERONLY && !IsOper(source_p))
+	{
+		sendto_realops_flags(UMODE_FULL, L_ALL,
+			"%s (%s@%s) tried to join +P channel %s",
+			source_p->name, source_p->username,
+			source_p->host, chptr->chname);
+
 		return ERR_OPERONLYCHAN;
+	}
 
 	if(ConfigChannel.use_sslonly && chptr->mode.mode & MODE_SSLONLY && !IsSSL(source_p))
+	{
+		sendto_realops_flags(UMODE_FULL, L_ALL,
+			"%s (%s@%s) tried to join +S channel %s",
+			source_p->name, source_p->username,
+			source_p->host, chptr->chname);
+
 		return ERR_SSLONLYCHAN;
+	}
 
 	return 0;
 }
