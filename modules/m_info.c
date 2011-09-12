@@ -192,12 +192,6 @@ static struct InfoStruct info_table[] = {
 		"Max number connections"
 	},
 	{
-		"JOIN_LEAVE_COUNT_EXPIRE_TIME", 
-		OUTPUT_DECIMAL_RAW,
-		{ (void *)JOIN_LEAVE_COUNT_EXPIRE_TIME },
-		"Anti SpamBot Parameter"
-	},
-	{
 		"KILLCHASETIMELIMIT", 
 		OUTPUT_DECIMAL_RAW, 
 		{ (void *)KILLCHASETIMELIMIT },
@@ -216,18 +210,6 @@ static struct InfoStruct info_table[] = {
 		"Maximum Buffer Connections Allowed"
 	},
 	{
-		"MAX_JOIN_LEAVE_COUNT", 
-		OUTPUT_DECIMAL_RAW, 
-		{ (void *)MAX_JOIN_LEAVE_COUNT },
-		"Anti SpamBot Parameter"
-	},
-	{
-		"MIN_JOIN_LEAVE_TIME", 
-		OUTPUT_DECIMAL_RAW, 
-		{ (void *)MIN_JOIN_LEAVE_TIME },
-		"Anti SpamBot Parameter"
-	},
-	{
 		"MPATH", 
 		OUTPUT_STRING_PTR,
 		{ MPATH },
@@ -244,12 +226,6 @@ static struct InfoStruct info_table[] = {
 		OUTPUT_STRING_PTR,
 		{ OPATH }, 
 		"Path to Operator MOTD File"
-	},
-	{
-		"OPER_SPAM_COUNTDOWN", 
-		OUTPUT_DECIMAL_RAW, 
-		{ (void *)OPER_SPAM_COUNTDOWN },
-		"Anti SpamBot Parameter"
 	},
 	{
 		"USE_CHALLENGE", 
@@ -304,12 +280,6 @@ static struct InfoStruct info_table[] = {
 		OUTPUT_BOOLEAN,
 		{ &ConfigFileEntry.anti_nick_flood }, 
 		"NICK flood protection"
-	},
-	{
-		"anti_spam_exit_message_time",
-		OUTPUT_DECIMAL,
-		{ &ConfigFileEntry.anti_spam_exit_message_time }, 
-		"Duration a client must be connected for to have an exit message"
 	},
 	{
 		"burst_away",

@@ -172,7 +172,6 @@ static struct mode_table auth_table[] = {
 	{"kline_exempt",	CONF_FLAGS_EXEMPTKLINE	},
 	{"gline_exempt",	CONF_FLAGS_EXEMPTGLINE	},
 	{"flood_exempt",	CONF_FLAGS_EXEMPTFLOOD	},
-	{"spambot_exempt",	CONF_FLAGS_EXEMPTSPAMBOT },
 	{"shide_exempt",	CONF_FLAGS_EXEMPTSHIDE	},
 	{"jupe_exempt",		CONF_FLAGS_EXEMPTJUPE	},
 	{"resv_exempt",		CONF_FLAGS_EXEMPTRESV	},
@@ -2344,7 +2343,6 @@ static struct conf_items conf_general_table[] =
 	{ "egdpool_path",	CF_QSTRING, NULL, MAXPATHLEN, &ConfigFileEntry.egdpool_path },
 	{ "kline_reason",	CF_QSTRING, NULL, REALLEN, &ConfigFileEntry.kline_reason },
 
-	{ "anti_spam_exit_message_time", CF_TIME,  NULL, 0, &ConfigFileEntry.anti_spam_exit_message_time },
 	{ "disable_fake_channels",	 CF_YESNO, NULL, 0, &ConfigFileEntry.disable_fake_channels },
 	{ "min_nonwildcard_simple",	 CF_INT,   NULL, 0, &ConfigFileEntry.min_nonwildcard_simple },
 	{ "non_redundant_klines",	 CF_YESNO, NULL, 0, &ConfigFileEntry.non_redundant_klines },

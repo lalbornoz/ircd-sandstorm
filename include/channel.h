@@ -161,8 +161,6 @@ void channel_member_names(struct Channel *chptr, struct Client *, int show_eon);
 
 const char *channel_modes(struct Channel *chptr, struct Client *who);
 
-void check_spambot_warning(struct Client *source_p, const char *name);
-
 void check_splitmode(void *);
 
 void set_channel_topic(struct Channel *chptr, const char *topic,

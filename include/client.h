@@ -143,7 +143,6 @@ struct LocalUser;
 #define FLAGS_PING_COOKIE       0x00200000
 #define FLAGS_IP_SPOOFING       0x00400000
 #define FLAGS_FLOODDONE         0x00800000
-#define FLAGS_EXEMPTSPAMBOT	0x01000000
 #define FLAGS_EXEMPTSHIDE	0x02000000
 #define FLAGS_EXEMPTJUPE	0x04000000
 
@@ -285,8 +284,6 @@ struct LocalUser;
 #define SetExemptGline(x)       ((x)->flags |= FLAGS_EXEMPTGLINE)
 #define IsExemptFlood(x)        ((x)->flags & FLAGS_EXEMPTFLOOD)
 #define SetExemptFlood(x)       ((x)->flags |= FLAGS_EXEMPTFLOOD)
-#define IsExemptSpambot(x)	((x)->flags & FLAGS_EXEMPTSPAMBOT)
-#define SetExemptSpambot(x)	((x)->flags |= FLAGS_EXEMPTSPAMBOT)
 #define IsExemptShide(x)	((x)->flags & FLAGS_EXEMPTSHIDE)
 #define SetExemptShide(x)	((x)->flags |= FLAGS_EXEMPTSHIDE)
 #define IsExemptJupe(x)		((x)->flags & FLAGS_EXEMPTJUPE)

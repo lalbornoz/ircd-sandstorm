@@ -328,9 +328,6 @@ initialize_global_set_options(void)
 
 	GlobalSetOptions.autoconn = 1;
 
-	GlobalSetOptions.spam_time = MIN_JOIN_LEAVE_TIME;
-	GlobalSetOptions.spam_num = MAX_JOIN_LEAVE_COUNT;
-
 	if(ConfigFileEntry.default_floodcount)
 		GlobalSetOptions.floodcount = ConfigFileEntry.default_floodcount;
 	else

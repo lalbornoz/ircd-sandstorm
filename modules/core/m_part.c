@@ -111,9 +111,6 @@ part_one_client(struct Client *client_p, struct Client *source_p, char *name, ch
 		return;
 	}
 
-	if(MyConnect(source_p) && !IsOper(source_p) && !IsExemptSpambot(source_p))
-		check_spambot_warning(source_p, NULL);
-
 	/*
 	 *  Remove user from the old channel (if any)
 	 */

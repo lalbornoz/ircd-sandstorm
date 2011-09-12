@@ -85,7 +85,6 @@ struct ConfItem
 #define CONF_FLAGS_EXEMPTGLINE          0x00000080
 #define CONF_FLAGS_EXEMPTRESV		0x00000100	/* exempt from resvs */
 #define CONF_FLAGS_EXEMPTFLOOD          0x00000200
-#define CONF_FLAGS_EXEMPTSPAMBOT	0x00000400
 #define CONF_FLAGS_EXEMPTSHIDE		0x00000800
 #define CONF_FLAGS_EXEMPTJUPE		0x00001000	/* exempt from resv generating warnings */
 #define CONF_FLAGS_NEED_SSL		0x00002000
@@ -106,7 +105,6 @@ struct ConfItem
 #define IsConfExemptLimits(x)   ((x)->flags & CONF_FLAGS_NOLIMIT)
 #define IsConfExemptGline(x)    ((x)->flags & CONF_FLAGS_EXEMPTGLINE)
 #define IsConfExemptFlood(x)    ((x)->flags & CONF_FLAGS_EXEMPTFLOOD)
-#define IsConfExemptSpambot(x)	((x)->flags & CONF_FLAGS_EXEMPTSPAMBOT)
 #define IsConfExemptShide(x)	((x)->flags & CONF_FLAGS_EXEMPTSHIDE)
 #define IsConfExemptJupe(x)	((x)->flags & CONF_FLAGS_EXEMPTJUPE)
 #define IsConfExemptResv(x)	((x)->flags & CONF_FLAGS_EXEMPTRESV)
@@ -148,7 +146,6 @@ struct config_file_entry
 	int dots_in_ident;
 	int failed_oper_notice;
 	int anti_nick_flood;
-	int anti_spam_exit_message_time;
 	int max_accept;
 	int max_monitor;
 	int max_nick_time;

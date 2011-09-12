@@ -52,11 +52,5 @@
 #define LINKS_DELAY_DEFAULT  300
 #define MAX_TARGETS_DEFAULT 4	/* default for max_targets */
 #define IDENT_TIMEOUT 10
-#define MIN_JOIN_LEAVE_TIME  60
-#define MAX_JOIN_LEAVE_COUNT  25
-#define OPER_SPAM_COUNTDOWN   5
-#define JOIN_LEAVE_COUNT_EXPIRE_TIME 120
-#define MIN_SPAM_NUM 5
-#define MIN_SPAM_TIME 60
 #define CONFIG_RATBOX_LEVEL_3
 #endif /* INCLUDED_defaults_h */

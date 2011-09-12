@@ -417,69 +417,6 @@ can_send(struct Channel *chptr, struct Client *source_p, struct membership *mspt
 	return CAN_SEND_NONOP;
 }
 
-/* void check_spambot_warning(struct Client *source_p)
- * Input: Client to check, channel name or NULL if this is a part.
- * Output: none
- * Side-effects: Updates the client's oper_warn_count_down, warns the
- *    IRC operators if necessary, and updates join_leave_countdown as
- *    needed.
- */
-void
-check_spambot_warning(struct Client *source_p, const char *name)
-{
-	int t_delta;
-	int decrement_count;
-	if((GlobalSetOptions.spam_num &&
-	    (source_p->localClient->join_leave_count >= GlobalSetOptions.spam_num)))
-	{
-		if(source_p->localClient->oper_warn_count_down > 0)
-			source_p->localClient->oper_warn_count_down--;
-		else
-			source_p->localClient->oper_warn_count_down = 0;
-		if(source_p->localClient->oper_warn_count_down == 0)
-		{
-			/* Its already known as a possible spambot */
-			if(name != NULL)
-				sendto_realops_flags(UMODE_BOTS, L_ALL,
-						     "User %s (%s@%s) trying to join %s is a possible spambot",
-						     source_p->name,
-						     source_p->username, source_p->host, name);
-			else
-				sendto_realops_flags(UMODE_BOTS, L_ALL,
-						     "User %s (%s@%s) is a possible spambot",
-						     source_p->name,
-						     source_p->username, source_p->host);
-			source_p->localClient->oper_warn_count_down = OPER_SPAM_COUNTDOWN;
-		}
-	}
-	else
-	{
-		if((t_delta =
-		    (rb_current_time() - source_p->localClient->last_leave_time)) >
-		   JOIN_LEAVE_COUNT_EXPIRE_TIME)
-		{
-			decrement_count = (t_delta / JOIN_LEAVE_COUNT_EXPIRE_TIME);
-			if(decrement_count > source_p->localClient->join_leave_count)
-				source_p->localClient->join_leave_count = 0;
-			else
-				source_p->localClient->join_leave_count -= decrement_count;
-		}
-		else
-		{
-			if((rb_current_time() -
-			    (source_p->localClient->last_join_time)) < GlobalSetOptions.spam_time)
-			{
-				/* oh, its a possible spambot */
-				source_p->localClient->join_leave_count++;
-			}
-		}
-		if(name != NULL)
-			source_p->localClient->last_join_time = rb_current_time();
-		else
-			source_p->localClient->last_leave_time = rb_current_time();
-	}
-}
-
 /* check_splitmode()
  *
  * input	-

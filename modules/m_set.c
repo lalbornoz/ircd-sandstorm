@@ -71,8 +71,6 @@ static void quote_floodcount(struct Client *, int);
 static void quote_identtimeout(struct Client *, int);
 static void quote_max(struct Client *, int);
 static void quote_operstring(struct Client *, const char *);
-static void quote_spamnum(struct Client *, int);
-static void quote_spamtime(struct Client *, int);
 static void quote_splitmode(struct Client *, char *);
 static void quote_splitnum(struct Client *, int);
 static void quote_splitusers(struct Client *, int);
@@ -98,8 +96,6 @@ static struct SetStruct set_cmd_table[] = {
 	{"MAX", quote_max, 0, 1},
 	{"MAXCLIENTS", quote_max, 0, 1},
 	{"OPERSTRING", quote_operstring, 1, 0},
-	{"SPAMNUM", quote_spamnum, 0, 1},
-	{"SPAMTIME", quote_spamtime, 0, 1},
 	{"SPLITMODE", quote_splitmode, 1, 0},
 	{"SPLITNUM", quote_splitnum, 0, 1},
 	{"SPLITUSERS", quote_splitusers, 0, 1},
@@ -282,60 +278,6 @@ quote_adminstring(struct Client *source_p, const char *arg)
 		sendto_realops_flags(UMODE_ALL, L_ALL,
 				     "%s has changed ADMINSTRING to '%s'",
 				     get_oper_name(source_p), arg);
-	}
-}
-
-/* SET SPAMNUM */
-static void
-quote_spamnum(struct Client *source_p, int newval)
-{
-	if(newval > 0)
-	{
-		if(newval == 0)
-		{
-			sendto_realops_flags(UMODE_ALL, L_ALL,
-					     "%s has disabled ANTI_SPAMBOT", source_p->name);
-			GlobalSetOptions.spam_num = newval;
-			return;
-		}
-		if(newval < MIN_SPAM_NUM)
-		{
-			GlobalSetOptions.spam_num = MIN_SPAM_NUM;
-		}
-		else		/* if (newval < MIN_SPAM_NUM) */
-		{
-			GlobalSetOptions.spam_num = newval;
-		}
-		sendto_realops_flags(UMODE_ALL, L_ALL, "%s has changed SPAMNUM to %i",
-				     source_p->name, GlobalSetOptions.spam_num);
-	}
-	else
-	{
-		sendto_one_notice(source_p, ":SPAMNUM is currently %i", GlobalSetOptions.spam_num);
-	}
-}
-
-/* SET SPAMTIME */
-static void
-quote_spamtime(struct Client *source_p, int newval)
-{
-	if(newval > 0)
-	{
-		if(newval < MIN_SPAM_TIME)
-		{
-			GlobalSetOptions.spam_time = MIN_SPAM_TIME;
-		}
-		else		/* if (newval < MIN_SPAM_TIME) */
-		{
-			GlobalSetOptions.spam_time = newval;
-		}
-		sendto_realops_flags(UMODE_ALL, L_ALL, "%s has changed SPAMTIME to %i",
-				     source_p->name, GlobalSetOptions.spam_time);
-	}
-	else
-	{
-		sendto_one_notice(source_p, ":SPAMTIME is currently %i",
-				  GlobalSetOptions.spam_time);
 	}
 }
 

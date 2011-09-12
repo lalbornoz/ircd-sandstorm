@@ -623,12 +623,6 @@ report_and_set_user_flags(struct Client *source_p, struct ConfItem *aconf)
 		sendto_one_notice(source_p, ":*** You are exempt from flood limits");
 	}
 
-	if(IsConfExemptSpambot(aconf))
-	{
-		SetExemptSpambot(source_p);
-		sendto_one_notice(source_p, ":*** You are exempt from spambot checks");
-	}
-
 	if(IsConfExemptJupe(aconf))
 	{
 		SetExemptJupe(source_p);
