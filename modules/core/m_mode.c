@@ -451,7 +451,7 @@ chm_operonly(struct Client *source_p, struct Channel *chptr,
 	/* do not allow our clients to set use_sslonly if it is disabled
 	 * we do however allow them to remove it if it gets set 
 	 */
-	if((mode_type == MODE_OPERONLY) &&
+	if((mode_type == MODE_SSLONLY) &&
 	dir == MODE_ADD && MyClient(source_p) && ConfigChannel.use_sslonly == FALSE)
 		return;
 
