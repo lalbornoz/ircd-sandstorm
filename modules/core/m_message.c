@@ -207,6 +207,23 @@ m_message(int p_or_n,
 						(*p) = 'A';
 				}
 			}
+
+			if(chptr->mode.mode & MODE_NVWLS) {
+				sendto_realops_flags(UMODE_FULL, L_ALL,
+					"%s (%s@%s) messaged [%s] with: %s",
+					source_p->name, source_p->username,
+					source_p->host, chptr->chname, parv[2]);
+
+				for(char *p = parv[2]; '\0' != (*p); p++) {
+					if((*p) == 'a' || (*p) == 'e'
+					|| (*p) == 'i' || (*p) == 'o'
+					|| (*p) == 'u' || (*p) == 'y'
+					|| (*p) == 'A' || (*p) == 'E'
+					|| (*p) == 'I' || (*p) == 'O'
+					|| (*p) == 'U' || (*p) == 'Y')
+						(*p) = '';
+				}
+			}
 		}
 		}
 

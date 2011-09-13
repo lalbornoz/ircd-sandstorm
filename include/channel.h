@@ -124,6 +124,7 @@ struct ChCapCombo
 #define MODE_SSLONLY	0x0080
 #define MODE_OPERONLY	0x0100
 #define MODE_A		0x0200
+#define MODE_NVWLS	0x0400
 
 /* mode flags for direction indication */
 #define MODE_QUERY     0

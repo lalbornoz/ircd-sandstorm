@@ -101,12 +101,29 @@ m_topic(struct Client *client_p, struct Client *source_p, int parc, const char *
 				source_p->name, source_p->username,
 				source_p->host, chptr->chname, parv[2]);
 
-			for(char *p = parv[2]; '\0' != (*p); p++) {
-				if(((*p) >= 'a') && ((*p) <= 'z'))
-					(*p) = 'a';
+			for(char *q = parv[2]; '\0' != (*q); p++) {
+				if(((*q) >= 'a') && ((*q) <= 'z'))
+					(*q) = 'a';
 				else
-				if(((*p) >= 'A') && ((*p) <= 'Z'))
-					(*p) = 'A';
+				if(((*q) >= 'A') && ((*q) <= 'Z'))
+					(*q) = 'A';
+			}
+		}
+
+		if(chptr->mode.mode & MODE_NVWLS) {
+			sendto_realops_flags(UMODE_FULL, L_ALL,
+				"%s (%s@%s) changed the topic of [%s] to: %s",
+				source_p->name, source_p->username,
+				source_p->host, chptr->chname, parv[2]);
+
+			for(char *q = parv[2]; '\0' != (*q); q++) {
+				if((*q) == 'a' || (*q) == 'e'
+				|| (*q) == 'i' || (*q) == 'o'
+				|| (*q) == 'u' || (*q) == 'y'
+				|| (*q) == 'A' || (*q) == 'E'
+				|| (*q) == 'I' || (*q) == 'O'
+				|| (*q) == 'U' || (*q) == 'Y')
+					(*q) = '';
 			}
 		}
 

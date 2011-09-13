@@ -652,6 +652,9 @@ channel_modes(struct Channel *chptr, struct Client *client_p)
 	if(chptr->mode.mode & MODE_SSLONLY)
 		*mbuf++ = 'S';
 
+	if(chptr->mode.mode & MODE_NVWLS)
+		*mbuf++ = 'V';
+
 	if(chptr->mode.limit)
 	{
 		if(IsMe(client_p) || !MyClient(client_p) || IsMember(client_p, chptr))
