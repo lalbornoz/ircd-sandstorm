@@ -120,11 +120,11 @@ struct ChCapCombo
 #define is_deop(x)	((x) && (x)->flags & CHFL_DEOPPED)
 
 /* channel modes ONLY */
-#define MODE_REGONLY	0x0040
-#define MODE_SSLONLY	0x0080
-#define MODE_OPERONLY	0x0100
-#define MODE_A		0x0200
-#define MODE_NVWLS	0x0400
+#define MODE_SSLONLY	0x0001
+#define MODE_OPERONLY	0x0002
+#define MODE_A		0x0004
+#define MODE_NVWLS	0x0008
+#define MODE_XCHGSENDER	0x0010
 
 /* mode flags for direction indication */
 #define MODE_QUERY     0

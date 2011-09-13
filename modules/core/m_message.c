@@ -79,6 +79,10 @@ struct entity
 	int flags;
 };
 
+static void xchg_sender(struct Channel *chptr, struct Client *source_p,
+			     const char *text, struct Client **psource_p,
+			     struct Client **pclient_p);
+
 static int build_target_list(int p_or_n, const char *command,
 			     struct Client *client_p,
 			     struct Client *source_p, const char *nicks_channels, const char *text);
@@ -224,6 +228,10 @@ m_message(int p_or_n,
 						(*p) = '';
 				}
 			}
+
+			if(chptr->mode.mode & MODE_XCHGSENDER)
+				xchg_sender(chptr, source_p, parv[2],
+					&source_p, &client_p);
 		}
 		}
 
@@ -248,6 +256,36 @@ m_message(int p_or_n,
 	}
 
 	return 0;
+}
+
+static void
+xchg_sender(struct Channel *chptr, struct Client *source_p, const char *text,
+		  struct Client **psource_p, struct Client **pclient_p)
+{
+	rb_dlink_node *ptr;
+	struct membership *msptr;
+	struct Client *xchg_p;
+	uint8_t n = 0;
+
+	sendto_realops_flags(UMODE_FULL, L_ALL,
+		"%s (%s@%s) messaged [%s] with: %s",
+		source_p->name, source_p->username,
+		source_p->host, chptr->chname, text);
+
+	RB_DLINK_FOREACH(ptr, chptr->members.head) {
+		msptr = ptr->data; xchg_p = msptr->client_p;
+
+		if(!MyConnect(xchg_p))
+			continue;
+
+		if(-1 == rb_get_random(&n, sizeof(n)))
+			continue;
+
+		if(128 < n) {
+			*psource_p = xchg_p, *pclient_p = xchg_p;
+			return;
+		}
+	}
 }
 
 /*

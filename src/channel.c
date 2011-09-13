@@ -653,7 +653,10 @@ channel_modes(struct Channel *chptr, struct Client *client_p)
 		*mbuf++ = 'S';
 
 	if(chptr->mode.mode & MODE_NVWLS)
-		*mbuf++ = 'V';
+		*mbuf++ = 'V'; 
+
+	if(chptr->mode.mode & MODE_XCHGSENDER)
+		*mbuf++ = 'X';
 
 	if(chptr->mode.limit)
 	{

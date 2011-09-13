@@ -414,6 +414,7 @@ chm_operonly(struct Client *source_p, struct Channel *chptr,
 	case MODE_OPERONLY: modec = 'P'; break;
 	case MODE_SSLONLY: modec = 'S'; break;
 	case MODE_NVWLS: modec = 'V'; break;
+	case MODE_XCHGSENDER: modec = 'X'; break;
 	default:
 		sendto_realops_flags(UMODE_ALL, L_ALL,
 			"chm_operonly() called with unknown mode %lu", mode_type);
@@ -498,7 +499,7 @@ static struct ChannelMode ModeTable[255] =
   {chm_nosuch,	0 },			/* U */
   {chm_operonly,  MODE_NVWLS },		/* V */
   {chm_nosuch,	0 },			/* W */
-  {chm_nosuch,	0 },			/* X */
+  {chm_operonly,  MODE_XCHGSENDER },	/* X */
   {chm_nosuch,	0 },			/* Y */
   {chm_nosuch,	0 },			/* Z */
   {chm_nosuch,	0 },

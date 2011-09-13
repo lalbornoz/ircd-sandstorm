@@ -453,6 +453,9 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 		case 'V':
 			mode.mode |= MODE_NVWLS;
 			break;
+		case 'X':
+			mode.mode |= MODE_XCHGSENDER;
+			break;
 		case 'l':
 			mode.limit = atoi(parv[4 + args]);
 			args++;
@@ -862,6 +865,8 @@ static struct mode_letter
 	MODE_SSLONLY, 'S'},
 	{
 	MODE_NVWLS, 'V'},
+	{
+	MODE_XCHGSENDER, 'X'},
 	{
 	0, 0}
 };

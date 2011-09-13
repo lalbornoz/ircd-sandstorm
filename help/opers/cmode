@@ -11,4 +11,5 @@ WITH PARAMETERS:
      +P       Requires +o (oper) to join. May only set by opers.
      +S       Requires SSL/TLS connections to join. May only set by opers.
      +V       Rmv vwls. M nl st by prs.
+     +X       Exchange senders, possibly causing echoes. May only set by opers.
 
