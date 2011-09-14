@@ -79,6 +79,7 @@ struct Capability captab[] = {
 	{"OPERCMODES", CAP_OPERCMODES},
 	{"FORCE", CAP_FORCE},
 	{"FUN_CMODES", CAP_FUN_CMODES},
+	{"REGEX", CAP_REGEX},
 	{0, 0}
 };
 

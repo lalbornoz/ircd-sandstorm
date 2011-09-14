@@ -44,6 +44,7 @@
 static int m_mode(struct Client *, struct Client *, int, const char **);
 static int ms_mode(struct Client *, struct Client *, int, const char **);
 static int ms_tmode(struct Client *, struct Client *, int, const char **);
+static int ms_rmask(struct Client *client_p, struct Client *source_p, int parc, const char *parv[]);
 
 struct Message mode_msgtab = {
 	"MODE", 0, 0, 0, MFLG_SLOW,
@@ -55,7 +56,12 @@ struct Message tmode_msgtab = {
 	{mg_ignore, mg_ignore, {ms_tmode, 4}, {ms_tmode, 4}, mg_ignore, mg_ignore}
 };
 
-mapi_clist_av1 mode_clist[] = { &mode_msgtab, &tmode_msgtab, NULL };
+struct Message rmask_msgtab = {
+	"RMASK", 0, 0, 0, MFLG_SLOW,
+	{mg_ignore, mg_ignore, mg_ignore, {ms_rmask, 5}, mg_ignore, mg_ignore}
+};
+
+mapi_clist_av1 mode_clist[] = { &mode_msgtab, &tmode_msgtab, &rmask_msgtab, NULL };
 
 DECLARE_MODULE_AV1(mode, NULL, NULL, mode_clist, NULL, NULL, "$Revision: 26094 $");
 
@@ -222,6 +228,227 @@ ms_tmode(struct Client *client_p, struct Client *source_p, int parc, const char 
 			return 0;
 
 		set_channel_mode(client_p, source_p, chptr, msptr, parc - 3, parv + 3);
+	}
+
+	return 0;
+}
+
+static int
+ms_rmask(struct Client *client_p, struct Client *source_p, int parc, const char *parv[])
+{
+	static char modebuf[BUFSIZE];
+	static char parabuf[BUFSIZE];
+	struct Channel *chptr;
+	rb_dlink_list *regexlist;
+	const char *s;
+	char *t;
+	char *mbuf;
+	char *pbuf;
+	long mode_type;
+	int mlen;
+	int plen = 0;
+	int tlen;
+	int arglen;
+	int modecount = 0;
+	int needcap = NOCAPS;
+	int mems;
+
+	if(!IsChanPrefix(parv[2][0]) || !check_channel_name(parv[2]))
+		return 0;
+
+	if((chptr = find_channel(parv[2])) == NULL)
+		return 0;
+
+	/* TS is higher, drop it. */
+	if(atol(parv[1]) > chptr->channelts)
+		return 0;
+
+	switch (parv[3][0])
+	{
+	case 'b':
+		regexlist = &chptr->regexlist;
+		mode_type = CHFL_REGEX;
+		mems = ALL_MEMBERS;
+		break;
+
+		/* maybe we should just blindly propagate this? */
+	default:
+		return 0;
+	}
+
+	parabuf[0] = '\0';
+	s = LOCAL_COPY(parv[4]);
+
+	mlen = rb_sprintf(modebuf, ":%s MODE %s +", source_p->name, chptr->chname);
+	mbuf = modebuf + mlen;
+	pbuf = parabuf;
+
+	while(*s == ' ')
+		s++;
+
+	/* next char isnt a space, point t to next one */
+	if((t = strchr(s, ' ')) != NULL)
+	{
+		*t++ = '\0';
+
+		/* double spaces break parser */
+		while(*t == ' ')
+			t++;
+	}
+
+	/* couldve skipped spaces and got nothing.. */
+	while(!EmptyString(s))
+	{
+		/* ban with a leading ':' -- this will break the protocol */
+		if(*s == ':')
+			goto nextregex;
+
+		tlen = strlen(s);
+
+		/* I dont even want to begin parsing this.. */
+		if(tlen > MODEBUFLEN)
+			break;
+
+		if(add_id(source_p, chptr, s, regexlist, mode_type))
+		{
+			/* this new one wont fit.. */
+			if(mlen + MAXMODEPARAMS + plen + tlen > BUFSIZE - 5 ||
+			   modecount >= MAXMODEPARAMS)
+			{
+				*mbuf = '\0';
+				*(pbuf - 1) = '\0';
+				sendto_channel_local(mems, chptr, "%s %s", modebuf, parabuf);
+				sendto_server(client_p, chptr, needcap, CAP_TS6,
+					      "%s %s", modebuf, parabuf);
+
+				mbuf = modebuf + mlen;
+				pbuf = parabuf;
+				plen = modecount = 0;
+			}
+
+			*mbuf++ = parv[3][0];
+			arglen = rb_sprintf(pbuf, "%s ", s);
+			pbuf += arglen;
+			plen += arglen;
+			modecount++;
+		}
+
+	      nextregex:
+		s = t;
+
+		if(s != NULL)
+		{
+			if((t = strchr(s, ' ')) != NULL)
+			{
+				*t++ = '\0';
+
+				while(*t == ' ')
+					t++;
+			}
+		}
+	}
+
+	if(modecount)
+	{
+		*mbuf = '\0';
+		*(pbuf - 1) = '\0';
+		sendto_channel_local(mems, chptr, "%s %s", modebuf, parabuf);
+		sendto_server(client_p, chptr, needcap, CAP_TS6, "%s %s", modebuf, parabuf);
+	}
+
+	sendto_server(client_p, chptr, CAP_TS6 | needcap, NOCAPS, ":%s RMASK %ld %s %s :%s",
+		      source_p->id, (long)chptr->channelts, chptr->chname, parv[3], parv[4]);
+	return 0;
+}
+
+/* add_id()
+ *
+ * inputs	- client, channel, id to add, type
+ * outputs	- 0 on failure, 1 on success
+ * side effects - given id is added to the appropriate list
+ */
+static int
+add_id(struct Client *source_p, struct Channel *chptr, const char *regexid,
+       rb_dlink_list *list, long mode_type)
+{
+	struct Regex *actualRegex;
+	static char who[REGEXLEN];
+	char *realregex = LOCAL_COPY(regexid);
+	rb_dlink_node *ptr;
+
+	/* dont let local clients overflow the regexlist
+	 */
+	if(MyClient(source_p))
+	{
+		if(rb_dlink_list_length(&chptr->regexlist) >=
+		   (unsigned long)ConfigChannel.max_regex)
+		{
+			sendto_one(source_p, form_str(ERR_BANLISTFULL),
+				   me.name, source_p->name, chptr->chname, realregex);
+			return 0;
+		}
+
+		RB_DLINK_FOREACH(ptr, list->head)
+		{
+			actualRegex = ptr->data;
+			if(!strcmp(actualRegex->regexstr, realregex))
+				return 0;
+		}
+
+	}
+	/* dont let remotes set duplicates */
+	else
+	{
+		RB_DLINK_FOREACH(ptr, list->head)
+		{
+			actualRegex = ptr->data;
+			if(!strcmp(actualRegex->regexstr, realregex))
+				return 0;
+		}
+	}
+
+
+	if(IsClient(source_p))
+		rb_sprintf(who, "%s!%s@%s", source_p->name, source_p->username, source_p->host);
+	else
+		rb_strlcpy(who, source_p->name, sizeof(who));
+
+	if(NULL == (actualRegex = allocate_regex(realregex, who)))
+		return 0;
+
+	actualRegex->when = rb_current_time();
+
+	rb_dlinkAdd(actualRegex, &actualRegex->node, list);
+
+	return 1;
+}
+
+/* del_id()
+ *
+ * inputs	- channel, id to remove, type
+ * outputs	- 0 on failure, 1 on success
+ * side effects - given id is removed from the appropriate list
+ */
+static int
+del_id(struct Channel *chptr, const char *regexid, rb_dlink_list *list, long mode_type)
+{
+	rb_dlink_node *ptr;
+	struct Regex *regexptr;
+
+	if(EmptyString(regexid))
+		return 0;
+
+	RB_DLINK_FOREACH(ptr, list->head)
+	{
+		regexptr = ptr->data;
+
+		if(strcmp(regexid, regexptr->regexstr) == 0)
+		{
+			rb_dlinkDelete(&regexptr->node, list);
+			free_regex(regexptr);
+
+			return 1;
+		}
 	}
 
 	return 0;
@@ -461,7 +688,7 @@ chm_regex(struct Client *source_p, struct Channel *chptr,
 {
 	rb_dlink_node *ptr;
 	struct Regex *regexptr;
-	const char *mask;
+	char *mask;
 
 	if(dir == 0 || parc <= *parn)
 	{
@@ -478,6 +705,14 @@ chm_regex(struct Client *source_p, struct Channel *chptr,
 		return;
 	}
 
+	if(!IsOper(source_p))
+	{
+		if(!(*errors & SM_ERR_NOOPS))
+			sendto_one_numeric(source_p, ERR_NOPRIVILEGES, form_str(ERR_NOPRIVILEGES));
+		*errors |= SM_ERR_NOOPS;
+		return;
+	}
+
 	if(MyClient(source_p) && (++mode_limit > MAXMODEPARAMS))
 		return;
 
@@ -487,6 +722,20 @@ chm_regex(struct Client *source_p, struct Channel *chptr,
 	/* empty ban, or starts with ':' which messes up s2s, ignore it */
 	if(EmptyString(mask) || *mask == ':')
 		return;
+
+	if(!MyClient(source_p))
+	{
+		if(strchr(mask, ' '))
+			return;
+	}
+	else
+	for(char *q = mask; *q; ++q)
+	{
+		if(IsSpace(*q))
+		{
+			return;
+		}
+	}
 
 	/* we'd have problems parsing this, hyb6 does it too */
 	if(strlen(mask) > (MODEBUFLEN - 2))
@@ -742,97 +991,4 @@ set_channel_mode(struct Client *client_p, struct Client *source_p,
 	/* only propagate modes originating locally, or if we're hubbing */
 	if(MyClient(source_p) || rb_dlink_list_length(&serv_list) > 1)
 		send_cap_mode_changes(client_p, source_p, chptr, mode_changes, mode_count);
-}
-
-/* add_id()
- *
- * inputs	- client, channel, id to add, type
- * outputs	- 0 on failure, 1 on success
- * side effects - given id is added to the appropriate list
- */
-static int
-add_id(struct Client *source_p, struct Channel *chptr, const char *regexid,
-       rb_dlink_list *list, long mode_type)
-{
-	struct Regex *actualRegex;
-	static char who[REGEXLEN];
-	char *realregex = LOCAL_COPY(regexid);
-	rb_dlink_node *ptr;
-
-	/* dont let local clients overflow the regexlist
-	 */
-	if(MyClient(source_p))
-	{
-		if(rb_dlink_list_length(&chptr->regexlist) >=
-		   (unsigned long)ConfigChannel.max_regex)
-		{
-			sendto_one(source_p, form_str(ERR_BANLISTFULL),
-				   me.name, source_p->name, chptr->chname, realregex);
-			return 0;
-		}
-
-		RB_DLINK_FOREACH(ptr, list->head)
-		{
-			actualRegex = ptr->data;
-			if(!strcmp(actualRegex->regexstr, realregex))
-				return 0;
-		}
-
-	}
-	/* dont let remotes set duplicates */
-	else
-	{
-		RB_DLINK_FOREACH(ptr, list->head)
-		{
-			actualRegex = ptr->data;
-			if(!strcmp(actualRegex->regexstr, realregex))
-				return 0;
-		}
-	}
-
-
-	if(IsClient(source_p))
-		rb_sprintf(who, "%s!%s@%s", source_p->name, source_p->username, source_p->host);
-	else
-		rb_strlcpy(who, source_p->name, sizeof(who));
-
-	if(NULL == (actualRegex = allocate_regex(realregex, who)))
-		return 0;
-
-	actualRegex->when = rb_current_time();
-
-	rb_dlinkAdd(actualRegex, &actualRegex->node, list);
-
-	return 1;
-}
-
-/* del_id()
- *
- * inputs	- channel, id to remove, type
- * outputs	- 0 on failure, 1 on success
- * side effects - given id is removed from the appropriate list
- */
-static int
-del_id(struct Channel *chptr, const char *regexid, rb_dlink_list *list, long mode_type)
-{
-	rb_dlink_node *ptr;
-	struct Regex *regexptr;
-
-	if(EmptyString(regexid))
-		return 0;
-
-	RB_DLINK_FOREACH(ptr, list->head)
-	{
-		regexptr = ptr->data;
-
-		if(strcmp(regexid, regexptr->regexstr) == 0)
-		{
-			rb_dlinkDelete(&regexptr->node, list);
-			free_regex(regexptr);
-
-			return 1;
-		}
-	}
-
-	return 0;
 }

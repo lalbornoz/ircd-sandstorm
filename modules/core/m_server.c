@@ -756,6 +756,119 @@ check_server(const char *name, struct Client *client_p)
 	return 0;
 }
 
+/* burst_modes_TS5()
+ *
+ * input	- client to burst to, channel name, list to burst, mode flag
+ * output	-
+ * side effects - client is sent a list of +b, or +e, or +I modes
+ */
+static void
+burst_modes_TS5(struct Client *client_p, char *chname, rb_dlink_list *list, char flag)
+{
+	char buf[BUFSIZE];
+	char mbuf[MODEBUFLEN];
+	char pbuf[BUFSIZE];
+	struct Regex *regexptr;
+	rb_dlink_node *ptr;
+	int tlen;
+	int mlen;
+	int cur_len;
+	char *mp;
+	char *pp;
+	int count = 0;
+
+	mlen = rb_sprintf(buf, ":%s MODE %s +", me.name, chname);
+	cur_len = mlen;
+
+	mp = mbuf;
+	pp = pbuf;
+
+	RB_DLINK_FOREACH(ptr, list->head)
+	{
+		regexptr = ptr->data;
+		tlen = strlen(regexptr->regexstr) + 3;
+
+		/* uh oh */
+		if(tlen > MODEBUFLEN)
+			continue;
+
+		if((count >= MAXMODEPARAMS) || ((cur_len + tlen + 2) > (BUFSIZE - 3)))
+		{
+			sendto_one(client_p, "%s%s %s", buf, mbuf, pbuf);
+
+			mp = mbuf;
+			pp = pbuf;
+			cur_len = mlen;
+			count = 0;
+		}
+
+		*mp++ = flag;
+		*mp = '\0';
+		pp += rb_sprintf(pp, "%s ", regexptr->regexstr);
+		cur_len += tlen;
+		count++;
+	}
+
+	if(count != 0)
+		sendto_one(client_p, "%s%s %s", buf, mbuf, pbuf);
+}
+
+/* burst_modes_TS6()
+ *
+ * input	- client to burst to, channel name, list to burst, mode flag
+ * output	-
+ * side effects - client is sent a list of +b, +e, or +I modes
+ */
+static void
+burst_modes_TS6(struct Client *client_p, struct Channel *chptr, rb_dlink_list *list, char flag)
+{
+	char buf[BUFSIZE];
+	rb_dlink_node *ptr;
+	struct Regex *regexptr;
+	char *t;
+	int tlen;
+	int mlen;
+	int cur_len;
+
+	cur_len = mlen = rb_sprintf(buf, ":%s RMASK %ld %s %c :",
+				    me.id, (long)chptr->channelts, chptr->chname, flag);
+	t = buf + mlen;
+
+	RB_DLINK_FOREACH(ptr, list->head)
+	{
+		regexptr = ptr->data;
+
+		tlen = strlen(regexptr->regexstr) + 1;
+
+		/* uh oh */
+		if(cur_len + tlen > BUFSIZE - 3)
+		{
+			/* the one we're trying to send doesnt fit at all! */
+			if(cur_len == mlen)
+			{
+				s_assert(0);
+				continue;
+			}
+
+			/* chop off trailing space and send.. */
+			*(t - 1) = '\0';
+			sendto_one_buffer(client_p, buf);
+			cur_len = mlen;
+			t = buf + mlen;
+		}
+
+		rb_sprintf(t, "%s ", regexptr->regexstr);
+		t += tlen;
+		cur_len += tlen;
+	}
+
+	/* cant ever exit the loop above without having modified buf,
+	 * chop off trailing space and send.
+	 */
+	*(t - 1) = '\0';
+	sendto_one_buffer(client_p, buf);
+}
+
 /*
  * burst_TS5
  * 
@@ -856,6 +969,8 @@ burst_TS5(struct Client *client_p)
 		t--;
 		*t = '\0';
 		sendto_one_buffer(client_p, buf);
+
+		burst_modes_TS5(client_p, chptr->chname, &chptr->regexlist, 'b');
 
 		if(IsCapable(client_p, CAP_TB) && chptr->topic != NULL)
 			sendto_one(client_p, ":%s TB %s %ld %s%s:%s",
@@ -981,6 +1096,9 @@ burst_TS6(struct Client *client_p)
 		/* remove trailing space */
 		*(t - 1) = '\0';
 		sendto_one_buffer(client_p, buf);
+
+		if(rb_dlink_list_length(&chptr->regexlist) > 0)
+			burst_modes_TS6(client_p, chptr, &chptr->regexlist, 'b');
 
 		if(IsCapable(client_p, CAP_TB) && chptr->topic != NULL)
 			sendto_one(client_p, ":%s TB %s %ld %s%s:%s",

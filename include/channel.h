@@ -139,6 +139,7 @@ struct ChCapCombo
 #define MODE_OPERONLY	0x0002
 #define MODE_XCHGSENDER	0x0004
 #define MODE_REGEX	0x0008
+#define CHFL_REGEX	0x0010
 
 /* mode flags for direction indication */
 #define MODE_QUERY     0

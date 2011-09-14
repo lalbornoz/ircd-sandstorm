@@ -972,12 +972,15 @@ stats_memory(struct Client *source_p)
 {
 	struct Client *target_p;
 	struct Channel *chptr;
+	struct Regex *actualRegex;
+	rb_dlink_node *dlink;
 	rb_dlink_node *ptr;
 	int channel_count = 0;
 	int local_client_conf_count = 0;	/* local client conf links */
 	int users_counted = 0;	/* user structs */
 
 	int channel_users = 0;
+	int channel_regexes = 0;
 
 	size_t wwu = 0;		/* whowas users */
 	int class_count = 0;	/* classes */
@@ -987,6 +990,7 @@ stats_memory(struct Client *source_p)
 	size_t number_servers_cached;	/* number of servers cached by scache */
 
 	size_t channel_memory = 0;
+	size_t channel_regex_memory = 0;
 
 	size_t away_memory = 0;	/* memory used by aways */
 	size_t wwm = 0;		/* whowas array memory used */
@@ -1036,7 +1040,7 @@ stats_memory(struct Client *source_p)
 		}
 	}
 
-	/* Count up all channels */
+	/* Count up all channels, regex lists */
 	RB_DLINK_FOREACH(ptr, global_channel_list.head)
 	{
 		chptr = ptr->data;
@@ -1044,6 +1048,14 @@ stats_memory(struct Client *source_p)
 		channel_memory += (strlen(chptr->chname) + sizeof(struct Channel));
 
 		channel_users += rb_dlink_list_length(&chptr->members);
+
+		RB_DLINK_FOREACH(dlink, chptr->regexlist.head)
+		{
+			actualRegex = dlink->data;
+			channel_regexes++;
+
+			channel_regex_memory += sizeof(rb_dlink_node) + sizeof(struct Regex);
+		}
 	}
 
 	/* count up all classes */
@@ -1077,11 +1089,15 @@ stats_memory(struct Client *source_p)
 			   "z :Channels %u(%zu)", channel_count, channel_memory);
 
 	sendto_one_numeric(source_p, RPL_STATSDEBUG,
+			   "z :Regexes %u(%zu)", channel_regexes, channel_regex_memory);
+
+	sendto_one_numeric(source_p, RPL_STATSDEBUG,
 			   "z :Channel members %u(%zu)",
 			   channel_users,
 			   channel_users * sizeof(rb_dlink_node));
 
 	total_channel_memory = channel_memory +
+		channel_regex_memory +
 		channel_users * sizeof(rb_dlink_node);
 
 	sendto_one_numeric(source_p, RPL_STATSDEBUG,

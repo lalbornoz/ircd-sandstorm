@@ -165,6 +165,7 @@ char crazy_cmode_tbl[CRAZY_CMODES] =
 };
 
 static void free_topic(struct Channel *chptr);
+static int is_escaped(const char *s, const char *p);
 
 /* init_channels()
  *
@@ -205,33 +206,38 @@ allocate_regex(const char *regexstr, const char *who)
 {
 	struct Regex *rptr;
 	char *pat, *subst, *p;
-
+	int flags = REG_EXTENDED;
 	regex_t reg;
 
 	if('/' != *regexstr)
-		goto inval;
+		return NULL;
 	else	pat = rb_strndup(regexstr + 1, REGEXLEN);
 
 	for(p = subst = pat; '\0' != *p; p++)
 	{
-		int slash = 0;
-
-		if('/' == *p)
+		if('/' == *p && !is_escaped(pat, p))
 		{
-			for(char *q = p - 1; q >= pat; q--)
-				if('\\' == *q)
-					slash++;
-				else	break;
-
-			if(0 == (slash % 2))
-			{
-				*p++ = '\0', subst = p;
-				break;
-			}
+			*p++ = '\0', subst = p;
+			break;
 		}
 	}
 
-	if(0 != regcomp(&reg, pat, REG_EXTENDED))
+	for(p = strchr(subst, '\0'); p >= subst; p--)
+	{
+		if('/' == *p)
+		{
+			for(*p++ = '\0'; '\0' != *p; p++)
+			switch(*p)
+			{
+			case 'i': flags |= REG_ICASE; break;
+			default: goto inval;
+			}
+
+			goto out;
+		}
+	}
+
+out:	if(0 != regcomp(&reg, pat, flags))
 		goto inval;
 
 	rptr = rb_bh_alloc(regex_heap);
@@ -450,6 +456,29 @@ check_channel_name(const char *name)
 	return 1;
 }
 
+/* free_channel_list()
+ *
+ * input	- dlink list to free
+ * output	-
+ * side effects - list of b modes is cleared
+ */
+void
+free_channel_list(rb_dlink_list *list)
+{
+	rb_dlink_node *ptr;
+	rb_dlink_node *next_ptr;
+	struct Regex *actualRegex;
+
+	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, list->head)
+	{
+		actualRegex = ptr->data;
+		free_regex(actualRegex);
+	}
+
+	list->head = list->tail = NULL;
+	list->length = 0;
+}
+
 /* destroy_channel()
  *
  * input	- channel to destroy
@@ -460,6 +489,9 @@ void
 destroy_channel(struct Channel *chptr)
 {
 	rb_dlink_node *ptr, *next_ptr;
+
+	/* free all regexes */
+	free_channel_list(&chptr->regexlist);
 
 	/* Free the topic */
 	free_topic(chptr);
@@ -586,28 +618,45 @@ can_send(struct Channel *chptr, struct Client *source_p, struct membership *mspt
 
 void
 filter_regex(struct Channel *chptr, struct Client *source_p, char **ptext)
-{
+{	
 	static char tmp[BUFSIZE], text[BUFSIZE] = { '\0', };
-	regmatch_t rmatch;
+#define RMATCH_NITEMS	32
+	regmatch_t rmatch[RMATCH_NITEMS];
 	rb_dlink_node *ptr;
 
 	rb_strlcpy(&text[0], *ptext, sizeof(text));
 	RB_DLINK_FOREACH(ptr, chptr->regexlist.head)
 	{
 		char *p, *nul; struct Regex *actualRegex = ptr->data;
+		char subst[BUFSIZE];
+
+		rb_strlcpy(&subst[0], actualRegex->subst, sizeof(subst));
+		for(p = subst; *p; p++)
+		switch(*p)
+		{
+		case '\\':
+			if(!is_escaped(actualRegex->subst, p)
+			&& 's' == *(p + 1))
+			{
+				*p = ' '; memmove(p + 1, p + 2, 1 + strlen(p + 2));
+			}
+
+			break;
+		}
 
 		memset(&tmp[0], '\0', sizeof(tmp));
 		p = &text[0], nul = strchr(p, '\0');
 
-		while(0 == regexec(&actualRegex->reg, p, 1, &rmatch, 0))
-			if(nul < (p + rmatch.rm_eo))
+		while(0 == regexec(&actualRegex->reg, p, RMATCH_NITEMS, &rmatch[0], 0))
+			if(nul < (p + rmatch[0].rm_eo))
 				break;
 			else
 			{
 				rb_snprintf_append(&tmp[0], sizeof(tmp),
-					 "%.*s%s", (int) rmatch.rm_so, p,
-					actualRegex->subst);
-				p += rmatch.rm_eo;
+					 "%.*s%s", (int) rmatch[0].rm_so, p,
+					subst);
+
+				p += rmatch[0].rm_eo;
 			}
 
 		rb_snprintf_append(&tmp[0], sizeof(tmp), "%s", p);
@@ -982,4 +1031,19 @@ send_cap_mode_changes(struct Client *client_p, struct Client *source_p,
 		if(nc != 0)
 			sendto_server(client_p, chptr, cap, nocap, "%s %s", modebuf, parabuf);
 	}
+}
+
+static int
+is_escaped(const char *s, const char *p)
+{
+	int slash = 0;
+
+	for(char *q = p - 1; q >= s; q--)
+	if('\\' == *q)
+		slash++;
+	else	break;
+
+	if(0 == (slash % 2))
+		return 0;
+	else	return 1;
 }
