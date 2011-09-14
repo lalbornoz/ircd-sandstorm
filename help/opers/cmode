@@ -2,13 +2,18 @@ MODE <channel> <+|-><modes> [parameters]
 
 CHANNELMODE - DESCRIPTION
 ------------------------------------------------------------------------
-WITH PARAMETERS:
-     +v     - Voice.  Noted by +nick.
-              PARAMS: /mode #channel +v nick
-     +o     - Op.
-              PARAMS: /mode #channel +o nick
+NO PARAMETERS:
      +P       Requires +o (oper) to join. May only set by opers.
      +R       Filter messages via regular expressions (+b.)  May only set by opers.
      +S       Requires SSL/TLS connections to join. May only set by opers.
      +X       Exchange senders, possibly causing echoes. May only set by opers.
+
+WITH PARAMETERS:
+     +b     - Regular expressions.  See +R. May only be set or removed by opers.
+              \s in the substitution string will emit SP (` '.)
+              PARAMS: /mode #channel +b /pattern/substitution[/i]
+     +v     - Voice.  Noted by +nick.
+              PARAMS: /mode #channel +v nick
+     +o     - Op.
+              PARAMS: /mode #channel +o nick
 
