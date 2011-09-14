@@ -713,13 +713,7 @@ msg_client(int p_or_n, const char *command,
 		}
 		else
 		{
-			/* If the client is remote, we dont perform a special check for
-			 * flooding.. as we wouldnt block their message anyway.. this means
-			 * we dont give warnings.. we then check if theyre opered 
-			 * (to avoid flood warnings), lastly if theyre our client
-			 * and flooding    -- fl */
-			if(!MyClient(source_p) || IsOper(source_p))
-				sendto_anywhere(target_p, source_p, command, ":%s", text);
+			sendto_anywhere(target_p, source_p, command, ":%s", text);
 		}
 	}
 	else if(!MyClient(source_p) || IsOper(source_p))
