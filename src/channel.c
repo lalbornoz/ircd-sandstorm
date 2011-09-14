@@ -634,10 +634,11 @@ filter_regex(struct Channel *chptr, struct Client *source_p, char **ptext)
 
 		rb_strlcpy(&subst[0], actualRegex->subst, sizeof(subst));
 		for(p = subst; *p; p++)
-		if ('\\' == *p && !is_escaped(actualRegex->subst, p)
-		&& 's' == *(p + 1))
+		if(*p == '\\')
+		switch(*(p + 1))
 		{
-			*p = ' '; memmove(p + 1, p + 2, 1 + strlen(p + 2));
+		case 's':  *p = ' ';
+		case '\\': memmove(p + 1, p + 2, 1 + strlen(p + 2));
 		}
 
 		memset(&tmp[0], '\0', sizeof(tmp));
