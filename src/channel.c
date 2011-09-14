@@ -643,7 +643,8 @@ filter_regex(struct Channel *chptr, struct Client *source_p, char **ptext)
 		memset(&tmp[0], '\0', sizeof(tmp));
 		p = &text[0], nul = strchr(p, '\0');
 
-		while(0 == regexec(&actualRegex->reg, p, RMATCH_NITEMS, &rmatch[0], 0))
+		while(0 == regexec(&actualRegex->reg, p, RMATCH_NITEMS, &rmatch[0], 0)
+		&& 0 < strlen(p))
 		{
 			if (REGEX_MAX_ITER < (++iter))
 				return;
