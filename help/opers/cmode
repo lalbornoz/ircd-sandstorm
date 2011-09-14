@@ -7,9 +7,8 @@ WITH PARAMETERS:
               PARAMS: /mode #channel +v nick
      +o     - Op.
               PARAMS: /mode #channel +o nick
-     +A       Aaa aaa aa aaaa aa a aa aaaa. Aaa aaaa aaa aa aaaaa.
      +P       Requires +o (oper) to join. May only set by opers.
+     +R       Filter messages via regular expressions (+b.)  May only set by opers.
      +S       Requires SSL/TLS connections to join. May only set by opers.
-     +V       Rmv vwls. M nl st by prs.
      +X       Exchange senders, possibly causing echoes. May only set by opers.
 

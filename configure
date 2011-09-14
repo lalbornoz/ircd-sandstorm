@@ -13490,7 +13490,7 @@ $as_echo "#define NICKNAMEHISTORYLENGTH 1500" >>confdefs.h
 $as_echo "#define CHANNEL_HEAP_SIZE 256" >>confdefs.h
 
 
-$as_echo "#define BAN_HEAP_SIZE 128" >>confdefs.h
+$as_echo "#define REGEX_HEAP_SIZE 128" >>confdefs.h
 
 
 $as_echo "#define CLIENT_HEAP_SIZE 256" >>confdefs.h
@@ -13539,7 +13539,7 @@ $as_echo "#define NICKNAMEHISTORYLENGTH 30000" >>confdefs.h
 $as_echo "#define CHANNEL_HEAP_SIZE 8192" >>confdefs.h
 
 
-$as_echo "#define BAN_HEAP_SIZE 4096" >>confdefs.h
+$as_echo "#define REGEX_HEAP_SIZE 4096" >>confdefs.h
 
 
 $as_echo "#define CLIENT_HEAP_SIZE 8192" >>confdefs.h

@@ -41,11 +41,14 @@
 #include "s_newconf.h"
 #include "s_log.h"
 
+#include <regex.h>
+
 struct config_channel_entry ConfigChannel;
 rb_dlink_list global_channel_list;
 static rb_bh *channel_heap;
 static rb_bh *topic_heap;
 static rb_bh *member_heap;
+static rb_bh *regex_heap;
 struct ev_entry *checksplit_ev;
 
 static int channel_capabs[] = {
@@ -96,13 +99,13 @@ char crazy_cmode_tbl[CRAZY_CMODES] =
        '\0',				/* > */
        '\0',				/* ? */
        '\0',				/* @ */
-       '\0',				/* A */
-       '.',				/* B */
-       '<',				/* C */
-       '>',				/* D */
-       ';',				/* E */
-       ':',				/* F */
-       '|',				/* G */
+       '.',				/* A */
+       '<',				/* B */
+       '>',				/* C */
+       ';',				/* D */
+       ':',				/* E */
+       '|',				/* F */
+       '\0',				/* G */
        '\0',				/* H */
        '\0',				/* I */
        '\0',				/* J */
@@ -175,6 +178,7 @@ init_channels(void)
 	channel_heap = rb_bh_create(sizeof(struct Channel), CHANNEL_HEAP_SIZE, "channel_heap");
 	topic_heap = rb_bh_create(sizeof(struct topic_info), TOPIC_HEAP_SIZE, "topic_heap");
 	member_heap = rb_bh_create(sizeof(struct membership), MEMBER_HEAP_SIZE, "member_heap");
+	regex_heap = rb_bh_create(sizeof(struct Regex), REGEX_HEAP_SIZE, "regex_heap");
 }
 
 /*
@@ -194,6 +198,61 @@ free_channel(struct Channel *chptr)
 {
 	rb_free(chptr->chname);
 	rb_bh_free(channel_heap, chptr);
+}
+
+struct Regex *
+allocate_regex(const char *regexstr, const char *who)
+{
+	struct Regex *rptr;
+	char *pat = rb_strndup(regexstr, REGEXLEN), *subst = NULL, *p;
+
+	regex_t reg;
+
+	if('/' != *pat)
+		goto inval;
+
+	for(p = subst = pat + 1; '\0' != *p; p++)
+	{
+		int slash = 0;
+
+		if('/' == *p)
+		{
+			for(char *q = p - 1; q >= pat; q--)
+				if('\\' == *q)
+					slash++;
+				else	break;
+
+			if(0 == (slash % 2))
+			{
+				*p++ = '\0', subst = p;
+				break;
+			}
+		}
+	}
+
+	if(0 != regcomp(&reg, pat, REG_EXTENDED))
+		goto inval;
+
+	rptr = rb_bh_alloc(regex_heap);
+	rptr->regexstr = rb_strndup(regexstr, REGEXLEN);
+	rptr->pat = pat;
+	rptr->subst = rb_strndup(subst, REGEXLEN);
+	rptr->reg = reg;
+	rptr->who = rb_strndup(who, REGEXLEN);
+
+	return (rptr);
+
+inval:	rb_free(pat); return NULL;
+}
+
+void
+free_regex(struct Regex *rptr)
+{
+	rb_free(rptr->regexstr);
+	rb_free(rptr->pat);
+	rb_free(rptr->subst);
+	rb_free(rptr->who);
+	rb_bh_free(regex_heap, rptr);
 }
 
 
@@ -524,6 +583,39 @@ can_send(struct Channel *chptr, struct Client *source_p, struct membership *mspt
 	return CAN_SEND_NONOP;
 }
 
+void
+filter_regex(struct Channel *chptr, struct Client *source_p, char **ptext)
+{
+	static char tmp[BUFSIZE], text[BUFSIZE] = { '\0', };
+	regmatch_t rmatch;
+	rb_dlink_node *ptr;
+
+	rb_strlcpy(&text[0], *ptext, sizeof(text));
+	RB_DLINK_FOREACH(ptr, chptr->regexlist.head)
+	{
+		char *p, *nul; struct Regex *actualRegex = ptr->data;
+
+		memset(&tmp[0], '\0', sizeof(tmp));
+		p = &text[0], nul = strchr(p, '\0');
+
+		while(0 == regexec(&actualRegex->reg, p, 1, &rmatch, 0))
+			if(nul < (p + rmatch.rm_eo))
+				break;
+			else
+			{
+				rb_snprintf_append(&tmp[0], sizeof(tmp),
+					 "%.*s%s", (int) rmatch.rm_so, p,
+					actualRegex->subst);
+				p += rmatch.rm_eo;
+			}
+
+		rb_snprintf_append(&tmp[0], sizeof(tmp), "%s", p);
+		rb_strlcpy(&text[0], &tmp[0], sizeof(text));
+	}
+
+	(*ptext) = &text[0];
+}
+
 /* check_splitmode()
  *
  * input	-
@@ -643,17 +735,14 @@ channel_modes(struct Channel *chptr, struct Client *client_p)
 
 	*mbuf++ = '+';
 
-	if(chptr->mode.mode & MODE_A)
-		*mbuf++ = 'A';
-
 	if(chptr->mode.mode & MODE_OPERONLY)
 		*mbuf++ = 'P';
 
+	if(chptr->mode.mode & MODE_REGEX)
+		*mbuf++ = 'R';
+
 	if(chptr->mode.mode & MODE_SSLONLY)
 		*mbuf++ = 'S';
-
-	if(chptr->mode.mode & MODE_NVWLS)
-		*mbuf++ = 'V'; 
 
 	if(chptr->mode.mode & MODE_XCHGSENDER)
 		*mbuf++ = 'X';

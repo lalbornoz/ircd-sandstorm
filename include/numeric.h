@@ -180,6 +180,9 @@ const char *form_str(int);
 #define RPL_BANLIST          367
 #define RPL_ENDOFBANLIST     368
 /* rpl_endofwhowas above (369) */
+#define RPL_REGEXLIST	     RPL_BANLIST
+#define RPL_ENDOFREGEXLIST   RPL_ENDOFBANLIST
+#define ERR_REGEXLISTFULL    ERR_BANLISTFULL
 
 #define RPL_INFO             371
 #define RPL_MOTD             372

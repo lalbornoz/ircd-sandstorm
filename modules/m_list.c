@@ -139,6 +139,9 @@ list_all_channels(struct Client *source_p)
 			break;
 		}
 
+		if(chptr->mode.mode & MODE_OPERONLY && !IsOper(source_p))
+			continue;
+
 		sendto_one(source_p, form_str(RPL_LIST),
 			   me.name, source_p->name, chptr->chname,
 			   rb_dlink_list_length(&chptr->members),
@@ -220,6 +223,9 @@ list_limit_channels(struct Client *source_p, const char *param)
 		   (int)rb_dlink_list_length(&chptr->members) <= min)
 			continue;
 
+		if(chptr->mode.mode & MODE_OPERONLY && !IsOper(source_p))
+			continue;
+
 		sendto_one(source_p, form_str(RPL_LIST),
 			   me.name, source_p->name, chptr->chname,
 			   rb_dlink_list_length(&chptr->members),
@@ -268,7 +274,7 @@ list_named_channel(struct Client *source_p, const char *name)
 
 	chptr = find_channel(n);
 
-	if(chptr == NULL)
+	if((chptr == NULL) || (chptr->mode.mode & MODE_OPERONLY && !IsOper(source_p)))
 	{
 		sendto_one_numeric(source_p, ERR_NOSUCHNICK, form_str(ERR_NOSUCHNICK), n);
 		ClearCork(source_p);

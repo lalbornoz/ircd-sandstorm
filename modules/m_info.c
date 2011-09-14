@@ -687,6 +687,12 @@ static struct InfoStruct info_table[] = {
 		"Disallow creation of channels when split",
 	},
 	{
+		"max_regex",
+		OUTPUT_DECIMAL,
+		{ &ConfigChannel.max_regex }, 
+		"Maximum number of regex per channel",
+	},
+	{
 		"no_join_on_split",
 		OUTPUT_BOOLEAN_YN,
 		{ &ConfigChannel.no_join_on_split }, 

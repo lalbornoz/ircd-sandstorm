@@ -95,43 +95,19 @@ m_topic(struct Client *client_p, struct Client *source_p, int parc, const char *
 			return 0;
 		}
 
-		if(chptr->mode.mode & MODE_A) {
-			sendto_realops_flags(UMODE_FULL, L_ALL,
-				"%s (%s@%s) changed the topic of [%s] to: %s",
-				source_p->name, source_p->username,
-				source_p->host, chptr->chname, parv[2]);
-
-			for(char *q = parv[2]; '\0' != (*q); p++) {
-				if(((*q) >= 'a') && ((*q) <= 'z'))
-					(*q) = 'a';
-				else
-				if(((*q) >= 'A') && ((*q) <= 'Z'))
-					(*q) = 'A';
-			}
-		}
-
-		if(chptr->mode.mode & MODE_NVWLS) {
-			sendto_realops_flags(UMODE_FULL, L_ALL,
-				"%s (%s@%s) changed the topic of [%s] to: %s",
-				source_p->name, source_p->username,
-				source_p->host, chptr->chname, parv[2]);
-
-			for(char *q = parv[2]; '\0' != (*q); q++) {
-				if((*q) == 'a' || (*q) == 'e'
-				|| (*q) == 'i' || (*q) == 'o'
-				|| (*q) == 'u' || (*q) == 'y'
-				|| (*q) == 'A' || (*q) == 'E'
-				|| (*q) == 'I' || (*q) == 'O'
-				|| (*q) == 'U' || (*q) == 'Y')
-					(*q) = '';
-			}
-		}
-
 		{
-			char topic_info[USERHOST_REPLYLEN];
+			char topic_info[USERHOST_REPLYLEN]; char *text = parv[2];
 			rb_sprintf(topic_info, "%s!%s@%s",
 				   source_p->name, source_p->username, source_p->host);
-			set_channel_topic(chptr, parv[2], topic_info, rb_current_time());
+
+			if(chptr->mode.mode & MODE_REGEX)
+				filter_regex(chptr, source_p, &text);
+
+			if(chptr->mode.mode & MODE_XCHGSENDER)
+				xchg_sender(chptr, source_p, text,
+				&source_p, &client_p);
+
+			set_channel_topic(chptr, text, topic_info, rb_current_time());
 
 			sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
 				      ":%s TOPIC %s :%s",

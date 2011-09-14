@@ -232,6 +232,16 @@ isupport_chanlimit(const void *ptr)
 }
 
 static const char *
+isupport_maxlist(const void *ptr)
+{
+	static char result[30];
+
+	rb_snprintf(result, sizeof result, "b:%i",
+		    ConfigChannel.max_regex);
+	return result;
+}
+
+static const char *
 isupport_targmax(const void *ptr)
 {
 	static char result[200];
@@ -280,6 +290,7 @@ init_isupport(void)
 	}
 
 	add_isupport("PREFIX", isupport_string, modestr);
+	add_isupport("MAXLIST", isupport_maxlist, NULL);
 	add_isupport("MODES", isupport_intptr, &maxmodes);
 	add_isupport("NETWORK", isupport_stringptr, &ServerInfo.network_name);
 	add_isupport("KNOCK", isupport_boolean, &ConfigChannel.use_knock);

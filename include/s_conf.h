@@ -207,6 +207,7 @@ struct config_channel_entry
 	int default_split_user_count;
 	int burst_topicwho;
 	int topiclen;
+	int max_regex;
 };
 
 struct config_server_hide

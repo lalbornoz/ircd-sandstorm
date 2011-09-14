@@ -279,6 +279,9 @@ single_whois(struct Client *source_p, struct Client *target_p, int operspy)
 			msptr = ptr->data;
 			chptr = msptr->chptr;
 
+			if(chptr->mode.mode & MODE_OPERONLY && !IsOper(source_p))
+				continue;
+
 			{
 				if((cur_len + strlen(chptr->chname) + 3) > (BUFSIZE - 5))
 				{

@@ -441,17 +441,14 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 	{
 		switch (*(s++))
 		{
-		case 'A':
-			mode.mode |= MODE_A;
-			break;
 		case 'P':
 			mode.mode |= MODE_OPERONLY;
 			break;
+		case 'R':
+			mode.mode |= MODE_REGEX;
+			break;
 		case 'S':
 			mode.mode |= MODE_SSLONLY;
-			break;
-		case 'V':
-			mode.mode |= MODE_NVWLS;
 			break;
 		case 'X':
 			mode.mode |= MODE_XCHGSENDER;
@@ -858,13 +855,11 @@ static struct mode_letter
 } flags[] =
 {
 	{
-	MODE_A, 'A'},
-	{
 	MODE_OPERONLY, 'P'},
 	{
-	MODE_SSLONLY, 'S'},
+	MODE_REGEX, 'R'},
 	{
-	MODE_NVWLS, 'V'},
+	MODE_SSLONLY, 'S'},
 	{
 	MODE_XCHGSENDER, 'X'},
 	{

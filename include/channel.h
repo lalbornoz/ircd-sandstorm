@@ -27,6 +27,8 @@
 #ifndef INCLUDED_channel_h
 #define INCLUDED_channel_h
 
+#include <regex.h>
+
 #define MODEBUFLEN      200
 
 /* Maximum mode changes allowed per client, per server is different */
@@ -61,6 +63,8 @@ struct Channel
 	rb_dlink_list members;	/* channel members */
 	rb_dlink_list locmembers;	/* local channel members */
 
+	rb_dlink_list regexlist;
+
 	time_t channelts;
 	char *chname;
 };
@@ -78,6 +82,17 @@ struct membership
 	struct Client *client_p;
 	uint8_t flags;
 	uint8_t flags_crazy[CRAZY_CMODES];
+};
+
+#define REGEXLEN NICKLEN+USERLEN+HOSTLEN+6
+struct Regex
+{
+	char *regexstr;
+	char *pat, *subst;
+	regex_t reg;
+	char *who;
+	time_t when;
+	rb_dlink_node node;
 };
 
 struct ChModeChange
@@ -122,9 +137,8 @@ struct ChCapCombo
 /* channel modes ONLY */
 #define MODE_SSLONLY	0x0001
 #define MODE_OPERONLY	0x0002
-#define MODE_A		0x0004
-#define MODE_NVWLS	0x0008
-#define MODE_XCHGSENDER	0x0010
+#define MODE_XCHGSENDER	0x0004
+#define MODE_REGEX	0x0008
 
 /* mode flags for direction indication */
 #define MODE_QUERY     0
@@ -141,20 +155,20 @@ void init_channels(void);
 
 struct Channel *allocate_channel(const char *chname);
 void free_channel(struct Channel *chptr);
+struct Regex *allocate_regex(const char *, const char *);
+void free_regex(struct Regex *rptr);
 
 
 void destroy_channel(struct Channel *);
 
 int can_send(struct Channel *chptr, struct Client *who, struct membership *);
-int is_banned(struct Channel *chptr, struct Client *who,
-	      struct membership *msptr, const char *, const char *);
+void filter_regex(struct Channel *, struct Client *, char **);
 
 struct membership *find_channel_membership(struct Channel *, struct Client *);
 const char *find_channel_status(struct membership *msptr, int combine);
 void add_user_to_channel(struct Channel *, struct Client *, int flags);
 void remove_user_from_channel(struct membership *);
 void remove_user_from_channels(struct Client *);
-void invalidate_bancache_user(struct Client *);
 
 void free_channel_list(rb_dlink_list *);
 

@@ -478,7 +478,7 @@ if test "$small_net" = yes; then
 dnl	AC_DEFINE([HASHSIZE], 4096, [Max number of buckets in hash tables.])
 	AC_DEFINE([NICKNAMEHISTORYLENGTH], 1500, [Size of the WHOWAS array.])
 	AC_DEFINE([CHANNEL_HEAP_SIZE], 256, [Size of the channel heap.])
-	AC_DEFINE([BAN_HEAP_SIZE], 128, [Size of the ban heap.])
+	AC_DEFINE([REGEX_HEAP_SIZE], 128, [Size of the regex heap.])
 	AC_DEFINE([CLIENT_HEAP_SIZE], 256, [Size of the client heap.])
 	AC_DEFINE([LCLIENT_HEAP_SIZE], 128, [Size of the local client heap.])
 	AC_DEFINE([USER_HEAP_SIZE], 128, [Size of the user heap.])
@@ -497,7 +497,7 @@ dnl These settings are for a large network like efnet..they will use lots of mem
 dnl so enable small net unless you really need this much support
         AC_DEFINE([NICKNAMEHISTORYLENGTH], 30000, [Size of the WHOWAS array.])
         AC_DEFINE([CHANNEL_HEAP_SIZE], 8192, [Size of the channel heap.])
-        AC_DEFINE([BAN_HEAP_SIZE], 4096, [Size of the ban heap.])
+        AC_DEFINE([REGEX_HEAP_SIZE], 4096, [Size of the regex heap.])
         AC_DEFINE([CLIENT_HEAP_SIZE], 8192, [Size of the client heap.])
         AC_DEFINE([LCLIENT_HEAP_SIZE], 1024, [Size of the local client heap.])
         AC_DEFINE([USER_HEAP_SIZE], 8192, [Size of the user heap.])

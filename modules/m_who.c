@@ -323,6 +323,9 @@ do_who_on_channel(struct Client *source_p, struct Channel *chptr, int server_ope
 	rb_dlink_node *ptr;
 	int combine = IsCapable(source_p, CLICAP_MULTI_PREFIX);
 
+	if(chptr->mode.mode & MODE_OPERONLY && !IsOper(source_p))
+		return;
+
 	RB_DLINK_FOREACH(ptr, chptr->members.head)
 	{
 		msptr = ptr->data;

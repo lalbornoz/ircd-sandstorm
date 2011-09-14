@@ -162,6 +162,7 @@ m_message(int p_or_n,
 	  struct Client *client_p, struct Client *source_p, int parc, const char *parv[])
 {
 	int i;
+	char *text;
 
 	if(parc < 2 || EmptyString(parv[1]))
 	{
@@ -178,13 +179,15 @@ m_message(int p_or_n,
 		return 0;
 	}
 
+	text = parv[2];
+
 	/* Finish the flood grace period if theyre not messaging themselves
 	 * as some clients (ircN) do this as a "lag check"
 	 */
 	if(MyClient(source_p) && !IsFloodDone(source_p) && irccmp(source_p->name, parv[1]))
 		flood_endgrace(source_p);
 
-	if(build_target_list(p_or_n, command, client_p, source_p, parv[1], parv[2]) < 0)
+	if(build_target_list(p_or_n, command, client_p, source_p, parv[1], text) < 0)
 	{
 		return 0;
 	}
@@ -197,40 +200,11 @@ m_message(int p_or_n,
 		case ENTITY_CHANOPS_ON_CHANNEL: {
 		struct Channel *chptr = targets[i].ptr;
 
-			if(chptr->mode.mode & MODE_A) {
-				sendto_realops_flags(UMODE_FULL, L_ALL,
-					"%s (%s@%s) messaged [%s] with: %s",
-					source_p->name, source_p->username,
-					source_p->host, chptr->chname, parv[2]);
-
-				for(char *p = parv[2]; '\0' != (*p); p++) {
-					if(((*p) >= 'a') && ((*p) <= 'z'))
-						(*p) = 'a';
-					else
-					if(((*p) >= 'A') && ((*p) <= 'Z'))
-						(*p) = 'A';
-				}
-			}
-
-			if(chptr->mode.mode & MODE_NVWLS) {
-				sendto_realops_flags(UMODE_FULL, L_ALL,
-					"%s (%s@%s) messaged [%s] with: %s",
-					source_p->name, source_p->username,
-					source_p->host, chptr->chname, parv[2]);
-
-				for(char *p = parv[2]; '\0' != (*p); p++) {
-					if((*p) == 'a' || (*p) == 'e'
-					|| (*p) == 'i' || (*p) == 'o'
-					|| (*p) == 'u' || (*p) == 'y'
-					|| (*p) == 'A' || (*p) == 'E'
-					|| (*p) == 'I' || (*p) == 'O'
-					|| (*p) == 'U' || (*p) == 'Y')
-						(*p) = '';
-				}
-			}
+			if(chptr->mode.mode & MODE_REGEX)
+				filter_regex(chptr, source_p, &text);
 
 			if(chptr->mode.mode & MODE_XCHGSENDER)
-				xchg_sender(chptr, source_p, parv[2],
+				xchg_sender(chptr, source_p, text,
 					&source_p, &client_p);
 		}
 		}
@@ -239,18 +213,18 @@ m_message(int p_or_n,
 		{
 		case ENTITY_CHANNEL:
 			msg_channel(p_or_n, command, client_p, source_p,
-				    (struct Channel *)targets[i].ptr, parv[2]);
+				    (struct Channel *)targets[i].ptr, text);
 			break;
 
 		case ENTITY_CHANOPS_ON_CHANNEL:
 			msg_channel_flags(p_or_n, command, client_p, source_p,
 					  (struct Channel *)targets[i].ptr,
-					  targets[i].flags, parv[2]);
+					  targets[i].flags, text);
 			break;
 
 		case ENTITY_CLIENT:
 			msg_client(p_or_n, command, source_p,
-				   (struct Client *)targets[i].ptr, parv[2]);
+				   (struct Client *)targets[i].ptr, text);
 			break;
 		}
 	}
