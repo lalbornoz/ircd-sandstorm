@@ -204,14 +204,15 @@ struct Regex *
 allocate_regex(const char *regexstr, const char *who)
 {
 	struct Regex *rptr;
-	char *pat = rb_strndup(regexstr, REGEXLEN), *subst = NULL, *p;
+	char *pat, *subst, *p;
 
 	regex_t reg;
 
-	if('/' != *pat)
+	if('/' != *regexstr)
 		goto inval;
+	else	pat = rb_strndup(regexstr + 1, REGEXLEN);
 
-	for(p = subst = pat + 1; '\0' != *p; p++)
+	for(p = subst = pat; '\0' != *p; p++)
 	{
 		int slash = 0;
 
