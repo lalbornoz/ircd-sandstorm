@@ -620,8 +620,8 @@ void
 filter_regex(struct Channel *chptr, struct Client *source_p, char **ptext)
 {	
 	static char tmp[BUFSIZE], text[BUFSIZE] = { '\0', };
-#define RMATCH_NITEMS	32
-	regmatch_t rmatch[RMATCH_NITEMS];
+#define RMATCH_NITEMS	9
+	regmatch_t rmatch[1 + RMATCH_NITEMS];
 	rb_dlink_node *ptr;
 
 	rb_strlcpy(&text[0], *ptext, sizeof(text));
@@ -629,25 +629,25 @@ filter_regex(struct Channel *chptr, struct Client *source_p, char **ptext)
 	{
 		char *p, *nul; struct Regex *actualRegex = ptr->data;
 		char subst[BUFSIZE];
+	#define REGEX_MAX_ITER	1024 
+		int iter = 0;
 
 		rb_strlcpy(&subst[0], actualRegex->subst, sizeof(subst));
 		for(p = subst; *p; p++)
-		switch(*p)
+		if ('\\' == *p && !is_escaped(actualRegex->subst, p)
+		&& 's' == *(p + 1))
 		{
-		case '\\':
-			if(!is_escaped(actualRegex->subst, p)
-			&& 's' == *(p + 1))
-			{
-				*p = ' '; memmove(p + 1, p + 2, 1 + strlen(p + 2));
-			}
-
-			break;
+			*p = ' '; memmove(p + 1, p + 2, 1 + strlen(p + 2));
 		}
 
 		memset(&tmp[0], '\0', sizeof(tmp));
 		p = &text[0], nul = strchr(p, '\0');
 
 		while(0 == regexec(&actualRegex->reg, p, RMATCH_NITEMS, &rmatch[0], 0))
+		{
+			if (REGEX_MAX_ITER < (++iter))
+				return;
+
 			if(nul < (p + rmatch[0].rm_eo))
 				break;
 			else
@@ -658,6 +658,7 @@ filter_regex(struct Channel *chptr, struct Client *source_p, char **ptext)
 
 				p += rmatch[0].rm_eo;
 			}
+		}
 
 		rb_snprintf_append(&tmp[0], sizeof(tmp), "%s", p);
 		rb_strlcpy(&text[0], &tmp[0], sizeof(text));

@@ -383,7 +383,7 @@ add_id(struct Client *source_p, struct Channel *chptr, const char *regexid,
 		if(rb_dlink_list_length(&chptr->regexlist) >=
 		   (unsigned long)ConfigChannel.max_regex)
 		{
-			sendto_one(source_p, form_str(ERR_BANLISTFULL),
+			sendto_one(source_p, form_str(ERR_REGEXLISTFULL),
 				   me.name, source_p->name, chptr->chname, realregex);
 			return 0;
 		}
