@@ -971,6 +971,7 @@ burst_TS5(struct Client *client_p)
 		sendto_one_buffer(client_p, buf);
 
 		burst_modes_TS5(client_p, chptr->chname, &chptr->regexlist, 'b');
+		burst_modes_TS5(client_p, chptr->chname, &chptr->regex_exlist, 'e');
 
 		if(IsCapable(client_p, CAP_TB) && chptr->topic != NULL)
 			sendto_one(client_p, ":%s TB %s %ld %s%s:%s",
@@ -1099,6 +1100,9 @@ burst_TS6(struct Client *client_p)
 
 		if(rb_dlink_list_length(&chptr->regexlist) > 0)
 			burst_modes_TS6(client_p, chptr, &chptr->regexlist, 'b');
+
+		if(rb_dlink_list_length(&chptr->regex_exlist) > 0)
+			burst_modes_TS6(client_p, chptr, &chptr->regex_exlist, 'e');
 
 		if(IsCapable(client_p, CAP_TB) && chptr->topic != NULL)
 			sendto_one(client_p, ":%s TB %s %ld %s%s:%s",

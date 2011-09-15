@@ -64,6 +64,7 @@ struct Channel
 	rb_dlink_list locmembers;	/* local channel members */
 
 	rb_dlink_list regexlist;
+	rb_dlink_list regex_exlist;
 
 	time_t channelts;
 	char *chname;
@@ -140,6 +141,7 @@ struct ChCapCombo
 #define MODE_XCHGSENDER	0x0004
 #define MODE_REGEX	0x0008
 #define CHFL_REGEX	0x0010
+#define CHFL_REGEX_EX	0x0020
 
 /* mode flags for direction indication */
 #define MODE_QUERY     0
@@ -156,7 +158,7 @@ void init_channels(void);
 
 struct Channel *allocate_channel(const char *chname);
 void free_channel(struct Channel *chptr);
-struct Regex *allocate_regex(const char *, const char *);
+struct Regex *allocate_regex(const char *, const char *, long);
 void free_regex(struct Regex *rptr);
 
 

@@ -216,9 +216,7 @@ isupport_chanmodes(const void *ptr)
 {
 	static char result[80];
 
-	rb_snprintf(result, sizeof result, "b,k,l,imnpstS%s",
-		    ""
-		);
+	rb_snprintf(result, sizeof result, "b,e,l,PRSX");
 	return result;
 }
 

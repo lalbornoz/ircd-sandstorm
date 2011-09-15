@@ -748,6 +748,9 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 	{
 		if(rb_dlink_list_length(&chptr->regexlist) > 0)
 			remove_regex_list(chptr, source_p, &chptr->regexlist, 'b', NOCAPS, ALL_MEMBERS);
+
+		if(rb_dlink_list_length(&chptr->regex_exlist) > 0)
+			remove_regex_list(chptr, source_p, &chptr->regex_exlist, 'e', NOCAPS, ALL_MEMBERS);
 	}
 
 

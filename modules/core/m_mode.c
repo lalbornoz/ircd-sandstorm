@@ -413,7 +413,7 @@ add_id(struct Client *source_p, struct Channel *chptr, const char *regexid,
 	else
 		rb_strlcpy(who, source_p->name, sizeof(who));
 
-	if(NULL == (actualRegex = allocate_regex(realregex, who)))
+	if(NULL == (actualRegex = allocate_regex(realregex, who, mode_type)))
 		return 0;
 
 	actualRegex->when = rb_current_time();
@@ -686,21 +686,44 @@ chm_regex(struct Client *source_p, struct Channel *chptr,
 	int alevel, int parc, int *parn,
 	const char **parv, int *errors, int dir, char c, long mode_type)
 {
+	const char *mask;
+	rb_dlink_list *list;
 	rb_dlink_node *ptr;
 	struct Regex *regexptr;
-	char *mask;
+	int rpl_list;
+	int rpl_endlist;
+
+	switch (mode_type)
+	{
+	case CHFL_REGEX:
+		list = &chptr->regexlist;
+		rpl_list = RPL_BANLIST;
+		rpl_endlist = RPL_ENDOFBANLIST;
+		break;
+
+	case CHFL_REGEX_EX:
+		list = &chptr->regex_exlist;
+		rpl_list = RPL_EXCEPTLIST;
+		rpl_endlist = RPL_ENDOFEXCEPTLIST;
+		break;
+
+	default:
+		sendto_realops_flags(UMODE_ALL, L_ALL, "chm_regex() called with unknown type!");
+		return;
+		break;
+	}
 
 	if(dir == 0 || parc <= *parn)
 	{
-		RB_DLINK_FOREACH(ptr, chptr->regexlist.head)
+		RB_DLINK_FOREACH(ptr, list->head)
 		{
 			regexptr = ptr->data;
-			sendto_one(source_p, form_str(RPL_REGEXLIST),
+			sendto_one(source_p, form_str(rpl_list),
 				me.name, source_p->name, chptr->chname,
 				regexptr->regexstr, regexptr->who,
 				regexptr->when);
 		}
-		sendto_one(source_p, form_str(RPL_ENDOFREGEXLIST),
+		sendto_one(source_p, form_str(rpl_endlist),
 				me.name, source_p->name, chptr->chname);
 		return;
 	}
@@ -729,7 +752,7 @@ chm_regex(struct Client *source_p, struct Channel *chptr,
 			return;
 	}
 	else
-	for(char *q = mask; *q; ++q)
+	for(const char *q = mask; *q; ++q)
 	{
 		if(IsSpace(*q))
 		{
@@ -747,7 +770,7 @@ chm_regex(struct Client *source_p, struct Channel *chptr,
 		/* dont allow local clients to overflow the regexlist, dont
 		 * let remote servers set duplicate regexs
 		 */
-		if(!add_id(source_p, chptr, mask, &chptr->regexlist, mode_type))
+		if(!add_id(source_p, chptr, mask, list, mode_type))
 			return;
 
 		mode_changes[mode_count].letter = c;
@@ -760,7 +783,7 @@ chm_regex(struct Client *source_p, struct Channel *chptr,
 	}
 	else if(dir == MODE_DEL)
 	{
-		del_id(chptr, mask, &chptr->regexlist, mode_type);
+		del_id(chptr, mask, list, mode_type);
 
 		mode_changes[mode_count].letter = c;
 		mode_changes[mode_count].dir = MODE_DEL;
@@ -770,7 +793,6 @@ chm_regex(struct Client *source_p, struct Channel *chptr,
 		mode_changes[mode_count].id = NULL;
 		mode_changes[mode_count++].arg = mask;
 	}
-
 }
 
 
@@ -819,10 +841,10 @@ static struct ChannelMode ModeTable[255] =
   {chm_nosuch,	0 },
   {chm_nosuch,	0 },
   {chm_voice,	0 },			/* a */
-  {chm_regex,	0 },			/* b */
+  {chm_regex,	CHFL_REGEX },		/* b */
   {chm_voice,	0 },			/* c */
   {chm_voice,	0 },			/* d */
-  {chm_voice,	0 },			/* e */
+  {chm_regex,	CHFL_REGEX_EX },	/* e */
   {chm_voice,	0 },			/* f */
   {chm_voice,	0 },			/* g */
   {chm_voice,	0 },			/* h */

@@ -12,6 +12,9 @@ WITH PARAMETERS:
      +b     - Regular expressions.  See +R. May only be set or removed by opers.
               \s in the substitution string will emit SP (` '.)
               PARAMS: /mode #channel +b /pattern/substitution[/i]
+     +e     - Regular expressions blacklist.  See +b. May only be set or removed
+              by opers.
+              PARAMS: /mode #channel +e /pattern[/i]
      +v     - Voice.  Noted by +nick.
               PARAMS: /mode #channel +v nick
      +o     - Op.

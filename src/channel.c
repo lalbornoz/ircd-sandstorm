@@ -202,7 +202,7 @@ free_channel(struct Channel *chptr)
 }
 
 struct Regex *
-allocate_regex(const char *regexstr, const char *who)
+allocate_regex(const char *regexstr, const char *who, long mode_type)
 {
 	struct Regex *rptr;
 	char *pat, *subst, *p;
@@ -220,6 +220,17 @@ allocate_regex(const char *regexstr, const char *who)
 			*p++ = '\0', subst = p;
 			break;
 		}
+	}
+
+	if(CHFL_REGEX_EX == mode_type)
+	{
+		if('i' == *subst)
+			flags |= REG_ICASE, ++subst;
+
+		if(0 != strlen(subst))
+			goto inval;
+	
+		goto out;
 	}
 
 	for(p = strchr(subst, '\0'); p >= subst; p--)
@@ -243,7 +254,11 @@ out:	if(0 != regcomp(&reg, pat, flags))
 	rptr = rb_bh_alloc(regex_heap);
 	rptr->regexstr = rb_strndup(regexstr, REGEXLEN);
 	rptr->pat = pat;
-	rptr->subst = rb_strndup(subst, REGEXLEN);
+
+	if(CHFL_REGEX_EX != mode_type)
+		rptr->subst = rb_strndup(subst, REGEXLEN);
+	else	rptr->subst = NULL;
+
 	rptr->reg = reg;
 	rptr->who = rb_strndup(who, REGEXLEN);
 
@@ -257,7 +272,10 @@ free_regex(struct Regex *rptr)
 {
 	rb_free(rptr->regexstr);
 	rb_free(rptr->pat);
-	rb_free(rptr->subst);
+
+	if(NULL != rptr->subst)
+		rb_free(rptr->subst);
+
 	rb_free(rptr->who);
 	rb_bh_free(regex_heap, rptr);
 }
@@ -492,6 +510,7 @@ destroy_channel(struct Channel *chptr)
 
 	/* free all regexes */
 	free_channel_list(&chptr->regexlist);
+	free_channel_list(&chptr->regex_exlist);
 
 	/* Free the topic */
 	free_topic(chptr);
@@ -623,6 +642,14 @@ filter_regex(struct Channel *chptr, struct Client *source_p, char **ptext)
 #define RMATCH_NITEMS	9
 	regmatch_t rmatch[1 + RMATCH_NITEMS];
 	rb_dlink_node *ptr;
+
+	RB_DLINK_FOREACH(ptr, chptr->regex_exlist.head)
+	{
+		struct Regex *actualRegex = ptr->data;
+
+		if(0 == regexec(&actualRegex->reg, *ptext, 0, NULL, 0))
+			return;
+	}
 
 	rb_strlcpy(&text[0], *ptext, sizeof(text));
 	RB_DLINK_FOREACH(ptr, chptr->regexlist.head)

@@ -981,6 +981,7 @@ stats_memory(struct Client *source_p)
 
 	int channel_users = 0;
 	int channel_regexes = 0;
+	int channel_regex_exs = 0;
 
 	size_t wwu = 0;		/* whowas users */
 	int class_count = 0;	/* classes */
@@ -991,6 +992,7 @@ stats_memory(struct Client *source_p)
 
 	size_t channel_memory = 0;
 	size_t channel_regex_memory = 0;
+	size_t channel_regex_ex_memory = 0;
 
 	size_t away_memory = 0;	/* memory used by aways */
 	size_t wwm = 0;		/* whowas array memory used */
@@ -1056,6 +1058,14 @@ stats_memory(struct Client *source_p)
 
 			channel_regex_memory += sizeof(rb_dlink_node) + sizeof(struct Regex);
 		}
+
+		RB_DLINK_FOREACH(dlink, chptr->regex_exlist.head)
+		{
+			actualRegex = dlink->data;
+			channel_regex_exs++;
+
+			channel_regex_ex_memory += sizeof(rb_dlink_node) + sizeof(struct Regex);
+		}
 	}
 
 	/* count up all classes */
@@ -1092,12 +1102,16 @@ stats_memory(struct Client *source_p)
 			   "z :Regexes %u(%zu)", channel_regexes, channel_regex_memory);
 
 	sendto_one_numeric(source_p, RPL_STATSDEBUG,
+			   "z :Regex exceptions %u(%zu)", channel_regex_exs, channel_regex_ex_memory);
+
+	sendto_one_numeric(source_p, RPL_STATSDEBUG,
 			   "z :Channel members %u(%zu)",
 			   channel_users,
 			   channel_users * sizeof(rb_dlink_node));
 
 	total_channel_memory = channel_memory +
 		channel_regex_memory +
+		channel_regex_ex_memory +
 		channel_users * sizeof(rb_dlink_node);
 
 	sendto_one_numeric(source_p, RPL_STATSDEBUG,

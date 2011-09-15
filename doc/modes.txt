@@ -26,10 +26,11 @@ User Modes:
 Channel Modes:
 
 +o - chanop     -
-+r - registered - Users must be registered with services to JOIN (enabled only
-                  if compiled with --enable-services)
 +v - voice      - 
-+S - ssl only 	- Requires SSL/TLS connections to join. May only set by admins.
++P - oper chan  - Requires +o (oper) to join. May only set by opers.
++R - filter     - Filter messages via regular expressions (+b.)  May only set by opers.
++X - xchgsender - Exchange senders, possibly causing echoes. May only set by opers.
++S - ssl only 	- Requires SSL/TLS connections to join. May only set by opers.
 The third part of the 004 numeric lists channel modes that require arguments.
 Currently these are bkloveIh.
 
