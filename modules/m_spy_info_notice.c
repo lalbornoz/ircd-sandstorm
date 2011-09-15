@@ -1,6 +1,6 @@
 /*
  *  ircd-ratbox: A slightly useful ircd.
- *  spy_whois_notice.c: Sends a notice when someone uses WHOIS.
+ *  spy_info_notice.c: Sends a notice when someone uses INFO.
  *
  *  Copyright (C) 2002 by the past and present ircd coders, and others.
  *
@@ -19,7 +19,7 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
  *  USA
  *
- *  $Id: spy_whois_notice_global.c 26094 2008-09-19 15:33:46Z androsyn $
+ *  $Id: spy_info_notice.c 26094 2008-09-19 15:33:46Z androsyn $
  */
 #include "stdinc.h"
 #include "ratbox_lib.h"
@@ -30,28 +30,20 @@
 #include "ircd.h"
 #include "send.h"
 
-void show_whois_global(hook_data_client *);
+void show_info(hook_data *);
 
-mapi_hfn_list_av1 whois_global_hfnlist[] = {
-	{"doing_whois_global", (hookfn) show_whois_global},
+mapi_hfn_list_av1 spy_info_notice_hfnlist[] = {
+	{"doing_info", (hookfn) show_info},
 	{NULL, NULL}
 };
 
-DECLARE_MODULE_AV1(whois_global_spy, NULL, NULL, NULL, NULL, whois_global_hfnlist,
-		   "$Revision: 26094 $");
+DECLARE_MODULE_AV1(spy_info_notice, NULL, NULL, NULL, NULL, spy_info_notice_hfnlist, "$Revision: 26094 $");
 
 void
-show_whois_global(hook_data_client * data)
+show_info(hook_data * data)
 {
-	struct Client *source_p = data->client;
-	struct Client *target_p = data->target;
-
-	if(MyClient(target_p) && IsOper(target_p) && (source_p != target_p) &&
-	   (target_p->umodes & UMODE_SPY))
-	{
-		sendto_one(target_p,
-			   ":%s NOTICE %s :*** Notice -- %s (%s@%s) is doing a whois on you [%s]",
-			   me.name, target_p->name, source_p->name,
-			   source_p->username, source_p->host, source_p->servptr->name);
-	}
+	sendto_realops_flags(UMODE_SPY, L_ALL,
+			     "info requested by %s (%s@%s) [%s]",
+			     data->client->name, data->client->username,
+			     data->client->host, data->client->servptr->name);
 }

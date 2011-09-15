@@ -12,9 +12,6 @@ Modules
 m_flags.c      - FLAGS - csircd like support of changing usermodes
                  Syntax:  FLAGS :+OWALLOPS -SWALLOPS
 
-m_jupe.c       - JUPE - Server juping command
-                 Syntax:  JUPE juped.server.name :Reason
-
 m_mkpasswd.c   - MKPASSWD - generate a DES or MD5 encryption of a password
                  Syntax:  MKPASSWD <plaintext> [MD5|DES]
 
@@ -27,15 +24,15 @@ Spy Modules
 
 The following are the 'spy' parts, accessible via the +y usermode
 
-spy_admin_notice.c   - Spy on clients doing ADMIN
-spy_info_notice.c    - Spy on clients doing INFO
-spy_links_notice.c   - Spy on clients doing LINKS
-spy_motd_notice.c    - Spy on clients doing MOTD
-spy_stats_notice.c   - Spy on clients doing all STATS
-spy_stats_p_notice.c - Spy on clients doing STATS p only
-spy_trace_notice.c   - Spy on clients doing TRACE/LTRACE
-spy_whois_notice.c   - Spy on local clients who WHOIS you.
-spy_whois_notice_global.c - Spy on remote clients who WHOIS you.
+m_spy_admin_notice.c   - Spy on clients doing ADMIN
+m_spy_info_notice.c    - Spy on clients doing INFO
+m_spy_links_notice.c   - Spy on clients doing LINKS
+m_spy_motd_notice.c    - Spy on clients doing MOTD
+m_spy_stats_notice.c   - Spy on clients doing all STATS
+m_spy_stats_p_notice.c - Spy on clients doing STATS p only
+m_spy_trace_notice.c   - Spy on clients doing TRACE/LTRACE
+m_spy_whois_notice.c   - Spy on local clients who WHOIS you.
+m_spy_whois_notice_global.c - Spy on remote clients who WHOIS you.
 
-Note: if you have both spy_stats_notice.c and spy_stats_p_notice.c loaded
+Note: if you have both m_spy_stats_notice.c and m_spy_stats_p_notice.c loaded
 you will get two messages.

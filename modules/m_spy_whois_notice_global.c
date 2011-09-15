@@ -19,7 +19,7 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
  *  USA
  *
- *  $Id: spy_whois_notice.c 26094 2008-09-19 15:33:46Z androsyn $
+ *  $Id: spy_whois_notice_global.c 26094 2008-09-19 15:33:46Z androsyn $
  */
 #include "stdinc.h"
 #include "ratbox_lib.h"
@@ -30,22 +30,22 @@
 #include "ircd.h"
 #include "send.h"
 
-void show_whois(hook_data_client *);
+void show_whois_global(hook_data_client *);
 
-mapi_hfn_list_av1 whois_hfnlist[] = {
-	{"doing_whois", (hookfn) show_whois},
+mapi_hfn_list_av1 spy_whois_notice_global_hfnlist[] = {
+	{"doing_whois_global", (hookfn) show_whois_global},
 	{NULL, NULL}
 };
 
-DECLARE_MODULE_AV1(whois_spy, NULL, NULL, NULL, NULL, whois_hfnlist, "$Revision: 26094 $");
+DECLARE_MODULE_AV1(spy_whois_notice_global, NULL, NULL, NULL, NULL, spy_whois_notice_global_hfnlist,
+		   "$Revision: 26094 $");
 
 void
-show_whois(hook_data_client * data)
+show_whois_global(hook_data_client * data)
 {
 	struct Client *source_p = data->client;
 	struct Client *target_p = data->target;
 
-	/* source being MyConnect() is implicit here from m_whois.c --fl */
 	if(MyClient(target_p) && IsOper(target_p) && (source_p != target_p) &&
 	   (target_p->umodes & UMODE_SPY))
 	{

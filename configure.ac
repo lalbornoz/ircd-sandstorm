@@ -586,7 +586,6 @@ AC_CONFIG_FILES(		\
 	bandb/sqlite3/Makefile	\
 	ssld/Makefile		\
 	resolver/Makefile	\
-	contrib/Makefile	\
 	tools/Makefile		\
 	doc/Makefile		\
 	help/Makefile		\

@@ -5,7 +5,6 @@ prefix          = @prefix@
 libcoredir      = @libdir@
 modulesdir      = @moduledir@/autoload
 coredir         = @moduledir@
-servicesdir     = @moduledir@/autoload
 libmodulesdir	= @moduledir@
 INCLUDES = -I../libratbox/include -I../include -I../libltdl @SSL_INCLUDES@
 
@@ -39,6 +38,7 @@ m_close_la_LDFLAGS =  -module $(MODULE_FLAGS)
 m_connect_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_dline_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_encap_la_LDFLAGS =  -module $(MODULE_FLAGS)  
+m_flags_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_forcenames_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_forcejoin_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_help_la_LDFLAGS =  -module $(MODULE_FLAGS)  
@@ -52,6 +52,7 @@ m_list_la_LDFLAGS =  -module $(MODULE_FLAGS)
 m_locops_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_lusers_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_map_la_LDFLAGS =  -module $(MODULE_FLAGS)  
+m_mkpasswd_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_monitor_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_motd_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_names_la_LDFLAGS =  -module $(MODULE_FLAGS)  
@@ -64,6 +65,14 @@ m_post_la_LDFLAGS =  -module $(MODULE_FLAGS)
 m_rehash_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_restart_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_set_la_LDFLAGS =  -module $(MODULE_FLAGS)  
+m_spy_admin_notice_la_LDFLAGS =  -module $(MODULE_FLAGS)
+m_spy_info_notice_la_LDFLAGS =  -module $(MODULE_FLAGS)
+m_spy_links_notice_la_LDFLAGS =  -module $(MODULE_FLAGS)
+m_spy_motd_notice_la_LDFLAGS =  -module $(MODULE_FLAGS)
+m_spy_stats_notice_la_LDFLAGS =  -module $(MODULE_FLAGS)
+m_spy_stats_p_notice_la_LDFLAGS =  -module $(MODULE_FLAGS)
+m_spy_whois_notice_la_LDFLAGS =  -module $(MODULE_FLAGS)
+m_spy_whois_notice_global_la_LDFLAGS =  -module $(MODULE_FLAGS)
 m_stats_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_svinfo_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_tb_la_LDFLAGS =  -module $(MODULE_FLAGS)  
@@ -91,6 +100,7 @@ m_close_la_SOURCES =	m_close.c
 m_connect_la_SOURCES =	m_connect.c
 m_dline_la_SOURCES =	m_dline.c
 m_encap_la_SOURCES =	m_encap.c
+m_flags_la_SOURCES =	m_flags.c
 m_forcenames_la_SOURCES =	m_forcenames.c
 m_forcejoin_la_SOURCES =	m_forcejoin.c
 m_help_la_SOURCES =	m_help.c
@@ -104,6 +114,7 @@ m_list_la_SOURCES =	m_list.c
 m_locops_la_SOURCES =	m_locops.c
 m_lusers_la_SOURCES =	m_lusers.c
 m_map_la_SOURCES =	m_map.c
+m_mkpasswd_la_SOURCES =	m_mkpasswd.c
 m_monitor_la_SOURCES =	m_monitor.c
 m_motd_la_SOURCES =	m_motd.c
 m_names_la_SOURCES =	m_names.c
@@ -116,6 +127,14 @@ m_post_la_SOURCES =	m_post.c
 m_rehash_la_SOURCES =	m_rehash.c
 m_restart_la_SOURCES =	m_restart.c
 m_set_la_SOURCES =	m_set.c
+m_spy_admin_notice_la_SOURCES = 	m_spy_admin_notice.c
+m_spy_info_notice_la_SOURCES = 		m_spy_info_notice.c
+m_spy_links_notice_la_SOURCES = 	m_spy_links_notice.c
+m_spy_motd_notice_la_SOURCES =	 	m_spy_motd_notice.c
+m_spy_stats_notice_la_SOURCES = 	m_spy_stats_notice.c
+m_spy_stats_p_notice_la_SOURCES = 	m_spy_stats_p_notice.c
+m_spy_whois_notice_la_SOURCES = 	m_spy_whois_notice.c
+m_spy_whois_notice_global_SOURCES = 	m_spy_whois_notice_global.c
 m_stats_la_SOURCES =	m_stats.c
 m_svinfo_la_SOURCES =	m_svinfo.c
 m_tb_la_SOURCES =	m_tb.c
@@ -144,6 +163,7 @@ m_close_la_LIBADD = $(MODULE_LIBS)
 m_connect_la_LIBADD = $(MODULE_LIBS)     
 m_dline_la_LIBADD = $(MODULE_LIBS)     
 m_encap_la_LIBADD = $(MODULE_LIBS)     
+m_flags_la_LIBADD = $(MODULE_LIBS)     
 m_forcenames_la_LIBADD = $(MODULE_LIBS)     
 m_forcejoin_la_LIBADD = $(MODULE_LIBS)     
 m_help_la_LIBADD = $(MODULE_LIBS)     
@@ -157,6 +177,7 @@ m_list_la_LIBADD = $(MODULE_LIBS)
 m_locops_la_LIBADD = $(MODULE_LIBS)     
 m_lusers_la_LIBADD = $(MODULE_LIBS)     
 m_map_la_LIBADD = $(MODULE_LIBS)     
+m_mkpasswd_la_LIBADD = $(MODULE_LIBS)     
 m_monitor_la_LIBADD = $(MODULE_LIBS)     
 m_motd_la_LIBADD = $(MODULE_LIBS)     
 m_names_la_LIBADD = $(MODULE_LIBS)     
@@ -169,6 +190,14 @@ m_post_la_LIBADD = $(MODULE_LIBS)
 m_rehash_la_LIBADD = $(MODULE_LIBS)     
 m_restart_la_LIBADD = $(MODULE_LIBS)     
 m_set_la_LIBADD = $(MODULE_LIBS)     
+m_spy_admin_notice_la_LIBADD = $(MODULE_LIBS)
+m_spy_info_notice_la_LIBADD = $(MODULE_LIBS)
+m_spy_links_notice_la_LIBADD = $(MODULE_LIBS)
+m_spy_motd_notice_la_LIBADD = $(MODULE_LIBS)
+m_spy_stats_notice_la_LIBADD = $(MODULE_LIBS)
+m_spy_stats_p_notice_la_LIBADD = $(MODULE_LIBS)
+m_spy_whois_notice_la_LIBADD = $(MODULE_LIBS)
+m_spy_whois_notice_global_la_LIBADD = $(MODULE_LIBS)
 m_stats_la_LIBADD = $(MODULE_LIBS)     
 m_svinfo_la_LIBADD = $(MODULE_LIBS)     
 m_tb_la_LIBADD = $(MODULE_LIBS)     
@@ -225,6 +254,7 @@ m_close.la	\
 m_connect.la	\
 m_dline.la	\
 m_encap.la	\
+m_flags.la	\
 m_forcenames.la	\
 m_forcejoin.la	\
 m_help.la	\
@@ -238,6 +268,7 @@ m_list.la	\
 m_locops.la	\
 m_lusers.la	\
 m_map.la	\
+m_mkpasswd.la	\
 m_monitor.la	\
 m_motd.la	\
 m_names.la	\
@@ -250,6 +281,14 @@ m_post.la	\
 m_rehash.la	\
 m_restart.la	\
 m_set.la	\
+m_spy_admin_notice.la		\
+m_spy_info_notice.la		\
+m_spy_links_notice.la		\
+m_spy_motd_notice.la		\
+m_spy_stats_notice.la		\
+m_spy_stats_p_notice.la		\
+m_spy_whois_notice.la		\
+m_spy_whois_notice_global.la	\
 m_stats.la	\
 m_svinfo.la	\
 m_tb.la		\
@@ -296,12 +335,12 @@ core_m_server_la_LIBADD = $(MODULE_LIBS)
 core_m_squit_la_LIBADD = $(MODULE_LIBS) 
 
 
-modules: $(modules_LTLIBRARIES) $(services_LTLIBRARIES)
+modules: $(modules_LTLIBRARIES)
 modules_core: $(core_LTLIBRARIES)
 
-install-modulesLTLIBRARIES: $(modules_LTLIBRARIES) $(services_LTLIBRARIES)
+install-modulesLTLIBRARIES: $(modules_LTLIBRARIES)
 	-@$(MKDIR_P) $(DESTDIR)$(modulesdir); \
-	for x in $(modules_LTLIBRARIES) $(services_LTLIBRARIES); do $(SHELL) ../install-mod.sh $$x $(DESTDIR)$(modulesdir);done
+	for x in $(modules_LTLIBRARIES); do $(SHELL) ../install-mod.sh $$x $(DESTDIR)$(modulesdir);done
 
 install-coreLTLIBRARIES: $(core_LTLIBRARIES)
 	-@$(MKDIR_P) $(DESTDIR)$(coredir); \
@@ -337,6 +376,7 @@ m_close.c	\
 m_connect.c	\
 m_dline.c	\
 m_encap.c	\
+m_flags.c	\
 m_forcenames.c	\
 m_forcejoin.c	\
 m_help.c	\
@@ -350,6 +390,7 @@ m_list.c	\
 m_locops.c	\
 m_lusers.c	\
 m_map.c	\
+m_mkpasswd.c	\
 m_monitor.c	\
 m_motd.c	\
 m_names.c	\
@@ -362,6 +403,14 @@ m_post.c	\
 m_rehash.c	\
 m_restart.c	\
 m_set.c	\
+m_spy_admin_notice.c		\
+m_spy_info_notice.c		\
+m_spy_links_notice.c		\
+m_spy_motd_notice.c		\
+m_spy_stats_notice.c		\
+m_spy_stats_p_notice.c		\
+m_spy_whois_notice.c		\
+m_spy_whois_notice_global.c	\
 m_stats.c	\
 m_svinfo.c	\
 m_tb.c		\
@@ -395,9 +444,9 @@ core/m_squit.c
 
 BUILT_SOURCE = static_modules.c
 static_modules.c: static_modules.c.SH
-	$(SHELL) static_modules.c.SH $(MSRCS) $(CORE_SRCS) $(SERVICES_SRCS)
+	$(SHELL) static_modules.c.SH $(MSRCS) $(CORE_SRCS)
 
-libmodules_la_SOURCES = $(MSRCS) $(CORE_SRCS) $(SERVICES_SRCS)
+libmodules_la_SOURCES = $(MSRCS) $(CORE_SRCS)
 libmodules_LTLIBRARIES = libmodules.la
 
 all: static_modules.o libmodules.la

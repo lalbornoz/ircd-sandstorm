@@ -51,28 +51,26 @@ struct Capability
 	unsigned int cap;	/* mask value */
 };
 
-#define CAP_CAP         0x00001	/* received a CAP to begin with */
-#define CAP_QS          0x00002	/* Can handle quit storm removal */
-#define CAP_CHW         0x00008	/* Can do channel wall @# */
-#define CAP_ZIP         0x00100	/* Can do ZIPlinks */
-#define CAP_KNOCK	0x00400	/* supports KNOCK */
-#define CAP_TB		0x00800	/* supports TBURST */
-#define CAP_ENCAP	0x04000	/* supports ENCAP */
-#define CAP_TS6		0x08000	/* supports TS6 or above */
-#define CAP_SERVICE	0x10000
-#define CAP_SAVE	0x40000	/* supports SAVE (nick collision FNC) */
-#define CAP_SAVETS_100	0x80000	/* supports SAVE at TS 100 */
-#define CAP_WIDE_MOTD	0x100000/* increased MOTD line length */
-#define CAP_GCLICONN	0x200000/* global CLICONN/EXIT SNOTICEs */
-#define CAP_EXT_CHARS	0x400000/* extended nick/user/spoof name charset */
-#define CAP_NOCMODES	0x800000/* no (meaningful) CMODEs */
-#define CAP_OPERCMODES 0x1000000/* oper-only CMODEs +[PS] */
-#define CAP_FORCE      0x2000000/* force* commands */
-#define CAP_FUN_CMODES 0x4000000/* nonsensical cmodes */
-#define CAP_REGEX      0x8000000/* nonsensical cmodes */
+#define CAP_CAP         0x000001/* received a CAP to begin with */
+#define CAP_QS          0x000002/* Can handle quit storm removal */
+#define CAP_CHW         0x000004/* Can do channel wall @# */
+#define CAP_ZIP         0x000008/* Can do ZIPlinks */
+#define CAP_KNOCK	0x000010/* supports KNOCK */
+#define CAP_TB		0x000020/* supports TBURST */
+#define CAP_ENCAP	0x000040/* supports ENCAP */
+#define CAP_TS6		0x000080/* supports TS6 or above */
+#define CAP_SAVE	0x000100/* supports SAVE (nick collision FNC) */
+#define CAP_SAVETS_100	0x000200/* supports SAVE at TS 100 */
+#define CAP_WIDE_MOTD	0x000400/* increased MOTD line length */
+#define CAP_GCLICONN	0x000800/* global CLICONN/EXIT SNOTICEs */
+#define CAP_EXT_CHARS	0x001000/* extended nick/user/spoof name charset */
+#define CAP_NOCMODES	0x002000/* no (meaningful) CMODEs */
+#define CAP_OPERCMODES  0x004000/* oper-only CMODEs +[PS] */
+#define CAP_FORCE       0x008000/* force* commands */
+#define CAP_FUN_CMODES  0x010000/* nonsensical cmodes */
+#define CAP_REGEX       0x020000/* regex channel message filter */
 
 #define CAP_MASK        (CAP_QS  | CAP_CHW  | \
-			 CAP_SERVICE |\
 			 CAP_ENCAP | \
 			 CAP_ZIP  | CAP_KNOCK  | \
 			 CAP_SAVE | CAP_SAVETS_100 | \

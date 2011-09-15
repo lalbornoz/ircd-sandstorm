@@ -1,6 +1,6 @@
 /*
  *  ircd-ratbox: A slightly useful ircd.
- *  spy_info_notice.c: Sends a notice when someone uses INFO.
+ *  spy_admin_notice.c: Sends a notice when someone uses ADMIN.
  *
  *  Copyright (C) 2002 by the past and present ircd coders, and others.
  *
@@ -19,7 +19,7 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
  *  USA
  *
- *  $Id: spy_info_notice.c 26094 2008-09-19 15:33:46Z androsyn $
+ *  $Id: spy_admin_notice.c 26094 2008-09-19 15:33:46Z androsyn $
  */
 #include "stdinc.h"
 #include "ratbox_lib.h"
@@ -30,20 +30,20 @@
 #include "ircd.h"
 #include "send.h"
 
-void show_info(hook_data *);
+void show_admin(hook_data *);
 
-mapi_hfn_list_av1 info_hfnlist[] = {
-	{"doing_info", (hookfn) show_info},
+mapi_hfn_list_av1 spy_admin_notice_hfnlist[] = {
+	{"doing_admin", (hookfn) show_admin},
 	{NULL, NULL}
 };
 
-DECLARE_MODULE_AV1(info_spy, NULL, NULL, NULL, NULL, info_hfnlist, "$Revision: 26094 $");
+DECLARE_MODULE_AV1(spy_admin_notice, NULL, NULL, NULL, NULL, spy_admin_notice_hfnlist, "$Revision: 26094 $");
 
 void
-show_info(hook_data * data)
+show_admin(hook_data * data)
 {
 	sendto_realops_flags(UMODE_SPY, L_ALL,
-			     "info requested by %s (%s@%s) [%s]",
+			     "admin requested by %s (%s@%s) [%s]",
 			     data->client->name, data->client->username,
 			     data->client->host, data->client->servptr->name);
 }

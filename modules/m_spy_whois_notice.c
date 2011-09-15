@@ -1,6 +1,6 @@
 /*
  *  ircd-ratbox: A slightly useful ircd.
- *  spy_motd_notice.c: Sends a notice when someone uses MOTD.
+ *  spy_whois_notice.c: Sends a notice when someone uses WHOIS.
  *
  *  Copyright (C) 2002 by the past and present ircd coders, and others.
  *
@@ -19,7 +19,7 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
  *  USA
  *
- *  $Id: spy_motd_notice.c 26094 2008-09-19 15:33:46Z androsyn $
+ *  $Id: spy_whois_notice.c 26094 2008-09-19 15:33:46Z androsyn $
  */
 #include "stdinc.h"
 #include "ratbox_lib.h"
@@ -30,20 +30,28 @@
 #include "ircd.h"
 #include "send.h"
 
-void show_motd(hook_data *);
+void show_whois(hook_data_client *);
 
-mapi_hfn_list_av1 motd_hfnlist[] = {
-	{"doing_motd", (hookfn) show_motd},
+mapi_hfn_list_av1 spy_whois_notice_hfnlist[] = {
+	{"doing_whois", (hookfn) show_whois},
 	{NULL, NULL}
 };
 
-DECLARE_MODULE_AV1(motd_spy, NULL, NULL, NULL, NULL, motd_hfnlist, "$Revision: 26094 $");
+DECLARE_MODULE_AV1(spy_whois_notice, NULL, NULL, NULL, NULL, spy_whois_notice_hfnlist, "$Revision: 26094 $");
 
 void
-show_motd(hook_data * data)
+show_whois(hook_data_client * data)
 {
-	sendto_realops_flags(UMODE_SPY, L_ALL,
-			     "motd requested by %s (%s@%s) [%s]",
-			     data->client->name, data->client->username,
-			     data->client->host, data->client->servptr->name);
+	struct Client *source_p = data->client;
+	struct Client *target_p = data->target;
+
+	/* source being MyConnect() is implicit here from m_whois.c --fl */
+	if(MyClient(target_p) && IsOper(target_p) && (source_p != target_p) &&
+	   (target_p->umodes & UMODE_SPY))
+	{
+		sendto_one(target_p,
+			   ":%s NOTICE %s :*** Notice -- %s (%s@%s) is doing a whois on you [%s]",
+			   me.name, target_p->name, source_p->name,
+			   source_p->username, source_p->host, source_p->servptr->name);
+	}
 }

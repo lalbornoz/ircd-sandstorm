@@ -55,15 +55,15 @@ static char *set_flags_to_string(struct Client *client_p);
 static char *unset_flags_to_string(struct Client *client_p);
 
 
-struct Message test_msgtab = {
+struct Message flags_msgtab = {
 	"FLAGS", 0, 0, 0, MFLG_SLOW,
 	{mg_unreg, {m_flags, 0}, {m_flags, 0}, mg_ignore, mg_ignore, {mo_flags, 0}}
 };
 
 
-mapi_clist_av1 test_clist[] = { &test_msgtab, NULL };
+mapi_clist_av1 flags_clist[] = { &flags_msgtab, NULL };
 
-DECLARE_MODULE_AV1(test, NULL, NULL, test_clist, NULL, NULL, "$Revision: 25127 $");
+DECLARE_MODULE_AV1(flags, NULL, NULL, flags_clist, NULL, NULL, "$Revision: 25127 $");
 
 
 /* FLAGS requires it's own mini parser, since the last parameter in it can

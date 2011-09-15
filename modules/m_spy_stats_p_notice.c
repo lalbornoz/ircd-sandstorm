@@ -32,12 +32,12 @@
 
 void show_stats_p(hook_data *);
 
-mapi_hfn_list_av1 stats_p_hfnlist[] = {
+mapi_hfn_list_av1 spy_stats_p_notice_hfnlist[] = {
 	{"doing_stats_p", (hookfn) show_stats_p},
 	{NULL, NULL}
 };
 
-DECLARE_MODULE_AV1(stats_p_spy, NULL, NULL, NULL, NULL, stats_p_hfnlist, "$Revision: 26094 $");
+DECLARE_MODULE_AV1(spy_stats_p_notice, NULL, NULL, NULL, NULL, spy_stats_p_notice_hfnlist, "$Revision: 26094 $");
 
 void
 show_stats_p(hook_data * data)

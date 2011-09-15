@@ -291,7 +291,6 @@ AUTOMAKE_OPTIONS = foreign subdir-objects
 libcoredir = @libdir@
 modulesdir = @moduledir@/autoload
 coredir = @moduledir@
-servicesdir = @moduledir@/autoload
 AM_CFLAGS = $(WARNFLAGS)
 ircd_SOURCES = main.c
 @MINGW_TRUE@EXTRA_FLAGS = -no-undefined -Wl,--enable-runtime-pseudo-reloc -export-symbols-regex '*'
@@ -883,14 +882,6 @@ uninstall-am: uninstall-binPROGRAMS
 	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-recursive \
 	uninstall uninstall-am uninstall-binPROGRAMS
 
-
-build_contrib:
-	cd contrib && $(MAKE)
-
-install_contrib: build_contrib
-	cd contrib && $(MAKE) install
-
-contrib: build_contrib
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

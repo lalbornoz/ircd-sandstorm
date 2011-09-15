@@ -32,12 +32,12 @@
 
 void show_links(hook_data *);
 
-mapi_hfn_list_av1 links_hfnlist[] = {
+mapi_hfn_list_av1 spy_links_notice_hfnlist[] = {
 	{"doing_links", (hookfn) show_links},
 	{NULL, NULL}
 };
 
-DECLARE_MODULE_AV1(links_spy, NULL, NULL, NULL, NULL, links_hfnlist, "$Revision: 26094 $");
+DECLARE_MODULE_AV1(spy_links_notice, NULL, NULL, NULL, NULL, spy_links_notice_hfnlist, "$Revision: 26094 $");
 
 void
 show_links(hook_data * data)

@@ -265,10 +265,6 @@ extern struct server_info ServerInfo;	/* defined in ircd.c */
 extern struct admin_info AdminInfo;	/* defined in ircd.c */
 /* End GLOBAL section */
 
-#ifdef ENABLE_SERVICES
-extern rb_dlink_list service_list;
-#endif
-
 typedef enum temp_list
 {
 	TEMP_MIN,

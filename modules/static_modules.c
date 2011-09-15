@@ -36,6 +36,7 @@ extern struct mapi_header_av1 m_close_mheader;
 extern struct mapi_header_av1 m_connect_mheader;
 extern struct mapi_header_av1 m_dline_mheader;
 extern struct mapi_header_av1 m_encap_mheader;
+extern struct mapi_header_av1 m_flags_mheader;
 extern struct mapi_header_av1 m_forcenames_mheader;
 extern struct mapi_header_av1 m_forcejoin_mheader;
 extern struct mapi_header_av1 m_help_mheader;
@@ -49,6 +50,7 @@ extern struct mapi_header_av1 m_list_mheader;
 extern struct mapi_header_av1 m_locops_mheader;
 extern struct mapi_header_av1 m_lusers_mheader;
 extern struct mapi_header_av1 m_map_mheader;
+extern struct mapi_header_av1 m_mkpasswd_mheader;
 extern struct mapi_header_av1 m_monitor_mheader;
 extern struct mapi_header_av1 m_motd_mheader;
 extern struct mapi_header_av1 m_names_mheader;
@@ -61,6 +63,14 @@ extern struct mapi_header_av1 m_post_mheader;
 extern struct mapi_header_av1 m_rehash_mheader;
 extern struct mapi_header_av1 m_restart_mheader;
 extern struct mapi_header_av1 m_set_mheader;
+extern struct mapi_header_av1 m_spy_admin_notice_mheader;
+extern struct mapi_header_av1 m_spy_info_notice_mheader;
+extern struct mapi_header_av1 m_spy_links_notice_mheader;
+extern struct mapi_header_av1 m_spy_motd_notice_mheader;
+extern struct mapi_header_av1 m_spy_stats_notice_mheader;
+extern struct mapi_header_av1 m_spy_stats_p_notice_mheader;
+extern struct mapi_header_av1 m_spy_whois_notice_mheader;
+extern struct mapi_header_av1 m_spy_whois_notice_global_mheader;
 extern struct mapi_header_av1 m_stats_mheader;
 extern struct mapi_header_av1 m_svinfo_mheader;
 extern struct mapi_header_av1 m_tb_mheader;
@@ -100,6 +110,7 @@ const struct mapi_header_av1 *static_mapi_headers[] = {
 	&m_connect_mheader,
 	&m_dline_mheader,
 	&m_encap_mheader,
+	&m_flags_mheader,
 	&m_forcenames_mheader,
 	&m_forcejoin_mheader,
 	&m_help_mheader,
@@ -113,6 +124,7 @@ const struct mapi_header_av1 *static_mapi_headers[] = {
 	&m_locops_mheader,
 	&m_lusers_mheader,
 	&m_map_mheader,
+	&m_mkpasswd_mheader,
 	&m_monitor_mheader,
 	&m_motd_mheader,
 	&m_names_mheader,
@@ -125,6 +137,14 @@ const struct mapi_header_av1 *static_mapi_headers[] = {
 	&m_rehash_mheader,
 	&m_restart_mheader,
 	&m_set_mheader,
+	&m_spy_admin_notice_mheader,
+	&m_spy_info_notice_mheader,
+	&m_spy_links_notice_mheader,
+	&m_spy_motd_notice_mheader,
+	&m_spy_stats_notice_mheader,
+	&m_spy_stats_p_notice_mheader,
+	&m_spy_whois_notice_mheader,
+	&m_spy_whois_notice_global_mheader,
 	&m_stats_mheader,
 	&m_svinfo_mheader,
 	&m_tb_mheader,

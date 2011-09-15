@@ -13698,7 +13698,7 @@ fi
 
 
 
-ac_config_files="$ac_config_files Makefile bandb/Makefile bandb/sqlite3/Makefile ssld/Makefile resolver/Makefile contrib/Makefile tools/Makefile doc/Makefile help/Makefile modules/Makefile src/Makefile install-mod.sh"
+ac_config_files="$ac_config_files Makefile bandb/Makefile bandb/sqlite3/Makefile ssld/Makefile resolver/Makefile tools/Makefile doc/Makefile help/Makefile modules/Makefile src/Makefile install-mod.sh"
 
 
 cat >confcache <<\_ACEOF
@@ -14695,7 +14695,6 @@ do
     "bandb/sqlite3/Makefile") CONFIG_FILES="$CONFIG_FILES bandb/sqlite3/Makefile" ;;
     "ssld/Makefile") CONFIG_FILES="$CONFIG_FILES ssld/Makefile" ;;
     "resolver/Makefile") CONFIG_FILES="$CONFIG_FILES resolver/Makefile" ;;
-    "contrib/Makefile") CONFIG_FILES="$CONFIG_FILES contrib/Makefile" ;;
     "tools/Makefile") CONFIG_FILES="$CONFIG_FILES tools/Makefile" ;;
     "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
     "help/Makefile") CONFIG_FILES="$CONFIG_FILES help/Makefile" ;;
