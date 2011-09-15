@@ -178,7 +178,6 @@ struct LocalUser
 	uint16_t allow_read;	/* how many we're allowed to read in this second */
 	int16_t actually_read;	/* how many we've actually read in this second */
 	int16_t sent_parsed;	/* how many messages we've parsed in this second */
-	time_t last_knock;	/* time of last knock */
 	uint32_t random_ping;
 	struct AuthRequest *auth_request;
 

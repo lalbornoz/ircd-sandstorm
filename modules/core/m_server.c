@@ -69,6 +69,7 @@ static int set_server_gecos(struct Client *, const char *);
 
 static int check_server(const char *name, struct Client *client_p);
 static int server_estab(struct Client *client_p);
+static int check_capabilities(struct Client *client_p, struct server_conf *server_p);
 
 
 /* enums for check_server */
@@ -79,6 +80,7 @@ enum
 	INVALID_HOST = -3,
 	INVALID_SERVERNAME = -4,
 	NEED_SSL = -5,
+	CAP_MISMATCH = -6,
 };
 
 
@@ -406,7 +408,7 @@ ms_server(struct Client *client_p, struct Client *source_p, int parc, const char
 	add_to_hash(HASH_CLIENT, target_p->name, target_p);
 	rb_dlinkAdd(target_p, &target_p->lnode, &target_p->servptr->serv->servers);
 
-	sendto_server(client_p, NULL, NOCAPS, NOCAPS,
+	sendto_server(client_p, NULL,
 		      ":%s SERVER %s %d :%s%s",
 		      source_p->name, target_p->name, target_p->hopcount + 1,
 		      IsHidden(target_p) ? "(H) " : "", target_p->info);
@@ -543,14 +545,10 @@ ms_sid(struct Client *client_p, struct Client *source_p, int parc, const char *p
 	add_to_hash(HASH_ID, target_p->id, target_p);
 	rb_dlinkAdd(target_p, &target_p->lnode, &target_p->servptr->serv->servers);
 
-	sendto_server(client_p, NULL, CAP_TS6, NOCAPS,
+	sendto_server(client_p, NULL,
 		      ":%s SID %s %d %s :%s%s",
 		      source_p->id, target_p->name, target_p->hopcount + 1,
 		      target_p->id, IsHidden(target_p) ? "(H) " : "", target_p->info);
-	sendto_server(client_p, NULL, NOCAPS, CAP_TS6,
-		      ":%s SERVER %s %d :%s%s",
-		      source_p->name, target_p->name, target_p->hopcount + 1,
-		      IsHidden(target_p) ? "(H) " : "", target_p->info);
 
 	sendto_realops_flags(UMODE_EXTERNAL, L_ALL,
 			     "Server %s being introduced by %s", target_p->name, source_p->name);
@@ -756,63 +754,6 @@ check_server(const char *name, struct Client *client_p)
 	return 0;
 }
 
-/* burst_modes_TS5()
- *
- * input	- client to burst to, channel name, list to burst, mode flag
- * output	-
- * side effects - client is sent a list of +b, or +e, or +I modes
- */
-static void
-burst_modes_TS5(struct Client *client_p, char *chname, rb_dlink_list *list, char flag)
-{
-	char buf[BUFSIZE];
-	char mbuf[MODEBUFLEN];
-	char pbuf[BUFSIZE];
-	struct Regex *regexptr;
-	rb_dlink_node *ptr;
-	int tlen;
-	int mlen;
-	int cur_len;
-	char *mp;
-	char *pp;
-	int count = 0;
-
-	mlen = rb_sprintf(buf, ":%s MODE %s +", me.name, chname);
-	cur_len = mlen;
-
-	mp = mbuf;
-	pp = pbuf;
-
-	RB_DLINK_FOREACH(ptr, list->head)
-	{
-		regexptr = ptr->data;
-		tlen = strlen(regexptr->regexstr) + 3;
-
-		/* uh oh */
-		if(tlen > MODEBUFLEN)
-			continue;
-
-		if((count >= MAXMODEPARAMS) || ((cur_len + tlen + 2) > (BUFSIZE - 3)))
-		{
-			sendto_one(client_p, "%s%s %s", buf, mbuf, pbuf);
-
-			mp = mbuf;
-			pp = pbuf;
-			cur_len = mlen;
-			count = 0;
-		}
-
-		*mp++ = flag;
-		*mp = '\0';
-		pp += rb_sprintf(pp, "%s ", regexptr->regexstr);
-		cur_len += tlen;
-		count++;
-	}
-
-	if(count != 0)
-		sendto_one(client_p, "%s%s %s", buf, mbuf, pbuf);
-}
-
 /* burst_modes_TS6()
  *
  * input	- client to burst to, channel name, list to burst, mode flag
@@ -867,124 +808,6 @@ burst_modes_TS6(struct Client *client_p, struct Channel *chptr, rb_dlink_list *l
 	 */
 	*(t - 1) = '\0';
 	sendto_one_buffer(client_p, buf);
-}
-
-/*
- * burst_TS5
- * 
- * inputs	- client (server) to send nick towards
- * 		- client to send nick for
- * output	- NONE
- * side effects	- NICK message is sent towards given client_p
- */
-static void
-burst_TS5(struct Client *client_p)
-{
-	static char ubuf[12];
-	char buf[BUFSIZE];
-	struct Client *target_p;
-	struct Channel *chptr;
-	struct membership *msptr;
-	hook_data_client hclientinfo;
-	hook_data_channel hchaninfo;
-	rb_dlink_node *ptr;
-	rb_dlink_node *uptr;
-	char *t;
-	int tlen, mlen;
-	int cur_len = 0;
-
-	hclientinfo.client = hchaninfo.client = client_p;
-
-	RB_DLINK_FOREACH(ptr, global_client_list.head)
-	{
-		target_p = ptr->data;
-
-		if(!IsClient(target_p))
-			continue;
-
-		send_umode(NULL, target_p, 0, SEND_UMODES, ubuf);
-		if(!*ubuf)
-		{
-			ubuf[0] = '+';
-			ubuf[1] = '\0';
-		}
-
-		sendto_one(client_p, "NICK %s %d %ld %s %s %s %s :%s",
-			   target_p->name, target_p->hopcount + 1,
-			   (long)target_p->tsinfo, ubuf,
-			   target_p->username, target_p->host,
-			   target_p->servptr->name, target_p->info);
-
-		if(ConfigFileEntry.burst_away && !EmptyString(target_p->user->away))
-			sendto_one(client_p, ":%s AWAY :%s", target_p->name, target_p->user->away);
-
-		hclientinfo.target = target_p;
-		call_hook(h_burst_client, &hclientinfo);
-	}
-
-	RB_DLINK_FOREACH(ptr, global_channel_list.head)
-	{
-		chptr = ptr->data;
-
-		s_assert(rb_dlink_list_length(&chptr->members) > 0);
-		if(rb_dlink_list_length(&chptr->members) <= 0)
-			continue;
-
-		if(*chptr->chname != '#')
-			continue;
-
-		cur_len = mlen = rb_sprintf(buf, ":%s SJOIN %ld %s %s :", me.name,
-					    (long)chptr->channelts, chptr->chname,
-					    channel_modes(chptr, client_p));
-
-		t = buf + mlen;
-
-		RB_DLINK_FOREACH(uptr, chptr->members.head)
-		{
-			msptr = uptr->data;
-
-			tlen = strlen(msptr->client_p->name) + 1;
-			if(is_chanop(msptr))
-				tlen++;
-			if(is_voiced(msptr))
-				tlen++;
-
-			if(cur_len + tlen >= BUFSIZE - 3)
-			{
-				t--;
-				*t = '\0';
-				sendto_one_buffer(client_p, buf);
-				cur_len = mlen;
-				t = buf + mlen;
-			}
-
-			rb_sprintf(t, "%s%s ", find_channel_status(msptr, 1),
-				   msptr->client_p->name);
-
-			cur_len += tlen;
-			t += tlen;
-		}
-
-		/* remove trailing space */
-		t--;
-		*t = '\0';
-		sendto_one_buffer(client_p, buf);
-
-		burst_modes_TS5(client_p, chptr->chname, &chptr->regexlist, 'b');
-		burst_modes_TS5(client_p, chptr->chname, &chptr->regex_exlist, 'e');
-
-		if(IsCapable(client_p, CAP_TB) && chptr->topic != NULL)
-			sendto_one(client_p, ":%s TB %s %ld %s%s:%s",
-				   me.name, chptr->chname, (long)chptr->topic->topic_time,
-				   ConfigChannel.burst_topicwho ? chptr->topic->topic_info : "",
-				   ConfigChannel.burst_topicwho ? " " : "", chptr->topic->topic);
-
-		hchaninfo.chptr = chptr;
-		call_hook(h_burst_channel, &hchaninfo);
-	}
-
-	hclientinfo.target = NULL;
-	call_hook(h_burst_finished, &hclientinfo);
 }
 
 /*
@@ -1225,9 +1048,6 @@ server_estab(struct Client *client_p)
 
 	SetServer(client_p);
 
-	/* Update the capability combination usage counts */
-	set_chcap_usage_counts(client_p);
-
 	rb_dlinkAdd(client_p, &client_p->lnode, &me.serv->servers);
 	rb_dlinkMoveNode(&client_p->localClient->tnode, &unknown_list, &serv_list);
 	rb_dlinkAddTailAlloc(client_p, &global_serv_list);
@@ -1247,6 +1067,9 @@ server_estab(struct Client *client_p)
 		rb_free(client_p->localClient->fullcaps);
 		client_p->localClient->fullcaps = NULL;
 	}
+
+	if(!check_capabilities(client_p, server_p))
+		return exit_client(client_p, client_p, client_p, "Incompatible capabilities");
 
 	/* add it to scache */
 	scache_add(client_p->name);
@@ -1355,10 +1178,7 @@ server_estab(struct Client *client_p)
 				   get_id(target_p, client_p), target_p->serv->fullcaps);
 	}
 
-	if(has_id(client_p))
-		burst_TS6(client_p);
-	else
-		burst_TS5(client_p);
+	burst_TS6(client_p);
 
 	/* Always send a PING after connect burst is done */
 	sendto_one(client_p, "PING :%s", get_id(&me, client_p));
@@ -1367,3 +1187,41 @@ server_estab(struct Client *client_p)
 	send_pop_queue(client_p);
 	return 0;
 }
+
+static int
+check_capabilities(struct Client *client_p, struct server_conf *server_p)
+{
+	int caps, caps_remote;
+	char *capsstr, *capsstr_remote;
+
+	caps = default_server_capabs
+		     | (ServerConfCompressed(server_p) && zlib_ok ? CAP_ZIP : 0)
+		     | (ServerConfTb(server_p) ? CAP_TB : 0);
+	caps_remote = client_p->serv->caps;
+
+	capsstr = LOCAL_COPY(show_capabilities2(&me, caps));
+	capsstr_remote = LOCAL_COPY(show_capabilities2(client_p, caps_remote));
+
+	if(!strcmp(capsstr, capsstr_remote))
+		return 1;
+	else
+	{
+		sendto_realops_flags(UMODE_ALL, L_ALL,
+				     "Link %s dropped due to incompatible "
+				     "capabilities (%s) vs. [%s](%s)",
+				     client_p->name, capsstr,
+				     client_p->name, capsstr_remote);
+		ilog(L_SERVER, "Link %s dropped due to incompatible "
+				     "capabilities (%s) vs. [%s](%s)",
+				     client_p->name, capsstr,
+				     client_p->name, capsstr_remote);
+
+		sendto_one(client_p, "ERROR :Incompatible capabilities (%s) "
+				     "vs. [%s](%s)", capsstr,
+				     client_p->name, capsstr_remote);
+
+		return 0;
+	}
+}
+
+

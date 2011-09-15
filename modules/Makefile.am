@@ -46,7 +46,6 @@ m_info_la_LDFLAGS =  -module $(MODULE_FLAGS)
 m_invite_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_ison_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_kline_la_LDFLAGS =  -module $(MODULE_FLAGS)  
-m_knock_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_links_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_list_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_locops_la_LDFLAGS =  -module $(MODULE_FLAGS)  
@@ -108,7 +107,6 @@ m_info_la_SOURCES =	m_info.c
 m_invite_la_SOURCES =	m_invite.c
 m_ison_la_SOURCES =	m_ison.c
 m_kline_la_SOURCES =	m_kline.c
-m_knock_la_SOURCES =	m_knock.c
 m_links_la_SOURCES =	m_links.c
 m_list_la_SOURCES =	m_list.c
 m_locops_la_SOURCES =	m_locops.c
@@ -171,7 +169,6 @@ m_info_la_LIBADD = $(MODULE_LIBS)
 m_invite_la_LIBADD = $(MODULE_LIBS)     
 m_ison_la_LIBADD = $(MODULE_LIBS)     
 m_kline_la_LIBADD = $(MODULE_LIBS)     
-m_knock_la_LIBADD = $(MODULE_LIBS)     
 m_links_la_LIBADD = $(MODULE_LIBS)     
 m_list_la_LIBADD = $(MODULE_LIBS)     
 m_locops_la_LIBADD = $(MODULE_LIBS)     
@@ -262,7 +259,6 @@ m_info.la	\
 m_invite.la	\
 m_ison.la	\
 m_kline.la	\
-m_knock.la	\
 m_links.la	\
 m_list.la	\
 m_locops.la	\
@@ -384,7 +380,6 @@ m_info.c	\
 m_invite.c	\
 m_ison.c	\
 m_kline.c	\
-m_knock.c	\
 m_links.c	\
 m_list.c	\
 m_locops.c	\

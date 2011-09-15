@@ -4,11 +4,10 @@ ACCEPT          ADMIN           AWAY            CHALLENGE
 CMODE           CNOTICE         CPRIVMSG        CREDITS
 ERROR           FORCENICK       HELP            INDEX
 INFO            INVITE          ISON            JOIN
-KICK            KNOCK           LINKS           LIST
-LUSERS          MAP             MOTD            NAMES
-NICK            NOTICE          OPER            PART
-PASS            PING            PONG            PRIVMSG
-QUIT            STATS           TIME            TOPIC
-TRACE           UMODE           USER            USERHOST
-USERS           VERSION         WHO             WHOIS
-WHOWAS
+KICK            LINKS           LIST            LUSERS
+MAP             MOTD            NAMES           NICK
+NOTICE          OPER            PART            PASS
+PING            PONG            PRIVMSG         QUIT
+STATS           TIME            TOPIC           TRACE
+UMODE           USER            USERHOST        USERS
+VERSION         WHO             WHOIS           WHOWAS

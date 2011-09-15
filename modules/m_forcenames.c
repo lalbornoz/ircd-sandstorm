@@ -158,9 +158,6 @@ valid:
 
 	add_history(target_p, 1);
 
-	sendto_server(client_p, NULL, NOCAPS, CAP_TS6, ":%s NICK %s :%ld",
-		target_p->name, newnick, (long)target_p->tsinfo);
-
 	del_from_hash(HASH_CLIENT, target_p->name, target_p);
 	strcpy(target_p->user->name, newnick);
 	add_to_hash(HASH_CLIENT, newnick, target_p);
@@ -226,7 +223,7 @@ mo_forceuser(struct Client *client_p, struct Client *source_p, int parc, const c
 		target_p->name, target_p->username, target_p->host,
 		newusername);
 
-	sendto_server(client_p, NULL, CAP_TS6, NOCAPS, ":%s FORCEUSER %s %s",
+	sendto_server(client_p, NULL, ":%s FORCEUSER %s %s",
 			source_p->name, target_p->name, newusername);
 
 	return 0;
@@ -277,7 +274,7 @@ mo_forcehost(struct Client *client_p, struct Client *source_p, int parc, const c
 		target_p->name, target_p->username, target_p->host,
 		newhostname);
 
-	sendto_server(client_p, NULL, CAP_TS6, NOCAPS, ":%s FORCEHOST %s %s",
+	sendto_server(client_p, NULL, ":%s FORCEHOST %s %s",
 			source_p->name, target_p->name, newhostname);
 
 	return 0;
@@ -327,7 +324,7 @@ mo_forcegecos(struct Client *client_p, struct Client *source_p, int parc, const 
 		target_p->name, target_p->username, target_p->host,
 		newgecos);
 
-	sendto_server(client_p, NULL, CAP_TS6, NOCAPS, ":%s FORCEGECOS %s %s",
+	sendto_server(client_p, NULL, ":%s FORCEGECOS %s %s",
 			source_p->name, target_p->name, newgecos);
 
 	return 0;

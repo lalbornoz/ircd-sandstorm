@@ -119,9 +119,6 @@ confopts(void)
 	if(ServerInfo.hub)
 		*p++ = 'H';
 
-	if(ConfigChannel.use_knock)
-		*p++ = 'K';
-
 	*p++ = 'M';
 	*p++ = 'p';
 

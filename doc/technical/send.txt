@@ -138,18 +138,11 @@ sendto_channel_local()
                   sent to remote server allows that server to propagate
                   mode changes to its clients locally.
 
-                  usage - sendto_channel_local(type,
-                                               struct Channel *chptr,
+                  usage - sendto_channel_local(struct Channel *chptr,
                                                const char *pattern, ... );
 
 
-                  prefix must be pre-built. type is a flag
-                  denoting ONE of 
-                  ALL_MEMBERS		- all members locally are sent to
-                  NON_CHANOPS		- only non-chanops see this
-                  ONLY_CHANOPS_VOICED	- both chanops and voiced see this
-                  ONLY_CHANOPS		- only chanops see this
-
+                  prefix must be pre-built.
 
 sendto_match_butone()
 match_it()      - both only used for the old style oper masking

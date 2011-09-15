@@ -44,7 +44,6 @@ extern struct mapi_header_av1 m_info_mheader;
 extern struct mapi_header_av1 m_invite_mheader;
 extern struct mapi_header_av1 m_ison_mheader;
 extern struct mapi_header_av1 m_kline_mheader;
-extern struct mapi_header_av1 m_knock_mheader;
 extern struct mapi_header_av1 m_links_mheader;
 extern struct mapi_header_av1 m_list_mheader;
 extern struct mapi_header_av1 m_locops_mheader;
@@ -118,7 +117,6 @@ const struct mapi_header_av1 *static_mapi_headers[] = {
 	&m_invite_mheader,
 	&m_ison_mheader,
 	&m_kline_mheader,
-	&m_knock_mheader,
 	&m_links_mheader,
 	&m_list_mheader,
 	&m_locops_mheader,

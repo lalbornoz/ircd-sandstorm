@@ -42,7 +42,6 @@
 #include "scache.h"
 #include "send.h"
 #include "client.h"
-#include "channel.h"		/* chcap_usage_counts stuff... */
 #include "hook.h"
 #include "parse.h"
 #include "sslproc.h"
@@ -65,8 +64,6 @@ static char buf[BUFSIZE];
 struct Capability captab[] = {
 /*  name     cap     */
 	{"QS", CAP_QS},
-	{"CHW", CAP_CHW},
-	{"KNOCK", CAP_KNOCK},
 	{"ZIP", CAP_ZIP},
 	{"TB", CAP_TB},
 	{"ENCAP", CAP_ENCAP},
@@ -356,6 +353,22 @@ show_capabilities(struct Client *target_p)
 	for(cap = captab; cap->cap; ++cap)
 	{
 		if(cap->cap & target_p->serv->caps)
+			rb_snprintf_append(msgbuf, sizeof(msgbuf), " %s", cap->name);
+	}
+
+	return msgbuf + 1;
+}
+
+const char *
+show_capabilities2(struct Client *target_p, int caps)
+{
+	static char msgbuf[BUFSIZE] = { '\0', };
+	struct Capability *cap;
+
+	memset(msgbuf, '\0', sizeof(msgbuf));
+	for(cap = captab; cap->cap; ++cap)
+	{
+		if(cap->cap & caps)
 			rb_snprintf_append(msgbuf, sizeof(msgbuf), " %s", cap->name);
 	}
 

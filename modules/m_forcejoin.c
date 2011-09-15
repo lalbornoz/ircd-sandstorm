@@ -146,17 +146,12 @@ mo_forcejoin(struct Client *client_p, struct Client *source_p, int parc, const c
 
 		add_user_to_channel(chptr, target_p, type);
 
-		sendto_server(target_p, chptr, NOCAPS, NOCAPS,
-			      ":%s SJOIN %ld %s + :%c%s",
-			      me.name, (long)chptr->channelts,
-			      chptr->chname, type ? sjmode : ' ', target_p->name);
-
-		sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s JOIN :%s",
+		sendto_channel_local(chptr, ":%s!%s@%s JOIN :%s",
 				     target_p->name, target_p->username,
 				     target_p->host, chptr->chname);
 
 		if(type)
-			sendto_channel_local(ALL_MEMBERS, chptr, ":%s MODE %s +%c %s",
+			sendto_channel_local(chptr, ":%s MODE %s +%c %s",
 					     me.name, chptr->chname, mode, target_p->name);
 
 		if(chptr->topic != NULL)
@@ -200,17 +195,17 @@ mo_forcejoin(struct Client *client_p, struct Client *source_p, int parc, const c
 		add_user_to_channel(chptr, target_p, CHFL_CHANOP);
 
 		/* send out a join, make target_p join chptr */
-		sendto_server(target_p, chptr, NOCAPS, NOCAPS,
+		sendto_server(target_p, chptr,
 			      ":%s SJOIN %ld %s +l 1488 :@%s", me.name,
 			      (long)chptr->channelts, chptr->chname, target_p->name);
 
-		sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s JOIN :%s",
+		sendto_channel_local(chptr, ":%s!%s@%s JOIN :%s",
 				     target_p->name, target_p->username,
 				     target_p->host, chptr->chname);
 
 		chptr->mode.limit = 1488;
 
-		sendto_channel_local(ALL_MEMBERS, chptr, ":%s MODE %s +l 1488", me.name, chptr->chname);
+		sendto_channel_local(chptr, ":%s MODE %s +l 1488", me.name, chptr->chname);
 
 		target_p->localClient->last_join_time = rb_current_time();
 		channel_member_names(chptr, target_p, 1);
@@ -273,10 +268,10 @@ mo_forcepart(struct Client *client_p, struct Client *source_p, int parc, const c
 		target_p->name, target_p->username, target_p->host,
 		parv[2]);
 
-	sendto_server(target_p, chptr, NOCAPS, NOCAPS,
-		      ":%s PART %s :%s", target_p->name, chptr->chname, target_p->name);
+	sendto_server(target_p, chptr,
+		      ":%s PART %s :%s", use_id(target_p), chptr->chname, target_p->name);
 
-	sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s PART %s :%s",
+	sendto_channel_local(chptr, ":%s!%s@%s PART %s :%s",
 			     target_p->name, target_p->username,
 			     target_p->host, chptr->chname, target_p->name);
 

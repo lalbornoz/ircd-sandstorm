@@ -663,18 +663,6 @@ static struct InfoStruct info_table[] = {
 		"Startup value of SPLITUSERS",
 	},
 	{
-		"knock_delay",
-		OUTPUT_DECIMAL,
-		{ &ConfigChannel.knock_delay }, 
-		"Delay between a users KNOCK attempts"
-	},
-	{
-		"knock_delay_channel",
-		OUTPUT_DECIMAL,
-		{ &ConfigChannel.knock_delay_channel }, 
-		"Delay between KNOCK attempts to a channel",
-	},
-	{
 		"max_chans_per_user",
 		OUTPUT_DECIMAL,
 		{ &ConfigChannel.max_chans_per_user }, 
@@ -697,12 +685,6 @@ static struct InfoStruct info_table[] = {
 		OUTPUT_BOOLEAN_YN,
 		{ &ConfigChannel.no_join_on_split }, 
 		"Disallow joining channels when split",
-	},
-	{
-		"use_knock",
-		OUTPUT_BOOLEAN_YN,
-		{ &ConfigChannel.use_knock }, 
-		"Enable /KNOCK",
 	},
 	{
 		"disable_hidden",

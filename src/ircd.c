@@ -623,9 +623,6 @@ ratbox_main(int argc, char *argv[])
 	memset(&ServerStats, 0, sizeof(struct ServerStatistics));
 
 
-	/* Initialise the channel capability usage counts... */
-	init_chcap_usage_counts();
-
 	ConfigFileEntry.connect_timeout = 30;	/* Default to 30 */
 
 	umask(077);		/* better safe than sorry --SRB */

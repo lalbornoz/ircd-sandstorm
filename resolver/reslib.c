@@ -211,7 +211,7 @@ parse_resvconf(void)
 
     p = input;
     /* skip until something thats not a space is seen */
-    while (isspace(*p))
+    while (isspace((int) *p))
       p++;
     /* if at this point, have a '\0' then continue */
     if (*p == '\0')
@@ -223,7 +223,7 @@ parse_resvconf(void)
 
     /* skip until a space is found */
     opt = p;
-    while (!isspace(*p) && *p != '\0')
+    while (!isspace((int) *p) && *p != '\0')
       p++;
     if (*p == '\0')
       continue;  /* no arguments?.. ignore this line */
@@ -231,7 +231,7 @@ parse_resvconf(void)
     *p++ = '\0';
 
     /* skip these spaces that are before the argument */
-    while (isspace(*p))
+    while (isspace((int) *p))
       p++;
     /* Now arg should be right where p is pointing */
     arg = p;

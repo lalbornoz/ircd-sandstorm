@@ -567,12 +567,8 @@ change_local_nick(struct Client *client_p, struct Client *source_p, char *nick, 
 		add_history(source_p, 1);
 
 		if(dosend)
-		{
-			sendto_server(client_p, NULL, CAP_TS6, NOCAPS, ":%s NICK %s :%ld",
+			sendto_server(client_p, NULL, ":%s NICK %s :%ld",
 				      use_id(source_p), nick, (long)source_p->tsinfo);
-			sendto_server(client_p, NULL, NOCAPS, CAP_TS6, ":%s NICK %s :%ld",
-				      source_p->name, nick, (long)source_p->tsinfo);
-		}
 	}
 
 	/* Finally, add to hash */
@@ -625,12 +621,8 @@ change_remote_nick(struct Client *client_p, struct Client *source_p,
 	{
 		add_history(source_p, 1);
 		if(dosend)
-		{
-			sendto_server(client_p, NULL, CAP_TS6, NOCAPS, ":%s NICK %s :%ld",
+			sendto_server(client_p, NULL, ":%s NICK %s :%ld",
 				      use_id(source_p), nick, (long)source_p->tsinfo);
-			sendto_server(client_p, NULL, NOCAPS, CAP_TS6, ":%s NICK %s :%ld",
-				      source_p->name, nick, (long)source_p->tsinfo);
-		}
 	}
 
 	del_from_hash(HASH_CLIENT, source_p->name, source_p);
@@ -1047,12 +1039,8 @@ save_user(struct Client *client_p, struct Client *source_p, struct Client *targe
 		(void)exit_client(NULL, target_p, &me, "Nick collision (no SAVE support)");
 		return;
 	}
-	sendto_server(client_p, NULL, CAP_SAVE | CAP_TS6, NOCAPS, ":%s SAVE %s %ld",
+	sendto_server(client_p, NULL, ":%s SAVE %s %ld",
 		      source_p->id, target_p->id, (long)target_p->tsinfo);
-	sendto_server(client_p, NULL, CAP_TS6, CAP_SAVE, ":%s NICK %s :%ld",
-		      target_p->id, target_p->id, (long)SAVE_NICKTS);
-	sendto_server(client_p, NULL, NOCAPS, CAP_TS6, ":%s NICK %s :%ld",
-		      target_p->name, target_p->id, (long)SAVE_NICKTS);
 	if(!IsMe(client_p))
 		sendto_realops_flags(UMODE_SKILL, L_ALL,
 				     "Received SAVE message for %s from %s",

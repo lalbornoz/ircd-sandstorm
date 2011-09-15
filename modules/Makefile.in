@@ -186,7 +186,7 @@ libmodules_la_LIBADD =
 am__libmodules_la_SOURCES_DIST = m_accept.c m_admin.c m_adminwall.c \
 	m_away.c m_capab.c m_cap.c m_close.c m_connect.c \
 	m_dline.c m_encap.c m_flags.c m_forcenames.c m_forcejoin.c m_help.c \
-	m_info.c m_invite.c m_ison.c m_kline.c m_knock.c m_links.c m_list.c \
+	m_info.c m_invite.c m_ison.c m_kline.c m_links.c m_list.c \
 	m_locops.c m_lusers.c m_map.c m_mkpasswd.c m_monitor.c m_motd.c \
 	m_names.c m_oper.c m_operspy.c m_pass.c m_ping.c m_pong.c m_post.c \
 	m_rehash.c m_restart.c m_set.c m_spy_admin_notice.c \
@@ -205,7 +205,7 @@ am__libmodules_la_SOURCES_DIST = m_accept.c m_admin.c m_adminwall.c \
 @STATIC_MODULES_TRUE@	m_connect.lo m_dline.lo m_encap.lo \
 @STATIC_MODULES_TRUE@	m_flags.lo m_forcenames.lo m_forcejoin.lo m_help.lo \
 @STATIC_MODULES_TRUE@	m_info.lo m_invite.lo m_ison.lo \
-@STATIC_MODULES_TRUE@	m_kline.lo m_knock.lo m_links.lo \
+@STATIC_MODULES_TRUE@	m_kline.lo m_links.lo \
 @STATIC_MODULES_TRUE@	m_list.lo m_locops.lo m_lusers.lo \
 @STATIC_MODULES_TRUE@	m_map.lo m_mkpasswd.lo m_monitor.lo m_motd.lo \
 @STATIC_MODULES_TRUE@	m_names.lo m_oper.lo m_operspy.lo \
@@ -380,14 +380,6 @@ m_kline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(m_kline_la_LDFLAGS) $(LDFLAGS) -o $@
 @STATIC_MODULES_FALSE@am_m_kline_la_rpath = -rpath $(modulesdir)
-@STATIC_MODULES_FALSE@m_knock_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
-am__m_knock_la_SOURCES_DIST = m_knock.c
-@STATIC_MODULES_FALSE@am_m_knock_la_OBJECTS = m_knock.lo
-m_knock_la_OBJECTS = $(am_m_knock_la_OBJECTS)
-m_knock_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(m_knock_la_LDFLAGS) $(LDFLAGS) -o $@
-@STATIC_MODULES_FALSE@am_m_knock_la_rpath = -rpath $(modulesdir)
 @STATIC_MODULES_FALSE@m_links_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am__m_links_la_SOURCES_DIST = m_links.c
 @STATIC_MODULES_FALSE@am_m_links_la_OBJECTS = m_links.lo
@@ -768,8 +760,7 @@ SOURCES = $(core_m_die_la_SOURCES) $(core_m_error_la_SOURCES) \
 	$(m_forcejoin_la_SOURCES) $(m_help_la_SOURCES) \
 	$(m_info_la_SOURCES) $(m_invite_la_SOURCES) \
 	$(m_ison_la_SOURCES) $(m_kline_la_SOURCES) \
-	$(m_knock_la_SOURCES) $(m_links_la_SOURCES) \
-	$(m_list_la_SOURCES) $(m_locops_la_SOURCES) \
+	$(m_links_la_SOURCES) $(m_list_la_SOURCES) $(m_locops_la_SOURCES) \
 	$(m_lusers_la_SOURCES) $(m_map_la_SOURCES) $(m_mkpasswd_la_SOURCES) \
 	$(m_monitor_la_SOURCES) $(m_motd_la_SOURCES) \
 	$(m_names_la_SOURCES) $(m_oper_la_SOURCES) \
@@ -813,7 +804,7 @@ DIST_SOURCES = $(am__core_m_die_la_SOURCES_DIST) \
 	$(am__m_forcenames_la_SOURCES_DIST) $(am__m_forcejoin_la_SOURCES_DIST) \
 	$(am__m_help_la_SOURCES_DIST) $(am__m_info_la_SOURCES_DIST) \
 	$(am__m_invite_la_SOURCES_DIST) $(am__m_ison_la_SOURCES_DIST) \
-	$(am__m_kline_la_SOURCES_DIST) $(am__m_knock_la_SOURCES_DIST) \
+	$(am__m_kline_la_SOURCES_DIST) \
 	$(am__m_links_la_SOURCES_DIST) $(am__m_list_la_SOURCES_DIST) \
 	$(am__m_locops_la_SOURCES_DIST) $(am__m_lusers_la_SOURCES_DIST) \
 	$(am__m_map_la_SOURCES_DIST) $(am__m_mkpasswd_la_SOURCES_DIST) \
@@ -1021,7 +1012,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_invite_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_ison_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_kline_la_LDFLAGS = -module $(MODULE_FLAGS)  
-@STATIC_MODULES_FALSE@m_knock_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_links_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_list_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_locops_la_LDFLAGS = -module $(MODULE_FLAGS)  
@@ -1082,7 +1072,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_invite_la_SOURCES = m_invite.c
 @STATIC_MODULES_FALSE@m_ison_la_SOURCES = m_ison.c
 @STATIC_MODULES_FALSE@m_kline_la_SOURCES = m_kline.c
-@STATIC_MODULES_FALSE@m_knock_la_SOURCES = m_knock.c
 @STATIC_MODULES_FALSE@m_links_la_SOURCES = m_links.c
 @STATIC_MODULES_FALSE@m_list_la_SOURCES = m_list.c
 @STATIC_MODULES_FALSE@m_locops_la_SOURCES = m_locops.c
@@ -1143,7 +1132,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_invite_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_ison_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_kline_la_LIBADD = $(MODULE_LIBS)     
-@STATIC_MODULES_FALSE@m_knock_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_links_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_list_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_locops_la_LIBADD = $(MODULE_LIBS)     
@@ -1229,7 +1217,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_invite.la	\
 @STATIC_MODULES_FALSE@m_ison.la	\
 @STATIC_MODULES_FALSE@m_kline.la	\
-@STATIC_MODULES_FALSE@m_knock.la	\
 @STATIC_MODULES_FALSE@m_links.la	\
 @STATIC_MODULES_FALSE@m_list.la	\
 @STATIC_MODULES_FALSE@m_locops.la	\
@@ -1318,7 +1305,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_TRUE@m_invite.c	\
 @STATIC_MODULES_TRUE@m_ison.c	\
 @STATIC_MODULES_TRUE@m_kline.c	\
-@STATIC_MODULES_TRUE@m_knock.c	\
 @STATIC_MODULES_TRUE@m_links.c	\
 @STATIC_MODULES_TRUE@m_list.c	\
 @STATIC_MODULES_TRUE@m_locops.c	\
@@ -1586,8 +1572,6 @@ m_ison.la: $(m_ison_la_OBJECTS) $(m_ison_la_DEPENDENCIES)
 	$(m_ison_la_LINK) $(am_m_ison_la_rpath) $(m_ison_la_OBJECTS) $(m_ison_la_LIBADD) $(LIBS)
 m_kline.la: $(m_kline_la_OBJECTS) $(m_kline_la_DEPENDENCIES) 
 	$(m_kline_la_LINK) $(am_m_kline_la_rpath) $(m_kline_la_OBJECTS) $(m_kline_la_LIBADD) $(LIBS)
-m_knock.la: $(m_knock_la_OBJECTS) $(m_knock_la_DEPENDENCIES) 
-	$(m_knock_la_LINK) $(am_m_knock_la_rpath) $(m_knock_la_OBJECTS) $(m_knock_la_LIBADD) $(LIBS)
 m_links.la: $(m_links_la_OBJECTS) $(m_links_la_DEPENDENCIES) 
 	$(m_links_la_LINK) $(am_m_links_la_rpath) $(m_links_la_OBJECTS) $(m_links_la_LIBADD) $(LIBS)
 m_list.la: $(m_list_la_OBJECTS) $(m_list_la_DEPENDENCIES) 
@@ -1721,7 +1705,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_invite.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_ison.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_kline.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_knock.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_links.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_list.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_locops.Plo@am__quote@

@@ -291,7 +291,6 @@ init_isupport(void)
 	add_isupport("MAXLIST", isupport_maxlist, NULL);
 	add_isupport("MODES", isupport_intptr, &maxmodes);
 	add_isupport("NETWORK", isupport_stringptr, &ServerInfo.network_name);
-	add_isupport("KNOCK", isupport_boolean, &ConfigChannel.use_knock);
 	add_isupport("STATUSMSG", isupport_string, "@+");
 	add_isupport("CALLERID", isupport_string, "g");
 	add_isupport("SAFELIST", isupport_string, "");

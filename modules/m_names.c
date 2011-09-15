@@ -121,10 +121,9 @@ names_global(struct Client *source_p)
 	int tlen;
 	int cur_len;
 	int dont_show = NO;
-	rb_dlink_node *lp, *ptr;
+	rb_dlink_node *ptr;
 	struct Client *target_p;
 	struct Channel *chptr = NULL;
-	struct membership *msptr;
 	char buf[BUFSIZE];
 	char *t;
 

@@ -196,10 +196,7 @@ struct config_file_entry
 
 struct config_channel_entry
 {
-	int use_knock;
 	int use_sslonly;
-	int knock_delay;
-	int knock_delay_channel;
 	int max_chans_per_user;
 	int no_create_on_split;
 	int no_join_on_split;

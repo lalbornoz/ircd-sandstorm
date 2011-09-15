@@ -173,7 +173,7 @@ m_flags(struct Client *client_p, struct Client *source_p, int parc, const char *
 			/* We default to being in BAD mode */
 			isgood = 0;
 
-			if(!isalpha(flag[0]))
+			if(!isalpha((int) flag[0]))
 			{
 				if(flag[0] == '-')
 					isadd = 0;
@@ -274,7 +274,7 @@ mo_flags(struct Client *client_p, struct Client *source_p, int parc, const char 
 			/* We default to being in BAD mode */
 			isgood = 0;
 
-			if(!isalpha(flag[0]))
+			if(!isalpha((int) flag[0]))
 			{
 				if(flag[0] == '-')
 					isadd = 0;

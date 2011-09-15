@@ -58,7 +58,6 @@ struct Channel
 	rb_dlink_node node;
 	struct Mode mode;
 	struct topic_info *topic;
-	time_t last_knock;	/* don't allow knock to flood */
 
 	rb_dlink_list members;	/* channel members */
 	rb_dlink_list locmembers;	/* local channel members */
@@ -104,15 +103,7 @@ struct ChModeChange
 	int dir;
 	int caps;
 	int nocaps;
-	int mems;
 	struct Client *client;
-};
-
-struct ChCapCombo
-{
-	int count;
-	int cap_yes;
-	int cap_no;
 };
 
 /* can_send results */
@@ -125,10 +116,6 @@ struct ChCapCombo
 #define CHFL_CHANOP     	0x0001	/* Channel operator */
 #define CHFL_VOICE      	0x0002	/* the power to speak */
 #define CHFL_DEOPPED    	0x0004	/* deopped on sjoin, bounce modes */
-#define ONLY_SERVERS		0x0010
-#define ALL_MEMBERS		CHFL_PEON
-#define ONLY_CHANOPS		CHFL_CHANOP
-#define ONLY_CHANOPSVOICED	(CHFL_CHANOP|CHFL_VOICE)
 
 #define is_chanop(x)	((x) && (x)->flags & CHFL_CHANOP)
 #define is_voiced(x)	((x) && (x)->flags & CHFL_VOICE)
@@ -186,11 +173,11 @@ void check_splitmode(void *);
 void set_channel_topic(struct Channel *chptr, const char *topic,
 		       const char *topic_info, time_t topicts);
 
-void init_chcap_usage_counts(void);
-void set_chcap_usage_counts(struct Client *serv_p);
-void unset_chcap_usage_counts(struct Client *serv_p);
 void send_cap_mode_changes(struct Client *client_p, struct Client *source_p,
 			   struct Channel *chptr, struct ChModeChange foo[], int);
 
+void xchg_sender(struct Channel *chptr, struct Client *source_p,
+			     const char *text, struct Client **psource_p,
+			     struct Client **pclient_p);
 
 #endif /* INCLUDED_channel_h */

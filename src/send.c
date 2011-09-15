@@ -432,22 +432,18 @@ sendto_one_numeric(struct Client *target_p, int numeric, const char *pattern, ..
  * sendto_server
  * 
  * inputs       - pointer to client to NOT send to
- *              - caps or'd together which must ALL be present
- *              - caps or'd together which must ALL NOT be present
  *              - printf style format string
  *              - args to format string
  * output       - NONE
  * side effects - Send a message to all connected servers, except the
- *                client 'one' (if non-NULL), as long as the servers
- *                support ALL capabs in 'caps', and NO capabs in 'nocaps'.
+ *                client 'one' (if non-NULL)
  *            
  * This function was written in an attempt to merge together the other
  * billion sendto_*serv*() functions, which sprung up with capabs, uids etc
  * -davidt
  */
 void
-sendto_server(struct Client *one, struct Channel *chptr, unsigned long caps,
-	      unsigned long nocaps, const char *format, ...)
+sendto_server(struct Client *one, struct Channel *chptr, const char *format, ...)
 {
 	va_list args;
 	struct Client *target_p;
@@ -475,14 +471,6 @@ sendto_server(struct Client *one, struct Channel *chptr, unsigned long caps,
 		if(one != NULL && (target_p == one->from))
 			continue;
 
-		/* check we have required capabs */
-		if(!IsCapable(target_p, caps))
-			continue;
-
-		/* check we don't have any forbidden capabs */
-		if(!NotCapable(target_p, nocaps))
-			continue;
-
 		send_linebuf(target_p, &linebuf);
 	}
 
@@ -492,12 +480,12 @@ sendto_server(struct Client *one, struct Channel *chptr, unsigned long caps,
 
 /* sendto_channel_flags()
  *
- * inputs	- server not to send to, flags needed, source, channel, va_args
+ * inputs	- server not to send to, source, channel, va_args
  * outputs	- message is sent to channel members
  * side effects -
  */
 void
-sendto_channel_flags(struct Client *one, int type, struct Client *source_p,
+sendto_channel_flags(struct Client *one, struct Client *source_p,
 		     struct Channel *chptr, const char *pattern, ...)
 {
 	static char buf[BUFSIZE];
@@ -538,9 +526,6 @@ sendto_channel_flags(struct Client *one, int type, struct Client *source_p,
 		if(IsIOError(target_p->from) || target_p->from == one)
 			continue;
 
-		if(type && ((msptr->flags & type) == 0))
-			continue;
-
 		if(chptr->mode.mode & MODE_OPERONLY && !IsOper(target_p))
 			continue;
 
@@ -552,12 +537,6 @@ sendto_channel_flags(struct Client *one, int type, struct Client *source_p,
 
 		if(!MyClient(target_p))
 		{
-			/* if we've got a specific type, target must support
-			 * CHW.. --fl
-			 */
-			if(type && NotCapable(target_p->from, CAP_CHW))
-				continue;
-
 			if(target_p->from->localClient->serial != current_serial)
 			{
 				if(has_id(target_p->from))
@@ -586,7 +565,7 @@ sendto_channel_flags(struct Client *one, int type, struct Client *source_p,
  * side effects -
  */
 void
-sendto_channel_local(int type, struct Channel *chptr, const char *pattern, ...)
+sendto_channel_local(struct Channel *chptr, const char *pattern, ...)
 {
 	va_list args;
 	buf_head_t linebuf;
@@ -607,9 +586,6 @@ sendto_channel_local(int type, struct Channel *chptr, const char *pattern, ...)
 		target_p = msptr->client_p;
 
 		if(IsIOError(target_p))
-			continue;
-
-		if(type && ((msptr->flags & type) == 0))
 			continue;
 
 		if(chptr->mode.mode & MODE_OPERONLY && !IsOper(target_p))

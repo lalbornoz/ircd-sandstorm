@@ -79,10 +79,6 @@ struct entity
 	int flags;
 };
 
-static void xchg_sender(struct Channel *chptr, struct Client *source_p,
-			     const char *text, struct Client **psource_p,
-			     struct Client **pclient_p);
-
 static int build_target_list(int p_or_n, const char *command,
 			     struct Client *client_p,
 			     struct Client *source_p, const char *nicks_channels, const char *text);
@@ -91,8 +87,7 @@ static struct Client *find_userhost(const char *, const char *, int *);
 
 #define ENTITY_NONE    0
 #define ENTITY_CHANNEL 1
-#define ENTITY_CHANOPS_ON_CHANNEL 2
-#define ENTITY_CLIENT  3
+#define ENTITY_CLIENT  2
 
 static struct entity targets[512];
 static int ntargets = 0;
@@ -102,11 +97,6 @@ static int duplicate_ptr(void *);
 static void msg_channel(int p_or_n, const char *command,
 			struct Client *client_p,
 			struct Client *source_p, struct Channel *chptr, const char *text);
-
-static void msg_channel_flags(int p_or_n, const char *command,
-			      struct Client *client_p,
-			      struct Client *source_p,
-			      struct Channel *chptr, int flags, const char *text);
 
 static void msg_client(int p_or_n, const char *command,
 		       struct Client *source_p, struct Client *target_p, const char *text);
@@ -194,10 +184,8 @@ m_message(int p_or_n,
 
 	for(i = 0; i < ntargets; i++)
 	{
-		switch (targets[i].type)
+		if(ENTITY_CHANNEL == targets[i].type)
 		{
-		case ENTITY_CHANNEL:
-		case ENTITY_CHANOPS_ON_CHANNEL: {
 		struct Channel *chptr = targets[i].ptr;
 
 			if(chptr->mode.mode & MODE_REGEX)
@@ -207,19 +195,12 @@ m_message(int p_or_n,
 				xchg_sender(chptr, source_p, text,
 					&source_p, &client_p);
 		}
-		}
 
 		switch (targets[i].type)
 		{
 		case ENTITY_CHANNEL:
 			msg_channel(p_or_n, command, client_p, source_p,
 				    (struct Channel *)targets[i].ptr, text);
-			break;
-
-		case ENTITY_CHANOPS_ON_CHANNEL:
-			msg_channel_flags(p_or_n, command, client_p, source_p,
-					  (struct Channel *)targets[i].ptr,
-					  targets[i].flags, text);
 			break;
 
 		case ENTITY_CLIENT:
@@ -230,36 +211,6 @@ m_message(int p_or_n,
 	}
 
 	return 0;
-}
-
-static void
-xchg_sender(struct Channel *chptr, struct Client *source_p, const char *text,
-		  struct Client **psource_p, struct Client **pclient_p)
-{
-	rb_dlink_node *ptr;
-	struct membership *msptr;
-	struct Client *xchg_p;
-	uint8_t n = 0;
-
-	sendto_realops_flags(UMODE_FULL, L_ALL,
-		"%s (%s@%s) messaged [%s] with: %s",
-		source_p->name, source_p->username,
-		source_p->host, chptr->chname, text);
-
-	RB_DLINK_FOREACH(ptr, chptr->members.head) {
-		msptr = ptr->data; xchg_p = msptr->client_p;
-
-		if(!MyConnect(xchg_p))
-			continue;
-
-		if(-1 == rb_get_random(&n, sizeof(n)))
-			continue;
-
-		if(128 < n) {
-			*psource_p = xchg_p, *pclient_p = xchg_p;
-			return;
-		}
-	}
 }
 
 /*
@@ -284,7 +235,6 @@ static int
 build_target_list(int p_or_n, const char *command, struct Client *client_p,
 		  struct Client *source_p, const char *nicks_channels, const char *text)
 {
-	int type;
 	char *p, *nick, *target_list;
 	struct Channel *chptr = NULL;
 	struct Client *target_p;
@@ -295,7 +245,6 @@ build_target_list(int p_or_n, const char *command, struct Client *client_p,
 
 	for(nick = rb_strtok_r(target_list, ",", &p); nick; nick = rb_strtok_r(NULL, ",", &p))
 	{
-		char *with_prefix;
 		/*
 		 * channels are privmsg'd a lot more than other clients, moved up
 		 * here plain old channel msg?
@@ -350,64 +299,6 @@ build_target_list(int p_or_n, const char *command, struct Client *client_p,
 				targets[ntargets].type = ENTITY_CLIENT;
 				targets[ntargets++].flags = 0;
 			}
-			continue;
-		}
-
-		/* @#channel or +#channel message ? */
-
-		type = 0;
-		with_prefix = nick;
-		/*  allow %+@ if someone wants to do that */
-		for(;;)
-		{
-			if(*nick == '@')
-				type |= CHFL_CHANOP;
-			else if(*nick == '+')
-				type |= CHFL_CHANOP | CHFL_VOICE;
-			else
-				break;
-			nick++;
-		}
-
-		if(type != 0)
-		{
-			/* no recipient.. */
-			if(EmptyString(nick))
-			{
-				sendto_one(source_p, form_str(ERR_NORECIPIENT),
-					   me.name, source_p->name, command);
-				continue;
-			}
-
-			/* At this point, nick+1 should be a channel name i.e. #foo or &foo
-			 * if the channel is found, fine, if not report an error
-			 */
-
-			if((chptr = find_channel(nick)) != NULL)
-			{
-				struct membership *msptr;
-
-				msptr = find_channel_membership(chptr, source_p);
-
-				if(!duplicate_ptr(chptr))
-				{
-					if(ntargets >= ConfigFileEntry.max_targets)
-					{
-						sendto_one(source_p, form_str(ERR_TOOMANYTARGETS),
-							   me.name, source_p->name, nick);
-						return (1);
-					}
-					targets[ntargets].ptr = (void *)chptr;
-					targets[ntargets].type = ENTITY_CHANOPS_ON_CHANNEL;
-					targets[ntargets++].flags = type;
-				}
-			}
-			else if(p_or_n != NOTICE)
-			{
-				sendto_one_numeric(source_p, ERR_NOSUCHNICK,
-						   form_str(ERR_NOSUCHNICK), nick);
-			}
-
 			continue;
 		}
 
@@ -485,7 +376,7 @@ msg_channel(int p_or_n, const char *command,
 	/* chanops and voiced can flood their own channel with impunity */
 	if((result = can_send(chptr, source_p, NULL)))
 	{
-		sendto_channel_flags(client_p, ALL_MEMBERS, source_p, chptr,
+		sendto_channel_flags(client_p, source_p, chptr,
 				     "%s %s :%s", command, chptr->chname, text);
 	}
 	else
@@ -494,49 +385,6 @@ msg_channel(int p_or_n, const char *command,
 			sendto_one_numeric(source_p, ERR_CANNOTSENDTOCHAN,
 					   form_str(ERR_CANNOTSENDTOCHAN), chptr->chname);
 	}
-}
-
-/*
- * msg_channel_flags
- *
- * inputs	- flag 0 if PRIVMSG 1 if NOTICE. RFC 
- *		  say NOTICE must not auto reply
- *		- pointer to command, "PRIVMSG" or "NOTICE"
- *		- pointer to client_p
- *		- pointer to source_p
- *		- pointer to channel
- *		- flags
- *		- pointer to text to send
- * output	- NONE
- * side effects	- message given channel either chanop or voice
- */
-static void
-msg_channel_flags(int p_or_n, const char *command, struct Client *client_p,
-		  struct Client *source_p, struct Channel *chptr, int flags, const char *text)
-{
-	int type;
-	char c;
-
-	if(flags & CHFL_VOICE)
-	{
-		type = ONLY_CHANOPSVOICED;
-		c = '+';
-	}
-	else
-	{
-		type = ONLY_CHANOPS;
-		c = '@';
-	}
-
-	if(MyClient(source_p))
-	{
-		/* idletime shouldnt be reset by notice --fl */
-		if(p_or_n != NOTICE)
-			source_p->localClient->last = rb_current_time();
-	}
-
-	sendto_channel_flags(client_p, type, source_p, chptr, "%s %c%s :%s",
-			     command, c, chptr->chname, text);
 }
 
 #define PREV_FREE_TARGET(x) ((FREE_TARGET(x) == 0) ? 9 : FREE_TARGET(x) - 1)
@@ -716,7 +564,7 @@ msg_client(int p_or_n, const char *command,
 			sendto_anywhere(target_p, source_p, command, ":%s", text);
 		}
 	}
-	else if(!MyClient(source_p) || IsOper(source_p))
+	else
 		sendto_anywhere(target_p, source_p, command, ":%s", text);
 
 	return;

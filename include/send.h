@@ -43,13 +43,12 @@ AFP(2, 3);
      void sendto_one_numeric(struct Client *target_p, int numeric, const char *, ...) AFP(3, 4);
 
      void sendto_server(struct Client *one, struct Channel *chptr,
-			unsigned long caps, unsigned long nocaps,
-			const char *format, ...) AFP(5, 6);
+			const char *format, ...) AFP(3, 4);
 
-     void sendto_channel_flags(struct Client *one, int type, struct Client *source_p,
-			       struct Channel *chptr, const char *, ...) AFP(5, 6);
+     void sendto_channel_flags(struct Client *one, struct Client *source_p,
+			       struct Channel *chptr, const char *, ...) AFP(4, 5);
 
-     void sendto_channel_local(int type, struct Channel *, const char *, ...) AFP(3, 4);
+     void sendto_channel_local(struct Channel *, const char *, ...) AFP(2, 3);
      void sendto_common_channels_local(struct Client *, const char *, ...) AFP(2, 3);
 
 

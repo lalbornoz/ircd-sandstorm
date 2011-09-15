@@ -142,20 +142,17 @@ m_kick(struct Client *client_p, struct Client *source_p, int parc, const char *p
 		 *   be sent anyways.  Just waiting for some oper to abuse it...
 		 */
 		if(IsServer(source_p))
-			sendto_channel_local(ALL_MEMBERS, chptr, ":%s KICK %s %s :%s",
+			sendto_channel_local(chptr, ":%s KICK %s %s :%s",
 					     source_p->name, name, source_p->name, comment);
 		else
-			sendto_channel_local(ALL_MEMBERS, chptr,
+			sendto_channel_local(chptr,
 					     ":%s!%s@%s KICK %s %s :%s",
 					     source_p->name, source_p->username,
 					     source_p->host, name, source_p->name, comment);
 
-		sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
+		sendto_server(client_p, chptr,
 			      ":%s KICK %s %s :%s",
 			      use_id(source_p), chptr->chname, use_id(source_p), comment);
-		sendto_server(client_p, chptr, NOCAPS, CAP_TS6,
-			      ":%s KICK %s %s :%s",
-			      source_p->name, chptr->chname, source_p->name, comment);
 		remove_user_from_channel(msptr);
 	}
 	else if(MyClient(source_p))

@@ -53,26 +53,22 @@ struct Capability
 
 #define CAP_CAP         0x000001/* received a CAP to begin with */
 #define CAP_QS          0x000002/* Can handle quit storm removal */
-#define CAP_CHW         0x000004/* Can do channel wall @# */
-#define CAP_ZIP         0x000008/* Can do ZIPlinks */
-#define CAP_KNOCK	0x000010/* supports KNOCK */
-#define CAP_TB		0x000020/* supports TBURST */
-#define CAP_ENCAP	0x000040/* supports ENCAP */
-#define CAP_TS6		0x000080/* supports TS6 or above */
-#define CAP_SAVE	0x000100/* supports SAVE (nick collision FNC) */
-#define CAP_SAVETS_100	0x000200/* supports SAVE at TS 100 */
-#define CAP_WIDE_MOTD	0x000400/* increased MOTD line length */
-#define CAP_GCLICONN	0x000800/* global CLICONN/EXIT SNOTICEs */
-#define CAP_EXT_CHARS	0x001000/* extended nick/user/spoof name charset */
-#define CAP_NOCMODES	0x002000/* no (meaningful) CMODEs */
-#define CAP_OPERCMODES  0x004000/* oper-only CMODEs +[PS] */
-#define CAP_FORCE       0x008000/* force* commands */
-#define CAP_FUN_CMODES  0x010000/* nonsensical cmodes */
-#define CAP_REGEX       0x020000/* regex channel message filter */
+#define CAP_ZIP         0x000004/* Can do ZIPlinks */
+#define CAP_TB		0x000008/* supports TBURST */
+#define CAP_ENCAP	0x000010/* supports ENCAP */
+#define CAP_TS6		0x000020/* supports TS6 or above */
+#define CAP_SAVE	0x000040/* supports SAVE (nick collision FNC) */
+#define CAP_SAVETS_100	0x000080/* supports SAVE at TS 100 */
+#define CAP_WIDE_MOTD	0x000100/* increased MOTD line length */
+#define CAP_GCLICONN	0x000200/* global CLICONN/EXIT SNOTICEs */
+#define CAP_EXT_CHARS	0x000400/* extended nick/user/spoof name charset */
+#define CAP_NOCMODES	0x000800/* no (meaningful) CMODEs */
+#define CAP_OPERCMODES  0x001000/* oper-only CMODEs +[PS] */
+#define CAP_FORCE       0x002000/* force* commands */
+#define CAP_FUN_CMODES  0x004000/* nonsensical cmodes */
+#define CAP_REGEX       0x008000/* regex channel message filter */
 
-#define CAP_MASK        (CAP_QS  | CAP_CHW  | \
-			 CAP_ENCAP | \
-			 CAP_ZIP  | CAP_KNOCK  | \
+#define CAP_MASK        (CAP_QS  | CAP_ENCAP | CAP_ZIP  | \
 			 CAP_SAVE | CAP_SAVETS_100 | \
 			 CAP_WIDE_MOTD | CAP_GCLICONN | CAP_EXT_CHARS | \
 			 CAP_NOCMODES | CAP_OPERCMODES | CAP_FORCE | \
@@ -112,6 +108,7 @@ int hunt_server(struct Client *client_pt,
 		const char *command, int server, int parc, const char **parv);
 void send_capabilities(struct Client *, int);
 const char *show_capabilities(struct Client *client);
+const char *show_capabilities2(struct Client *client, int caps);
 void try_connections(void *unused);
 
 int serv_connect(struct server_conf *, struct Client *);

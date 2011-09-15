@@ -100,16 +100,11 @@ ms_tb(struct Client *client_p, struct Client *source_p, int parc, const char *pa
 			return 0;
 
 		set_channel_topic(chptr, newtopic, newtopicwho, newtopicts);
-		sendto_channel_local(ALL_MEMBERS, chptr, ":%s TOPIC %s :%s",
+		sendto_channel_local(chptr, ":%s TOPIC %s :%s",
 				     source_p->name, chptr->chname, newtopic);
-		sendto_server(client_p, chptr, CAP_TB | CAP_TS6, NOCAPS,
+		sendto_server(client_p, chptr,
 			      ":%s TB %s %ld %s%s:%s",
 			      use_id(source_p), chptr->chname, (long)chptr->topic->topic_time,
-			      ConfigChannel.burst_topicwho ? chptr->topic->topic_info : "",
-			      ConfigChannel.burst_topicwho ? " " : "", chptr->topic->topic);
-		sendto_server(client_p, chptr, CAP_TB, CAP_TS6,
-			      ":%s TB %s %ld %s%s:%s",
-			      source_p->name, chptr->chname, (long)chptr->topic->topic_time,
 			      ConfigChannel.burst_topicwho ? chptr->topic->topic_info : "",
 			      ConfigChannel.burst_topicwho ? " " : "", chptr->topic->topic);
 	}

@@ -478,7 +478,7 @@ read_auth(rb_fde_t *F, void *data)
 			{
 				if(*s == '@')
 					break;
-				if(!isspace(*s) && *s != ':' && *s != '[')
+				if(!isspace((int) *s) && *s != ':' && *s != '[')
 				{
 					*t++ = *s;
 					count--;

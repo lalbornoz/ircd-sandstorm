@@ -702,8 +702,7 @@ do_numeric(char numeric[], struct Client *client_p, struct Client *source_p, int
 		return;
 	}
 	else if((chptr = find_channel(parv[1])) != NULL)
-		sendto_channel_local(ALL_MEMBERS, chptr,
-				     ":%s %s %s %s",
+		sendto_channel_local(chptr, ":%s %s %s %s",
 				     source_p->name, numeric, chptr->chname, buffer);
 }
 

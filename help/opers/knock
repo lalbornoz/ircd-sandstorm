@@ -1,5 +1,0 @@
-KNOCK <channel>
-
-KNOCK requests access to a channel.
-
-KNOCK cannot be used if the channel is +p. 

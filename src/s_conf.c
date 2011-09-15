@@ -785,10 +785,7 @@ set_default_conf(void)
 		UMODE_OPERWALL | UMODE_WALLOP;
 	ConfigFileEntry.oper_only_umodes = UMODE_DEBUG | UMODE_OPERSPY;
 
-	ConfigChannel.use_knock = YES;
 	ConfigChannel.use_sslonly = NO;
-	ConfigChannel.knock_delay = 300;
-	ConfigChannel.knock_delay_channel = 60;
 	ConfigChannel.max_chans_per_user = 15;
 	ConfigChannel.burst_topicwho = YES;
 

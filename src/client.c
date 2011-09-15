@@ -1095,12 +1095,8 @@ exit_remote_client(struct Client *client_p, struct Client *source_p, struct Clie
 	}
 
 	if((source_p->flags & FLAGS_KILLED) == 0)
-	{
-		sendto_server(client_p, NULL, CAP_TS6, NOCAPS,
+		sendto_server(client_p, NULL,
 			      ":%s QUIT :%s", use_id(source_p), comment);
-		sendto_server(client_p, NULL, NOCAPS, CAP_TS6,
-			      ":%s QUIT :%s", source_p->name, comment);
-	}
 
 	SetDead(source_p);
 #ifdef DEBUG_EXITED_CLIENTS
@@ -1224,7 +1220,6 @@ exit_local_server(struct Client *client_p, struct Client *source_p, struct Clien
 	rb_dlinkDelete(&source_p->localClient->tnode, &serv_list);
 	rb_dlinkFindDestroy(source_p, &global_serv_list);
 
-	unset_chcap_usage_counts(source_p);
 	sendb = source_p->localClient->sendB;
 	recvb = source_p->localClient->receiveB;
 
@@ -1296,7 +1291,6 @@ static int
 exit_local_client(struct Client *client_p, struct Client *source_p, struct Client *from,
 		  const char *comment)
 {
-	rb_dlink_node *ptr, *next_ptr;
 	unsigned long on_for;
 	char tbuf[26];
 
@@ -1338,10 +1332,8 @@ exit_local_client(struct Client *client_p, struct Client *source_p, struct Clien
 
 	if((source_p->flags & FLAGS_KILLED) == 0)
 	{
-		sendto_server(client_p, NULL, CAP_TS6, NOCAPS,
+		sendto_server(client_p, NULL,
 			      ":%s QUIT :%s", use_id(source_p), comment);
-		sendto_server(client_p, NULL, NOCAPS, CAP_TS6,
-			      ":%s QUIT :%s", source_p->name, comment);
 	}
 
 	SetDead(source_p);

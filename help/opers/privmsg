@@ -3,12 +3,6 @@ PRIVMSG <nick|channel> :message
 PRIVMSG will send a standard message to the
 user or channel specified.
 
-PRIVMSG supports the following prefixes for sending
-messages to specific clients in a channel:
-
-@ - channel operators only
-+ - channel operators and voiced users
-
 Two other targets are permitted:
 
 $$servermask - Send a message to a server or set of

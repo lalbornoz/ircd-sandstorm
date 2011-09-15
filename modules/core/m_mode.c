@@ -250,8 +250,6 @@ ms_rmask(struct Client *client_p, struct Client *source_p, int parc, const char 
 	int tlen;
 	int arglen;
 	int modecount = 0;
-	int needcap = NOCAPS;
-	int mems;
 
 	if(!IsChanPrefix(parv[2][0]) || !check_channel_name(parv[2]))
 		return 0;
@@ -268,7 +266,6 @@ ms_rmask(struct Client *client_p, struct Client *source_p, int parc, const char 
 	case 'b':
 		regexlist = &chptr->regexlist;
 		mode_type = CHFL_REGEX;
-		mems = ALL_MEMBERS;
 		break;
 
 		/* maybe we should just blindly propagate this? */
@@ -317,9 +314,7 @@ ms_rmask(struct Client *client_p, struct Client *source_p, int parc, const char 
 			{
 				*mbuf = '\0';
 				*(pbuf - 1) = '\0';
-				sendto_channel_local(mems, chptr, "%s %s", modebuf, parabuf);
-				sendto_server(client_p, chptr, needcap, CAP_TS6,
-					      "%s %s", modebuf, parabuf);
+				sendto_channel_local(chptr, "%s %s", modebuf, parabuf);
 
 				mbuf = modebuf + mlen;
 				pbuf = parabuf;
@@ -352,11 +347,10 @@ ms_rmask(struct Client *client_p, struct Client *source_p, int parc, const char 
 	{
 		*mbuf = '\0';
 		*(pbuf - 1) = '\0';
-		sendto_channel_local(mems, chptr, "%s %s", modebuf, parabuf);
-		sendto_server(client_p, chptr, needcap, CAP_TS6, "%s %s", modebuf, parabuf);
+		sendto_channel_local(chptr, "%s %s", modebuf, parabuf);
 	}
 
-	sendto_server(client_p, chptr, CAP_TS6 | needcap, NOCAPS, ":%s RMASK %ld %s %s :%s",
+	sendto_server(client_p, chptr, ":%s RMASK %ld %s %s :%s",
 		      source_p->id, (long)chptr->channelts, chptr->chname, parv[3], parv[4]);
 	return 0;
 }
@@ -546,7 +540,6 @@ chm_op(struct Client *source_p, struct Channel *chptr,
 		mode_changes[mode_count].dir = MODE_ADD;
 		mode_changes[mode_count].caps = 0;
 		mode_changes[mode_count].nocaps = 0;
-		mode_changes[mode_count].mems = ALL_MEMBERS;
 		mode_changes[mode_count].id = targ_p->id;
 		mode_changes[mode_count].arg = targ_p->name;
 		mode_changes[mode_count++].client = targ_p;
@@ -560,7 +553,6 @@ chm_op(struct Client *source_p, struct Channel *chptr,
 		mode_changes[mode_count].dir = MODE_DEL;
 		mode_changes[mode_count].caps = 0;
 		mode_changes[mode_count].nocaps = 0;
-		mode_changes[mode_count].mems = ALL_MEMBERS;
 		mode_changes[mode_count].id = targ_p->id;
 		mode_changes[mode_count].arg = targ_p->name;
 		mode_changes[mode_count++].client = targ_p;
@@ -616,14 +608,13 @@ chm_voice(struct Client *source_p, struct Channel *chptr,
 		mode_changes[mode_count].dir = MODE_ADD;
 		mode_changes[mode_count].caps = 0;
 		mode_changes[mode_count].nocaps = 0;
-		mode_changes[mode_count].mems = ALL_MEMBERS;
 		mode_changes[mode_count].id = targ_p->id;
 		mode_changes[mode_count].arg = targ_p->name;
 		mode_changes[mode_count++].client = targ_p;
 
 		if('v' == c)
 			mstptr->flags |= CHFL_VOICE;
-		else	mstptr->flags_crazy[c] = 1;
+		else	mstptr->flags_crazy[(int) c] = 1;
 	}
 	else
 	{
@@ -631,14 +622,13 @@ chm_voice(struct Client *source_p, struct Channel *chptr,
 		mode_changes[mode_count].dir = MODE_DEL;
 		mode_changes[mode_count].caps = 0;
 		mode_changes[mode_count].nocaps = 0;
-		mode_changes[mode_count].mems = ALL_MEMBERS;
 		mode_changes[mode_count].id = targ_p->id;
 		mode_changes[mode_count].arg = targ_p->name;
 		mode_changes[mode_count++].client = targ_p;
 
 		if('v' == c)
 			mstptr->flags &= ~CHFL_VOICE;
-		else	mstptr->flags_crazy[c] = 0;
+		else	mstptr->flags_crazy[(int) c] = 0;
 	}
 }
 
@@ -706,7 +696,6 @@ chm_operonly(struct Client *source_p, struct Channel *chptr,
 	mode_changes[mode_count].dir = dir;
 	mode_changes[mode_count].caps = 0;
 	mode_changes[mode_count].nocaps = 0;
-	mode_changes[mode_count].mems = ALL_MEMBERS;
 	mode_changes[mode_count].id = NULL;
 	mode_changes[mode_count++].arg = NULL;
 }
@@ -807,7 +796,6 @@ chm_regex(struct Client *source_p, struct Channel *chptr,
 		mode_changes[mode_count].dir = MODE_ADD;
 		mode_changes[mode_count].caps = 0;
 		mode_changes[mode_count].nocaps = 0;
-		mode_changes[mode_count].mems = ALL_MEMBERS;
 		mode_changes[mode_count].id = NULL;
 		mode_changes[mode_count++].arg = mask;
 	}
@@ -819,7 +807,6 @@ chm_regex(struct Client *source_p, struct Channel *chptr,
 		mode_changes[mode_count].dir = MODE_DEL;
 		mode_changes[mode_count].caps = 0;
 		mode_changes[mode_count].nocaps = 0;
-		mode_changes[mode_count].mems = ALL_MEMBERS;
 		mode_changes[mode_count].id = NULL;
 		mode_changes[mode_count++].arg = mask;
 	}
@@ -914,7 +901,6 @@ set_channel_mode(struct Client *client_p, struct Client *source_p,
 	char *mbuf;
 	char *pbuf;
 	int cur_len, mlen, paralen, paracount, arglen, len;
-	int i, j, flags;
 	int dir = MODE_ADD;
 	int parn = 1;
 	int errors = 0;
@@ -966,7 +952,6 @@ set_channel_mode(struct Client *client_p, struct Client *source_p,
 				  source_p->name, source_p->username,
 				  source_p->host, chptr->chname);
 
-	for(j = 0, flags = ALL_MEMBERS; j < 2; j++, flags = ONLY_CHANOPS)
 	{
 		cur_len = mlen;
 		mbuf = modebuf + mlen;
@@ -975,9 +960,9 @@ set_channel_mode(struct Client *client_p, struct Client *source_p,
 		paracount = paralen = 0;
 		dir = MODE_QUERY;
 
-		for(i = 0; i < mode_count; i++)
+		for(int i = 0; i < mode_count; i++)
 		{
-			if(mode_changes[i].letter == 0 || mode_changes[i].mems != flags)
+			if(mode_changes[i].letter == 0)
 				continue;
 
 			if(mode_changes[i].arg != NULL)
@@ -1000,7 +985,7 @@ set_channel_mode(struct Client *client_p, struct Client *source_p,
 				*mbuf = '\0';
 
 				if(cur_len > mlen)
-					sendto_channel_local(flags, chptr, "%s %s", modebuf,
+					sendto_channel_local(chptr, "%s %s", modebuf,
 							     parabuf);
 				else
 					continue;
@@ -1037,7 +1022,7 @@ set_channel_mode(struct Client *client_p, struct Client *source_p,
 
 		*mbuf = '\0';
 		if(cur_len > mlen)
-			sendto_channel_local(flags, chptr, "%s %s", modebuf, parabuf);
+			sendto_channel_local(chptr, "%s %s", modebuf, parabuf);
 	}
 
 	/* only propagate modes originating locally, or if we're hubbing */

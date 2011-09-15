@@ -65,7 +65,7 @@ static int can_join(struct Client *source_p, struct Channel *chptr, char *key);
 static void set_final_mode(struct Client *, struct Channel *, struct Mode *, struct Mode *);
 static void remove_our_modes(struct Channel *chptr);
 static void remove_regex_list(struct Channel *chptr, struct Client *source_p,
-			    rb_dlink_list *list, char c, int cap, int mems);
+			    rb_dlink_list *list, char c);
 
 /*
  * m_join
@@ -78,7 +78,6 @@ m_join(struct Client *client_p, struct Client *source_p, int parc, const char *p
 {
 	static char jbuf[BUFSIZE];
 	struct Channel *chptr = NULL;
-	struct ConfItem *aconf;
 	char *name;
 	char *key = NULL;
 	int i, flags = 0;
@@ -219,7 +218,7 @@ m_join(struct Client *client_p, struct Client *source_p, int parc, const char *p
 		/* we send the user their join here, because we could have to
 		 * send a mode out next.
 		 */
-		sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s JOIN :%s",
+		sendto_channel_local(chptr, ":%s!%s@%s JOIN :%s",
 				     source_p->name,
 				     source_p->username, source_p->host, chptr->chname);
 
@@ -229,32 +228,19 @@ m_join(struct Client *client_p, struct Client *source_p, int parc, const char *p
 			chptr->channelts = rb_current_time();
 			chptr->mode.limit = 1488;
 
-			sendto_channel_local(ONLY_CHANOPS, chptr, ":%s MODE %s +l 1488",
+			sendto_channel_local(chptr, ":%s MODE %s +l 1488",
 					     me.name, chptr->chname);
 
 			if(*chptr->chname == '#')
-			{
-				sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
+				sendto_server(client_p, chptr,
 					      ":%s SJOIN %ld %s +l 1488 :@%s",
 					      me.id, (long)chptr->channelts,
 					      chptr->chname, source_p->id);
-				sendto_server(client_p, chptr, NOCAPS, CAP_TS6,
-					      ":%s SJOIN %ld %s +l 1488 :@%s",
-					      me.name, (long)chptr->channelts,
-					      chptr->chname, source_p->name);
-			}
 		}
 		else
-		{
-			sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
+			sendto_server(client_p, chptr,
 				      ":%s JOIN %ld %s +",
 				      use_id(source_p), (long)chptr->channelts, chptr->chname);
-
-			sendto_server(client_p, chptr, NOCAPS, CAP_TS6,
-				      ":%s SJOIN %ld %s + :%s",
-				      me.name, (long)chptr->channelts,
-				      chptr->chname, source_p->name);
-		}
 
 		if(chptr->topic != NULL)
 		{
@@ -325,7 +311,7 @@ ms_join(struct Client *client_p, struct Client *source_p, int parc, const char *
 	/* making a channel TS0 */
 	if(!isnew && !newts && oldts)
 	{
-		sendto_channel_local(ALL_MEMBERS, chptr,
+		sendto_channel_local(chptr,
 				     ":%s NOTICE %s :*** Notice -- TS for %s changed from %ld to 0",
 				     me.name, chptr->chname, chptr->chname, (long)oldts);
 		sendto_realops_flags(UMODE_ALL, L_ALL,
@@ -351,7 +337,7 @@ ms_join(struct Client *client_p, struct Client *source_p, int parc, const char *
 	if(!keep_our_modes)
 	{
 		remove_our_modes(chptr);
-		sendto_channel_local(ALL_MEMBERS, chptr,
+		sendto_channel_local(chptr,
 				     ":%s NOTICE %s :*** Notice -- TS for %s changed from %ld to %ld",
 				     me.name, chptr->chname, chptr->chname, (long)oldts,
 				     (long)newts);
@@ -362,17 +348,13 @@ ms_join(struct Client *client_p, struct Client *source_p, int parc, const char *
 	if(!IsMember(source_p, chptr))
 	{
 		add_user_to_channel(chptr, source_p, CHFL_PEON);
-		sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s JOIN :%s",
+		sendto_channel_local(chptr, ":%s!%s@%s JOIN :%s",
 				     source_p->name, source_p->username,
 				     source_p->host, chptr->chname);
 	}
 
-	sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
+	sendto_server(client_p, chptr,
 		      ":%s JOIN %ld %s +", source_p->id, (long)chptr->channelts, chptr->chname);
-	sendto_server(client_p, chptr, NOCAPS, CAP_TS6,
-		      ":%s SJOIN %ld %s %s :%s",
-		      source_p->servptr->name, (long)chptr->channelts,
-		      chptr->chname, keep_new_modes ? "+" : "0", source_p->name);
 	return 0;
 }
 
@@ -482,7 +464,7 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 
 	if(!isnew && !newts && oldts)
 	{
-		sendto_channel_local(ALL_MEMBERS, chptr,
+		sendto_channel_local(chptr,
 				     ":%s NOTICE %s :*** Notice -- TS for %s "
 				     "changed from %ld to 0",
 				     me.name, chptr->chname, chptr->chname, (long)oldts);
@@ -518,7 +500,7 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 	if(!keep_our_modes)
 	{
 		remove_our_modes(chptr);
-		sendto_channel_local(ALL_MEMBERS, chptr,
+		sendto_channel_local(chptr,
 				     ":%s NOTICE %s :*** Notice -- TS for %s changed from %ld to %ld",
 				     me.name, chptr->chname, chptr->chname,
 				     (long)oldts, (long)newts);
@@ -586,19 +568,11 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 
 		/* we assume for these we can fit at least one nick/uid in.. */
 
-		/* check we can fit another status+nick+space into a buffer */
-		if((mlen_nick + len_nick + NICKLEN + 3) > (BUFSIZE - 3))
-		{
-			*(ptr_nick - 1) = '\0';
-			sendto_server(client_p->from, NULL, NOCAPS, CAP_TS6, "%s", buf_nick);
-			ptr_nick = buf_nick + mlen_nick;
-			len_nick = 0;
-		}
-
+		/* check we can fit another status+uid+space into a buffer */
 		if((mlen_uid + len_uid + IDLEN + 3) > (BUFSIZE - 3))
 		{
 			*(ptr_uid - 1) = '\0';
-			sendto_server(client_p->from, NULL, CAP_TS6, NOCAPS, "%s", buf_uid);
+			sendto_server(client_p->from, NULL, "%s", buf_uid);
 			ptr_uid = buf_uid + mlen_uid;
 			len_uid = 0;
 		}
@@ -640,7 +614,7 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 		if(!IsMember(target_p, chptr))
 		{
 			add_user_to_channel(chptr, target_p, fl);
-			sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s JOIN :%s",
+			sendto_channel_local(chptr, ":%s!%s@%s JOIN :%s",
 					     target_p->name,
 					     target_p->username, target_p->host, parv[2]);
 			joins++;
@@ -660,7 +634,7 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 				if(pargs >= MAXMODEPARAMS)
 				{
 					*mbuf = '\0';
-					sendto_channel_local(ALL_MEMBERS, chptr,
+					sendto_channel_local(chptr,
 							     ":%s MODE %s %s %s %s %s %s",
 							     source_p->name, chptr->chname,
 							     modebuf,
@@ -684,7 +658,7 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 		if(pargs >= MAXMODEPARAMS)
 		{
 			*mbuf = '\0';
-			sendto_channel_local(ALL_MEMBERS, chptr,
+			sendto_channel_local(chptr,
 					     ":%s MODE %s %s %s %s %s %s",
 					     source_p->name,
 					     chptr->chname,
@@ -719,7 +693,7 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 	*mbuf = '\0';
 	if(pargs)
 	{
-		sendto_channel_local(ALL_MEMBERS, chptr,
+		sendto_channel_local(chptr,
 				     ":%s MODE %s %s %s %s %s %s",
 				     source_p->name, chptr->chname, modebuf,
 				     para[0], CheckEmpty(para[1]), CheckEmpty(para[2]),
@@ -737,8 +711,7 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 	*(ptr_nick - 1) = '\0';
 	*(ptr_uid - 1) = '\0';
 
-	sendto_server(client_p->from, NULL, CAP_TS6, NOCAPS, "%s", buf_uid);
-	sendto_server(client_p->from, NULL, NOCAPS, CAP_TS6, "%s", buf_nick);
+	sendto_server(client_p->from, NULL, "%s", buf_uid);
 
 	/* if the source does TS6 we have to remove our regexes.  Its now safe
 	 * to issue -b's to the non-ts6 servers, as the sjoin we've just
@@ -747,10 +720,10 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 	if(!keep_our_modes && source_p->id[0] != '\0')
 	{
 		if(rb_dlink_list_length(&chptr->regexlist) > 0)
-			remove_regex_list(chptr, source_p, &chptr->regexlist, 'b', NOCAPS, ALL_MEMBERS);
+			remove_regex_list(chptr, source_p, &chptr->regexlist, 'b');
 
 		if(rb_dlink_list_length(&chptr->regex_exlist) > 0)
-			remove_regex_list(chptr, source_p, &chptr->regex_exlist, 'e', NOCAPS, ALL_MEMBERS);
+			remove_regex_list(chptr, source_p, &chptr->regex_exlist, 'e');
 	}
 
 
@@ -780,14 +753,13 @@ do_join_0(struct Client *client_p, struct Client *source_p)
 		flood_endgrace(source_p);
 
 
-	sendto_server(client_p, NULL, CAP_TS6, NOCAPS, ":%s JOIN 0", use_id(source_p));
-	sendto_server(client_p, NULL, NOCAPS, CAP_TS6, ":%s JOIN 0", source_p->name);
+	sendto_server(client_p, NULL, ":%s JOIN 0", use_id(source_p));
 
 	while((ptr = source_p->user->channel.head))
 	{
 		msptr = ptr->data;
 		chptr = msptr->chptr;
-		sendto_channel_local(ALL_MEMBERS, chptr, ":%s!%s@%s PART %s",
+		sendto_channel_local(chptr, ":%s!%s@%s PART %s",
 				     source_p->name,
 				     source_p->username, source_p->host, chptr->chname);
 		remove_user_from_channel(msptr);
@@ -830,8 +802,6 @@ check_channel_name_loc(struct Client *source_p, const char *name)
 static int
 can_join(struct Client *source_p, struct Channel *chptr, char *key)
 {
-	rb_dlink_node *lp;
-	rb_dlink_node *ptr;
 	char src_host[NICKLEN + USERLEN + HOSTLEN + 6];
 	char src_iphost[NICKLEN + USERLEN + HOSTLEN + 6];
 
@@ -950,11 +920,11 @@ set_final_mode(struct Client *source_p, struct Channel *chptr,
 		if(!EmptyString(lparabuf))
 		{
 			*(pbuf - 1) = '\0';
-			sendto_channel_local(ALL_MEMBERS, chptr, ":%s MODE %s %s %s",
+			sendto_channel_local(chptr, ":%s MODE %s %s %s",
 					     source_p->name, chptr->chname, lmodebuf, lparabuf);
 		}
 		else
-			sendto_channel_local(ALL_MEMBERS, chptr, ":%s MODE %s %s",
+			sendto_channel_local(chptr, ":%s MODE %s %s",
 					     source_p->name, chptr->chname, lmodebuf);
 	}
 }
@@ -999,7 +969,7 @@ remove_our_modes(struct Channel *chptr)
 				if(count >= MAXMODEPARAMS)
 				{
 					*mbuf = '\0';
-					sendto_channel_local(ALL_MEMBERS, chptr,
+					sendto_channel_local(chptr,
 							     ":%s MODE %s %s %s %s %s %s",
 							     me.name, chptr->chname,
 							     lmodebuf, lpara[0], lpara[1],
@@ -1031,7 +1001,7 @@ remove_our_modes(struct Channel *chptr)
 		if(count >= MAXMODEPARAMS)
 		{
 			*mbuf = '\0';
-			sendto_channel_local(ALL_MEMBERS, chptr,
+			sendto_channel_local(chptr,
 					     ":%s MODE %s %s %s %s %s %s",
 					     me.name, chptr->chname, lmodebuf,
 					     lpara[0], lpara[1], lpara[2], lpara[3]);
@@ -1047,7 +1017,7 @@ remove_our_modes(struct Channel *chptr)
 	if(count != 0)
 	{
 		*mbuf = '\0';
-		sendto_channel_local(ALL_MEMBERS, chptr,
+		sendto_channel_local(chptr,
 				     ":%s MODE %s %s %s %s %s %s",
 				     me.name, chptr->chname, lmodebuf,
 				     EmptyString(lpara[0]) ? "" : lpara[0],
@@ -1060,14 +1030,14 @@ remove_our_modes(struct Channel *chptr)
 
 /* remove_regex_list()
  *
- * inputs	- channel, source, list to remove, char of mode, caps needed
+ * inputs	- channel, source, list to remove, char of mode
  * outputs	-
  * side effects - given list is removed, with modes issued to local clients
  * 		  and non-TS6 servers.
  */
 static void
 remove_regex_list(struct Channel *chptr, struct Client *source_p,
-		rb_dlink_list *list, char c, int cap, int mems)
+		rb_dlink_list *list, char c)
 {
 	static char lmodebuf[BUFSIZE];
 	static char lparabuf[BUFSIZE];
@@ -1096,8 +1066,7 @@ remove_regex_list(struct Channel *chptr, struct Client *source_p,
 			*mbuf = '\0';
 			*(pbuf - 1) = '\0';
 
-			sendto_channel_local(mems, chptr, "%s %s", lmodebuf, lparabuf);
-			sendto_server(source_p, chptr, cap, CAP_TS6, "%s %s", lmodebuf, lparabuf);
+			sendto_channel_local(chptr, "%s %s", lmodebuf, lparabuf);
 
 			cur_len = mlen;
 			mbuf = lmodebuf + mlen;
@@ -1115,8 +1084,7 @@ remove_regex_list(struct Channel *chptr, struct Client *source_p,
 
 	*mbuf = '\0';
 	*(pbuf - 1) = '\0';
-	sendto_channel_local(mems, chptr, "%s %s", lmodebuf, lparabuf);
-	sendto_server(source_p, chptr, cap, CAP_TS6, "%s %s", lmodebuf, lparabuf);
+	sendto_channel_local(chptr, "%s %s", lmodebuf, lparabuf);
 
 	list->head = list->tail = NULL;
 	list->length = 0;

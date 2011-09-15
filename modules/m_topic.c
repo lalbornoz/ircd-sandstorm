@@ -109,16 +109,10 @@ m_topic(struct Client *client_p, struct Client *source_p, int parc, const char *
 
 			set_channel_topic(chptr, text, topic_info, rb_current_time());
 
-			sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
-				      ":%s TOPIC %s :%s",
+			sendto_server(client_p, chptr, ":%s TOPIC %s :%s",
 				      use_id(source_p), chptr->chname,
 				      chptr->topic == NULL ? "" : chptr->topic->topic);
-			sendto_server(client_p, chptr, NOCAPS, CAP_TS6,
-				      ":%s TOPIC %s :%s",
-				      source_p->name, chptr->chname,
-				      chptr->topic == NULL ? "" : chptr->topic->topic);
-			sendto_channel_local(ALL_MEMBERS,
-					     chptr, ":%s!%s@%s TOPIC %s :%s",
+			sendto_channel_local(chptr, ":%s!%s@%s TOPIC %s :%s",
 					     source_p->name, source_p->username,
 					     source_p->host, chptr->chname,
 					     chptr->topic == NULL ? "" : chptr->topic->topic);
