@@ -75,7 +75,7 @@ static void set_channel_mode(struct Client *, struct Client *,
 			     struct Channel *, struct membership *, int, const char **);
 
 static int add_id(struct Client *source_p, struct Channel *chptr,
-		  const char *banid, rb_dlink_list *list, long mode_type);
+		  char *regexid, rb_dlink_list *list, long mode_type);
 
 static int del_id(struct Channel *chptr, const char *regexid,
 		  rb_dlink_list *list, long mode_type);
@@ -240,7 +240,7 @@ ms_rmask(struct Client *client_p, struct Client *source_p, int parc, const char 
 	static char parabuf[BUFSIZE];
 	struct Channel *chptr;
 	rb_dlink_list *regexlist;
-	const char *s;
+	char *s;
 	char *t;
 	char *mbuf;
 	char *pbuf;
@@ -368,13 +368,26 @@ ms_rmask(struct Client *client_p, struct Client *source_p, int parc, const char 
  * side effects - given id is added to the appropriate list
  */
 static int
-add_id(struct Client *source_p, struct Channel *chptr, const char *regexid,
+add_id(struct Client *source_p, struct Channel *chptr, char *regexid,
        rb_dlink_list *list, long mode_type)
 {
+	char *p, *posstr;
 	struct Regex *actualRegex;
 	static char who[REGEXLEN];
-	char *realregex = LOCAL_COPY(regexid);
-	rb_dlink_node *ptr;
+	rb_dlink_node *ptr, *ptr_before = NULL;
+	int pos, n = 0;
+
+	for(p = regexid; *p && IsDigit(*p); p++);
+	if(regexid < p)
+	{
+		if(':' != *p)
+			return 0;
+
+		if(0 == (pos = atoi(posstr = LOCAL_COPY_N(regexid, p - regexid))))
+			 pos++;
+
+		++p, memmove(regexid, p, 1 + strlen(p));
+	}
 
 	/* dont let local clients overflow the regexlist
 	 */
@@ -384,14 +397,14 @@ add_id(struct Client *source_p, struct Channel *chptr, const char *regexid,
 		   (unsigned long)ConfigChannel.max_regex)
 		{
 			sendto_one(source_p, form_str(ERR_REGEXLISTFULL),
-				   me.name, source_p->name, chptr->chname, realregex);
+				   me.name, source_p->name, chptr->chname, regexid);
 			return 0;
 		}
 
 		RB_DLINK_FOREACH(ptr, list->head)
 		{
 			actualRegex = ptr->data;
-			if(!strcmp(actualRegex->regexstr, realregex))
+			if(!strcmp(actualRegex->regexstr, regexid))
 				return 0;
 		}
 
@@ -402,25 +415,42 @@ add_id(struct Client *source_p, struct Channel *chptr, const char *regexid,
 		RB_DLINK_FOREACH(ptr, list->head)
 		{
 			actualRegex = ptr->data;
-			if(!strcmp(actualRegex->regexstr, realregex))
+			if(!strcmp(actualRegex->regexstr, regexid))
 				return 0;
 		}
 	}
-
 
 	if(IsClient(source_p))
 		rb_sprintf(who, "%s!%s@%s", source_p->name, source_p->username, source_p->host);
 	else
 		rb_strlcpy(who, source_p->name, sizeof(who));
 
-	if(NULL == (actualRegex = allocate_regex(realregex, who, mode_type)))
+	if(NULL == (actualRegex = allocate_regex(regexid, who, mode_type)))
 		return 0;
 
 	actualRegex->when = rb_current_time();
 
-	rb_dlinkAdd(actualRegex, &actualRegex->node, list);
+	if(pos)
+	{
+		RB_DLINK_FOREACH(ptr, list->head)
+		{
+			if ((++n) == pos)
+			{
+				ptr_before = ptr;
+				break;
+			}
+		}
 
-	return 1;
+		if(NULL != ptr_before)
+		{
+			rb_dlinkAddBefore(ptr_before, actualRegex, &actualRegex->node, list);
+			goto out;
+		}
+	}
+
+	rb_dlinkAddTail(actualRegex, &actualRegex->node, list);
+
+out:	return 1;
 }
 
 /* del_id()
@@ -686,7 +716,7 @@ chm_regex(struct Client *source_p, struct Channel *chptr,
 	int alevel, int parc, int *parn,
 	const char **parv, int *errors, int dir, char c, long mode_type)
 {
-	const char *mask;
+	char *mask;
 	rb_dlink_list *list;
 	rb_dlink_node *ptr;
 	struct Regex *regexptr;

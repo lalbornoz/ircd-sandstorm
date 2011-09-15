@@ -234,7 +234,7 @@ isupport_maxlist(const void *ptr)
 {
 	static char result[30];
 
-	rb_snprintf(result, sizeof result, "b:%i",
+	rb_snprintf(result, sizeof result, "be:%i",
 		    ConfigChannel.max_regex);
 	return result;
 }
