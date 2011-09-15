@@ -867,6 +867,11 @@ send_cap_mode_changes(struct Client *client_p, struct Client *source_p,
 	/* loop the list of - modes we have */
 	for(i = 0; i < mode_count; i++)
 	{
+		if(!EmptyString(mode_changes[i].id))
+			arg = mode_changes[i].id;
+		else
+			arg = mode_changes[i].arg;
+
 		if(arg)
 		{
 			arglen = strlen(arg);
