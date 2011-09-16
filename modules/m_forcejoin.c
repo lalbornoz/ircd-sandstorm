@@ -125,10 +125,6 @@ mo_forcejoin(struct Client *client_p, struct Client *source_p, int parc, const c
 				     target_p->name, target_p->username,
 				     target_p->host, chptr->chname);
 
-		if(type)
-			sendto_channel_local(chptr, ":%s MODE %s +%c %s",
-					     me.name, chptr->chname, mode, target_p->name);
-
 		if(chptr->topic != NULL)
 		{
 			sendto_one(target_p, form_str(RPL_TOPIC), me.name,
