@@ -57,12 +57,12 @@ static int mo_forcepart(struct Client *client_p, struct Client *source_p,
 
 struct Message forcejoin_msgtab = {
 	"FORCEJOIN", 0, 0, 0, MFLG_SLOW,
-	{mg_unreg, mg_not_oper, mg_ignore, mg_ignore, mg_ignore, {mo_forcejoin, 3}}
+	{mg_unreg, {mo_forcejoin, 3}, {mo_forcejoin, 3}, mg_ignore, mg_ignore, {mo_forcejoin, 3}}
 };
 
 struct Message forcepart_msgtab = {
 	"FORCEPART", 0, 0, 0, MFLG_SLOW,
-	{mg_unreg, mg_not_oper, mg_ignore, mg_ignore, mg_ignore, {mo_forcepart, 3}}
+	{mg_unreg, {mo_forcepart, 3}, {mo_forcepart, 3}, mg_ignore, mg_ignore, {mo_forcepart, 3}}
 };
 
 mapi_clist_av1 force_clist[] = { &forcejoin_msgtab, &forcepart_msgtab, NULL };
@@ -80,9 +80,6 @@ mo_forcejoin(struct Client *client_p, struct Client *source_p, int parc, const c
 {
 	struct Client *target_p;
 	struct Channel *chptr;
-	int type;
-	char mode;
-	char sjmode;
 	char *newch;
 
 	if(!IsOper(source_p))
@@ -106,29 +103,7 @@ mo_forcejoin(struct Client *client_p, struct Client *source_p, int parc, const c
 	if(!IsClient(target_p))
 		return 0;
 
-	/* select our modes from parv[2] if they exist... (chanop) */
-	if(*parv[2] == '@')
-	{
-		type = CHFL_CHANOP;
-		mode = 'o';
-		sjmode = '@';
-	}
-	else if(*parv[2] == '+')
-	{
-		type = CHFL_VOICE;
-		mode = 'v';
-		sjmode = '+';
-	}
-	else
-	{
-		type = CHFL_PEON;
-		mode = sjmode = '\0';
-	}
-
-	if(mode != '\0')
-		parv[2]++;
-
-	sendto_realops_flags(UMODE_FULL, L_ALL,
+	sendto_allops_flags(UMODE_FULL, L_ALL,
 		"%s (%s@%s) issued FORCEJOIN for %s (%s@%s) to %s",
 		source_p->name, source_p->username, source_p->host,
 		target_p->name, target_p->username, target_p->host,
@@ -144,7 +119,7 @@ mo_forcejoin(struct Client *client_p, struct Client *source_p, int parc, const c
 			return 0;
 		}
 
-		add_user_to_channel(chptr, target_p, type);
+		add_user_to_channel(chptr, target_p, 0);
 
 		sendto_channel_local(chptr, ":%s!%s@%s JOIN :%s",
 				     target_p->name, target_p->username,
@@ -262,7 +237,7 @@ mo_forcepart(struct Client *client_p, struct Client *source_p, int parc, const c
 		return 0;
 	}
 
-	sendto_realops_flags(UMODE_FULL, L_ALL,
+	sendto_allops_flags(UMODE_FULL, L_ALL,
 		"%s (%s@%s) issued FORCEPART for %s (%s@%s) to %s",
 		source_p->name, source_p->username, source_p->host,
 		target_p->name, target_p->username, target_p->host,
