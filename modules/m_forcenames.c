@@ -143,7 +143,7 @@ valid:
 		target_p->tsinfo = rb_current_time();
 	monitor_signoff(target_p);
 
-	sendto_realops_flags(UMODE_FULL, L_ALL,
+	sendto_allops_flags(UMODE_FULL, L_ALL,
 		"%s (%s@%s) issued FORCENICK for %s (%s@%s) to %s",
 		source_p->name, source_p->username, source_p->host,
 		target_p->name, target_p->username, target_p->host,
@@ -217,7 +217,7 @@ mo_forceuser(struct Client *client_p, struct Client *source_p, int parc, const c
 	   valid_username(newusername))
 		rb_strlcpy(target_p->username, newusername, sizeof(target_p->username));
 
-	sendto_realops_flags(UMODE_FULL, L_ALL,
+	sendto_allops_flags(UMODE_FULL, L_ALL,
 		"%s (%s@%s) issued FORCEUSER for %s (%s@%s) to %s",
 		source_p->name, source_p->username, source_p->host,
 		target_p->name, target_p->username, target_p->host,
@@ -268,7 +268,7 @@ mo_forcehost(struct Client *client_p, struct Client *source_p, int parc, const c
 	   valid_hostname(newhostname))
 		rb_strlcpy(target_p->host, newhostname, sizeof(target_p->host));
 
-	sendto_realops_flags(UMODE_FULL, L_ALL,
+	sendto_allops_flags(UMODE_FULL, L_ALL,
 		"%s (%s@%s) issued FORCEHOST for %s (%s@%s) to %s",
 		source_p->name, source_p->username, source_p->host,
 		target_p->name, target_p->username, target_p->host,
@@ -318,7 +318,7 @@ mo_forcegecos(struct Client *client_p, struct Client *source_p, int parc, const 
 	if(newgecos != NULL && !EmptyString(newgecos))
 		rb_strlcpy(target_p->info, newgecos, sizeof(target_p->info));
 
-	sendto_realops_flags(UMODE_FULL, L_ALL,
+	sendto_allops_flags(UMODE_FULL, L_ALL,
 		"%s (%s@%s) issued FORCEGECOS for %s (%s@%s) to %s",
 		source_p->name, source_p->username, source_p->host,
 		target_p->name, target_p->username, target_p->host,
