@@ -369,7 +369,7 @@ add_id(struct Client *source_p, struct Channel *chptr, char *regexid,
 	struct Regex *actualRegex;
 	static char who[REGEXLEN];
 	rb_dlink_node *ptr, *ptr_before = NULL;
-	int pos, n = 0;
+	int pos = 0, n = 0;
 
 	for(p = regexid; *p && IsDigit(*p); p++);
 	if(regexid < p)
