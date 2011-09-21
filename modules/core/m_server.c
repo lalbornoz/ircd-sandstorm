@@ -215,7 +215,7 @@ mr_server(struct Client *client_p, struct Client *source_p, int parc, const char
 		return 0;
 	}
 
-	if(has_id(client_p) && (target_p = find_id(client_p->id)) != NULL)
+	if((target_p = find_id(client_p->id)) != NULL)
 	{
 		sendto_realops_flags(UMODE_ALL, L_ALL,
 				     "Attempt to re-introduce SID %s from %s[@255.255.255.255]",
@@ -726,9 +726,6 @@ check_server(const char *name, struct Client *client_p)
 	if(!ServerConfCompressed(server_p))
 		ClearCap(client_p, CAP_ZIP);
 
-	if(!ServerConfTb(server_p))
-		ClearCap(client_p, CAP_TB);
-
 #ifdef RB_IPV6
 	if(GET_SS_FAMILY(&client_p->localClient->ip) == AF_INET6)
 	{
@@ -850,26 +847,17 @@ burst_TS6(struct Client *client_p)
 			ubuf[1] = '\0';
 		}
 
-		if(has_id(target_p))
-			sendto_one(client_p, ":%s UID %s %d %ld %s %s %s %s %s :%s",
-				   target_p->servptr->id, target_p->name,
-				   target_p->hopcount + 1,
-				   (long)target_p->tsinfo, ubuf,
-				   target_p->username, target_p->host,
-				   IsIPSpoof(target_p) ? "0" : target_p->sockhost,
-				   target_p->id, target_p->info);
-		else
-			sendto_one(client_p, "NICK %s %d %ld %s %s %s %s :%s",
-				   target_p->name,
-				   target_p->hopcount + 1,
-				   (long)target_p->tsinfo,
-				   ubuf,
-				   target_p->username, target_p->host,
-				   target_p->servptr->name, target_p->info);
+		sendto_one(client_p, ":%s UID %s %d %ld %s %s %s %s %s :%s",
+			   target_p->servptr->id, target_p->name,
+			   target_p->hopcount + 1,
+			   (long)target_p->tsinfo, ubuf,
+			   target_p->username, target_p->host,
+			   IsIPSpoof(target_p) ? "0" : target_p->sockhost,
+			   target_p->id, target_p->info);
 
-		if(ConfigFileEntry.burst_away && !EmptyString(target_p->user->away))
+		if(!EmptyString(target_p->user->away))
 			sendto_one(client_p, ":%s AWAY :%s",
-				   use_id(target_p), target_p->user->away);
+				   target_p->id, target_p->user->away);
 
 		hclientinfo.target = target_p;
 		call_hook(h_burst_client, &hclientinfo);
@@ -896,7 +884,7 @@ burst_TS6(struct Client *client_p)
 		{
 			msptr = uptr->data;
 
-			tlen = strlen(use_id(msptr->client_p)) + 1;
+			tlen = strlen(msptr->client_p->id) + 1;
 			if(is_chanop(msptr))
 				tlen++;
 			if(is_voiced(msptr))
@@ -910,8 +898,8 @@ burst_TS6(struct Client *client_p)
 				t = buf + mlen;
 			}
 
-			rb_sprintf(t, "%s%s ", find_channel_status(msptr, 1),
-				   use_id(msptr->client_p));
+			rb_sprintf(t, "%s%s ", find_channel_status(msptr),
+				   msptr->client_p->id);
 
 			cur_len += tlen;
 			t += tlen;
@@ -927,11 +915,10 @@ burst_TS6(struct Client *client_p)
 		if(rb_dlink_list_length(&chptr->regex_exlist) > 0)
 			burst_modes_TS6(client_p, chptr, &chptr->regex_exlist, 'e');
 
-		if(IsCapable(client_p, CAP_TB) && chptr->topic != NULL)
-			sendto_one(client_p, ":%s TB %s %ld %s%s:%s",
+		if(chptr->topic != NULL)
+			sendto_one(client_p, ":%s TB %s %ld %s :%s",
 				   me.id, chptr->chname, (long)chptr->topic->topic_time,
-				   ConfigChannel.burst_topicwho ? chptr->topic->topic_info : "",
-				   ConfigChannel.burst_topicwho ? " " : "", chptr->topic->topic);
+				   chptr->topic->topic_info, chptr->topic->topic);
 
 		hchaninfo.chptr = chptr;
 		call_hook(h_burst_channel, &hchaninfo);
@@ -1013,8 +1000,7 @@ server_estab(struct Client *client_p)
 
 		/* pass info to new server */
 		send_capabilities(client_p, default_server_capabs
-				  | (ServerConfCompressed(server_p) && zlib_ok ? CAP_ZIP : 0)
-				  | (ServerConfTb(server_p) ? CAP_TB : 0));
+				  | (ServerConfCompressed(server_p) && zlib_ok ? CAP_ZIP : 0));
 
 		sendto_one(client_p, "SERVER %s 1 :%s%s",
 			   me.name,
@@ -1052,8 +1038,7 @@ server_estab(struct Client *client_p)
 	rb_dlinkMoveNode(&client_p->localClient->tnode, &unknown_list, &serv_list);
 	rb_dlinkAddTailAlloc(client_p, &global_serv_list);
 
-	if(has_id(client_p))
-		add_to_hash(HASH_ID, client_p->id, client_p);
+	add_to_hash(HASH_ID, client_p->id, client_p);
 
 	add_to_hash(HASH_CLIENT, client_p->name, client_p);
 	/* doesnt duplicate client_p->serv if allocated this struct already */
@@ -1084,16 +1069,6 @@ server_estab(struct Client *client_p)
 	ilog(L_SERVER, "Link with %s established: (%s) link",
 	     log_client_name(client_p, SHOW_IP), show_capabilities(client_p));
 
-	if(IsCapable(client_p, CAP_SAVE) && !IsCapable(client_p, CAP_SAVETS_100))
-	{
-		sendto_realops_flags(UMODE_ALL, L_ALL,
-				     "Link %s SAVE protocol mismatch.  Users timestamps may be desynced after SAVE",
-				     client_p->name);
-		ilog(L_SERVER,
-		     "Link %s SAVE protocol mismatch.  Users timestamps may be desynced after SAVE",
-		     log_client_name(client_p, SHOW_IP));
-	}
-
 	hdata.client = &me;
 	hdata.target = client_p;
 	call_hook(h_server_introduced, &hdata);
@@ -1113,26 +1088,13 @@ server_estab(struct Client *client_p)
 		if(target_p == client_p)
 			continue;
 
-		if(has_id(target_p) && has_id(client_p))
-		{
-			sendto_one(target_p, ":%s SID %s 2 %s :%s%s",
-				   me.id, client_p->name, client_p->id,
-				   IsHidden(client_p) ? "(H) " : "", client_p->info);
+		sendto_one(target_p, ":%s SID %s 2 %s :%s%s",
+			   me.id, client_p->name, client_p->id,
+			   IsHidden(client_p) ? "(H) " : "", client_p->info);
 
-			if(IsCapable(target_p, CAP_ENCAP) && !EmptyString(client_p->serv->fullcaps))
-				sendto_one(target_p, ":%s ENCAP * GCAP :%s",
-					   client_p->id, client_p->serv->fullcaps);
-		}
-		else
-		{
-			sendto_one(target_p, ":%s SERVER %s 2 :%s%s",
-				   me.name, client_p->name,
-				   IsHidden(client_p) ? "(H) " : "", client_p->info);
-
-			if(IsCapable(target_p, CAP_ENCAP) && !EmptyString(client_p->serv->fullcaps))
-				sendto_one(target_p, ":%s ENCAP * GCAP :%s",
-					   client_p->name, client_p->serv->fullcaps);
-		}
+		if(!EmptyString(client_p->serv->fullcaps))
+			sendto_one(target_p, ":%s ENCAP * GCAP :%s",
+				   client_p->id, client_p->serv->fullcaps);
 	}
 
 	/*
@@ -1161,19 +1123,12 @@ server_estab(struct Client *client_p)
 		if(IsMe(target_p) || target_p->from == client_p)
 			continue;
 
-		/* presumption, if target has an id, so does its uplink */
-		if(has_id(client_p) && has_id(target_p))
-			sendto_one(client_p, ":%s SID %s %d %s :%s%s",
-				   target_p->servptr->id, target_p->name,
-				   target_p->hopcount + 1, target_p->id,
-				   IsHidden(target_p) ? "(H) " : "", target_p->info);
-		else
-			sendto_one(client_p, ":%s SERVER %s %d :%s%s",
-				   target_p->servptr->name,
-				   target_p->name, target_p->hopcount + 1,
-				   IsHidden(target_p) ? "(H) " : "", target_p->info);
+		sendto_one(client_p, ":%s SID %s %d %s :%s%s",
+			   target_p->servptr->id, target_p->name,
+			   target_p->hopcount + 1, target_p->id,
+			   IsHidden(target_p) ? "(H) " : "", target_p->info);
 
-		if(IsCapable(client_p, CAP_ENCAP) && !EmptyString(target_p->serv->fullcaps))
+		if(!EmptyString(target_p->serv->fullcaps))
 			sendto_one(client_p, ":%s ENCAP * GCAP :%s",
 				   get_id(target_p, client_p), target_p->serv->fullcaps);
 	}
@@ -1195,8 +1150,7 @@ check_capabilities(struct Client *client_p, struct server_conf *server_p)
 	char *capsstr, *capsstr_remote;
 
 	caps = default_server_capabs
-		     | (ServerConfCompressed(server_p) && zlib_ok ? CAP_ZIP : 0)
-		     | (ServerConfTb(server_p) ? CAP_TB : 0);
+		     | (ServerConfCompressed(server_p) && zlib_ok ? CAP_ZIP : 0);
 	caps_remote = client_p->serv->caps;
 
 	capsstr = LOCAL_COPY(show_capabilities2(&me, caps));

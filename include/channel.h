@@ -155,7 +155,7 @@ int can_send(struct Channel *chptr, struct Client *who, struct membership *);
 void filter_regex(struct Channel *, struct Client *, char **);
 
 struct membership *find_channel_membership(struct Channel *, struct Client *);
-const char *find_channel_status(struct membership *msptr, int combine);
+const char *find_channel_status(struct membership *msptr);
 void add_user_to_channel(struct Channel *, struct Client *, int);
 void remove_user_from_channel(struct membership *);
 void remove_user_from_channels(struct Client *);

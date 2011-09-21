@@ -240,7 +240,7 @@ m_join(struct Client *client_p, struct Client *source_p, int parc, const char *p
 		else
 			sendto_server(client_p, chptr,
 				      ":%s JOIN %ld %s +",
-				      use_id(source_p), (long)chptr->channelts, chptr->chname);
+				      source_p->id, (long)chptr->channelts, chptr->chname);
 
 		if(chptr->topic != NULL)
 		{
@@ -524,7 +524,7 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 	 * build a TS6 buffer without checking its needed..
 	 */
 	mlen_uid = rb_sprintf(buf_uid, ":%s SJOIN %ld %s %s :",
-			      use_id(source_p), (long)chptr->channelts, parv[2], modes);
+			      source_p->id, (long)chptr->channelts, parv[2], modes);
 	ptr_uid = buf_uid + mlen_uid;
 
 	mbuf = modebuf;
@@ -599,7 +599,7 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char 
 		len = rb_sprintf(ptr_nick, "%s ", target_p->name);
 		ptr_nick += len;
 		len_nick += len;
-		len = rb_sprintf(ptr_uid, "%s ", use_id(target_p));
+		len = rb_sprintf(ptr_uid, "%s ", target_p->id);
 		ptr_uid += len;
 		len_uid += len;
 
@@ -753,7 +753,7 @@ do_join_0(struct Client *client_p, struct Client *source_p)
 		flood_endgrace(source_p);
 
 
-	sendto_server(client_p, NULL, ":%s JOIN 0", use_id(source_p));
+	sendto_server(client_p, NULL, ":%s JOIN 0", source_p->id);
 
 	while((ptr = source_p->user->channel.head))
 	{

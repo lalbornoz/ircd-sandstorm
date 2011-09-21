@@ -60,7 +60,6 @@ static int mc_nick(struct Client *, struct Client *, int, const char **);
 static int ms_nick(struct Client *, struct Client *, int, const char **);
 static int ms_uid(struct Client *, struct Client *, int, const char **);
 static int ms_save(struct Client *, struct Client *, int, const char **);
-static int can_save(struct Client *);
 static void save_user(struct Client *, struct Client *, struct Client *);
 
 struct Message nick_msgtab = {
@@ -568,7 +567,7 @@ change_local_nick(struct Client *client_p, struct Client *source_p, char *nick, 
 
 		if(dosend)
 			sendto_server(client_p, NULL, ":%s NICK %s :%ld",
-				      use_id(source_p), nick, (long)source_p->tsinfo);
+				      source_p->id, nick, (long)source_p->tsinfo);
 	}
 
 	/* Finally, add to hash */
@@ -622,7 +621,7 @@ change_remote_nick(struct Client *client_p, struct Client *source_p,
 		add_history(source_p, 1);
 		if(dosend)
 			sendto_server(client_p, NULL, ":%s NICK %s :%ld",
-				      use_id(source_p), nick, (long)source_p->tsinfo);
+				      source_p->id, nick, (long)source_p->tsinfo);
 	}
 
 	del_from_hash(HASH_CLIENT, source_p->name, source_p);
@@ -652,8 +651,7 @@ perform_nick_collides(struct Client *source_p, struct Client *client_p,
 	int use_save;
 	const char *action;
 
-	use_save = ConfigFileEntry.collision_fnc && can_save(target_p) &&
-		uid != NULL && can_save(source_p);
+	use_save = ConfigFileEntry.collision_fnc && uid != NULL;
 	action = use_save ? "saved" : "killed";
 
 	/* if we dont have a ts, or their TS's are the same, kill both */
@@ -765,7 +763,7 @@ perform_nickchange_collides(struct Client *source_p, struct Client *client_p,
 	int use_save;
 	const char *action;
 
-	use_save = ConfigFileEntry.collision_fnc && can_save(target_p) && can_save(source_p);
+	use_save = ConfigFileEntry.collision_fnc;
 	action = use_save ? "saved" : "killed";
 
 	/* its a client changing nick and causing a collide */
@@ -999,46 +997,9 @@ register_client(struct Client *client_p, struct Client *server,
 	return 0;
 }
 
-/* Check if we can do SAVE. target_p can be a client to save or a
- * server introducing a client -- jilles */
-static int
-can_save(struct Client *target_p)
-{
-	struct Client *serv_p;
-
-	if(MyClient(target_p))
-		return 1;
-	if(!has_id(target_p))
-		return 0;
-	serv_p = IsServer(target_p) ? target_p : target_p->servptr;
-	while(serv_p != NULL && serv_p != &me)
-	{
-		if(!(serv_p->serv->caps & CAP_SAVE))
-			return 0;
-		serv_p = serv_p->servptr;
-	}
-	return serv_p == &me;
-}
-
 static void
 save_user(struct Client *client_p, struct Client *source_p, struct Client *target_p)
 {
-	if(!MyConnect(target_p) && (!has_id(target_p) || !IsCapable(target_p->from, CAP_SAVE)))
-	{
-		/* This shouldn't happen */
-		/* Note we only need SAVE support in this direction */
-		sendto_realops_flags(UMODE_ALL, L_ALL,
-				     "Killed %s!%s@%s for nick collision detected by %s (%s does not support SAVE)",
-				     target_p->name, target_p->username, target_p->host,
-				     source_p->name, target_p->from->name);
-		kill_client_serv_butone(NULL, target_p, "%s (Nick collision (no SAVE support))",
-					me.name);
-		ServerStats.is_kill++;
-
-		target_p->flags |= FLAGS_KILLED;
-		(void)exit_client(NULL, target_p, &me, "Nick collision (no SAVE support)");
-		return;
-	}
 	sendto_server(client_p, NULL, ":%s SAVE %s %ld",
 		      source_p->id, target_p->id, (long)target_p->tsinfo);
 	if(!IsMe(client_p))

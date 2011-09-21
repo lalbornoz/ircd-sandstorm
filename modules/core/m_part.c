@@ -117,7 +117,7 @@ part_one_client(struct Client *client_p, struct Client *source_p, char *name, ch
 	if(!EmptyString(reason))
 	{
 		sendto_server(client_p, chptr,
-			      ":%s PART %s :%s", use_id(source_p), chptr->chname, reason);
+			      ":%s PART %s :%s", source_p->id, chptr->chname, reason);
 		sendto_channel_local(chptr, ":%s!%s@%s PART %s :%s",
 				     source_p->name, source_p->username,
 				     source_p->host, chptr->chname, reason);
@@ -125,7 +125,7 @@ part_one_client(struct Client *client_p, struct Client *source_p, char *name, ch
 	else
 	{
 		sendto_server(client_p, chptr,
-			      ":%s PART %s", use_id(source_p), chptr->chname);
+			      ":%s PART %s", source_p->id, chptr->chname);
 		sendto_channel_local(chptr, ":%s!%s@%s PART %s",
 				     source_p->name, source_p->username,
 				     source_p->host, chptr->chname);

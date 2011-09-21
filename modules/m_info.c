@@ -272,12 +272,6 @@ static struct InfoStruct info_table[] = {
 		"NICK flood protection"
 	},
 	{
-		"burst_away",
-		OUTPUT_BOOLEAN,
-		{ &ConfigFileEntry.burst_away },
-		"Burst away messages on server joins"
-	},
-	{
 		"caller_id_wait",
 		OUTPUT_DECIMAL,
 		{ &ConfigFileEntry.caller_id_wait }, 

@@ -861,44 +861,6 @@ free_exited_clients(void *unused)
 
 }
 
-/*
-** Recursively send QUITs and SQUITs for source_p and all its dependent clients
-** and servers to those servers that need them.  A server needs the client
-** QUITs if it can't figure them out from the SQUIT (ie pre-TS4) or if it
-** isn't getting the SQUIT because of @#(*&@)# hostmasking.  With TS4, once
-** a link gets a SQUIT, it doesn't need any QUIT/SQUITs for clients depending
-** on that one -orabidoo
-*/
-static void
-recurse_send_quits(struct Client *client_p, struct Client *source_p,
-		   struct Client *to, const char *comment1, const char *comment)
-{
-	struct Client *target_p;
-	rb_dlink_node *ptr, *ptr_next;
-	/* If this server can handle quit storm (QS) removal
-	 * of dependents, just send the SQUIT
-	 */
-
-	if(IsCapable(to, CAP_QS))
-	{
-		sendto_one(to, "SQUIT %s :%s", get_id(source_p, to), comment);
-	}
-	else
-	{
-		RB_DLINK_FOREACH_SAFE(ptr, ptr_next, source_p->serv->users.head)
-		{
-			target_p = ptr->data;
-			sendto_one(to, ":%s QUIT :%s", target_p->name, comment1);
-		}
-		RB_DLINK_FOREACH_SAFE(ptr, ptr_next, source_p->serv->servers.head)
-		{
-			target_p = ptr->data;
-			recurse_send_quits(client_p, target_p, to, comment1, comment);
-		}
-		sendto_one(to, "SQUIT %s :%s", source_p->name, comment);
-	}
-}
-
 /* 
 ** Remove all clients that depend on source_p; assumes all (S)QUITs have
 ** already been sent.  we make sure to exit a server's dependent clients 
@@ -969,10 +931,10 @@ remove_dependents(struct Client *client_p,
 	{
 		to = ptr->data;
 
-		if(IsMe(to) || to == source_p->from || (to == client_p && IsCapable(to, CAP_QS)))
+		if(IsMe(to) || to == source_p->from || (to == client_p))
 			continue;
 
-		recurse_send_quits(client_p, source_p, to, comment1, comment);
+		sendto_one(to, "SQUIT %s :%s", source_p->id, comment);
 	}
 
 	recurse_remove_clients(source_p, comment1);
@@ -1071,8 +1033,7 @@ exit_generic_client(struct Client *source_p, const char *comment)
 
 	monitor_signoff(source_p);
 	dec_global_cidr_count(source_p);
-	if(has_id(source_p))
-		del_from_hash(HASH_ID, source_p->id, source_p);
+	del_from_hash(HASH_ID, source_p->id, source_p);
 
 	del_from_hash(HASH_HOSTNAME, source_p->host, source_p);
 	del_from_hash(HASH_CLIENT, source_p->name, source_p);
@@ -1096,7 +1057,7 @@ exit_remote_client(struct Client *client_p, struct Client *source_p, struct Clie
 
 	if((source_p->flags & FLAGS_KILLED) == 0)
 		sendto_server(client_p, NULL,
-			      ":%s QUIT :%s", use_id(source_p), comment);
+			      ":%s QUIT :%s", source_p->id, comment);
 
 	SetDead(source_p);
 #ifdef DEBUG_EXITED_CLIENTS
@@ -1170,8 +1131,7 @@ exit_remote_server(struct Client *client_p, struct Client *source_p, struct Clie
 			   get_id(from, target_p), get_id(source_p, target_p), comment);
 	}
 
-	if(has_id(source_p))
-		del_from_hash(HASH_ID, source_p->id, source_p);
+	del_from_hash(HASH_ID, source_p->id, source_p);
 
 	del_from_hash(HASH_CLIENT, source_p->name, source_p);
 	remove_client_from_list(source_p);
@@ -1198,8 +1158,7 @@ qs_server(struct Client *source_p)
 	rb_dlinkFindDestroy(source_p, &global_serv_list);
 	target_p = source_p->from;
 
-	if(has_id(source_p))
-		del_from_hash(HASH_ID, source_p->id, source_p);
+	del_from_hash(HASH_ID, source_p->id, source_p);
 
 	del_from_hash(HASH_CLIENT, source_p->name, source_p);
 	remove_client_from_list(source_p);
@@ -1230,7 +1189,7 @@ exit_local_server(struct Client *client_p, struct Client *source_p, struct Clien
 		    from == source_p ? me.name : from->name, comment);
 #if 0				/* let's not do this for now -- jilles */
 	if(!IsIOError(source_p))
-		sendto_one(source_p, "SQUIT %s :%s", use_id(source_p), newcomment);
+		sendto_one(source_p, "SQUIT %s :%s", source_p->id, newcomment);
 #endif
 	if(client_p != NULL && source_p != client_p && !IsIOError(source_p))
 	{
@@ -1271,8 +1230,7 @@ exit_local_server(struct Client *client_p, struct Client *source_p, struct Clien
 	     source_p->name, (long int)(rb_current_time() - source_p->localClient->firsttime),
 	     sendb, recvb);
 
-	if(has_id(source_p))
-		del_from_hash(HASH_ID, source_p->id, source_p);
+	del_from_hash(HASH_ID, source_p->id, source_p);
 
 	del_from_hash(HASH_CLIENT, source_p->name, source_p);
 	remove_client_from_list(source_p);
@@ -1333,7 +1291,7 @@ exit_local_client(struct Client *client_p, struct Client *source_p, struct Clien
 	if((source_p->flags & FLAGS_KILLED) == 0)
 	{
 		sendto_server(client_p, NULL,
-			      ":%s QUIT :%s", use_id(source_p), comment);
+			      ":%s QUIT :%s", source_p->id, comment);
 	}
 
 	SetDead(source_p);

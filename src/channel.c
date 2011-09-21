@@ -316,12 +316,12 @@ find_channel_membership(struct Channel *chptr, struct Client *client_p)
 
 /* find_channel_status()
  *
- * input	- membership to get status for, whether we can combine flags
+ * input	- membership to get status for
  * output	- flags of user on channel
  * side effects -
  */
 const char *
-find_channel_status(struct membership *msptr, int combine)
+find_channel_status(struct membership *msptr)
 {
 	static char buffer[3 + CRAZY_CMODES];
 	char *p;
@@ -329,11 +329,7 @@ find_channel_status(struct membership *msptr, int combine)
 	p = buffer;
 
 	if(is_chanop(msptr))
-	{
-		if(!combine)
-			return "@";
 		*p++ = '@';
-	}
 
 	if(is_voiced(msptr))
 		*p++ = '+';
@@ -539,7 +535,6 @@ channel_member_names(struct Channel *chptr, struct Client *client_p, int show_eo
 	int tlen;
 	int cur_len;
 	int is_member;
-	int stack = IsCapable(client_p, CLICAP_MULTI_PREFIX);
 	SetCork(client_p);
 	{
 		is_member = IsMember(client_p, chptr);
@@ -564,7 +559,7 @@ channel_member_names(struct Channel *chptr, struct Client *client_p, int show_eo
 				t = lbuf + mlen;
 			}
 
-			tlen = rb_sprintf(t, "%s%s ", find_channel_status(msptr, stack),
+			tlen = rb_sprintf(t, "%s%s ", find_channel_status(msptr),
 					  target_p->name);
 
 			cur_len += tlen;
@@ -861,7 +856,7 @@ send_cap_mode_changes(struct Client *client_p, struct Client *source_p,
 	dir = MODE_QUERY;
 
 	mbl = preflen = rb_sprintf(modebuf, ":%s TMODE %ld %s ",
-				   use_id(source_p), (long)chptr->channelts,
+				   source_p->id, (long)chptr->channelts,
 				   chptr->chname);
 
 	/* loop the list of - modes we have */

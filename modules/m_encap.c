@@ -92,7 +92,7 @@ ms_encap(struct Client *client_p, struct Client *source_p, int parc, const char 
 	if((cur_len + len) >= BUFSIZE)
 		buffer[BUFSIZE - 1] = '\0';
 
-	sendto_match_servs(source_p, parv[1], CAP_ENCAP, NOCAPS, "ENCAP %s", buffer);
+	sendto_match_servs(source_p, parv[1], "ENCAP %s", buffer);
 
 	/* if it matches us, find a matching handler and call it */
 	if(match(parv[1], me.name))

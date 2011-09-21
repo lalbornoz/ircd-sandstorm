@@ -339,10 +339,7 @@ show_capabilities(struct Client *target_p)
 	static char msgbuf[BUFSIZE];
 	struct Capability *cap;
 
-	if(has_id(target_p))
-		rb_strlcpy(msgbuf, " TS6", sizeof(msgbuf));
-	else
-		rb_strlcpy(msgbuf, " TS", sizeof(msgbuf));
+	rb_strlcpy(msgbuf, " TS6", sizeof(msgbuf));
 
 	if(IsSSL(target_p))
 		rb_strlcat(msgbuf, " SSL", sizeof(msgbuf));
@@ -658,8 +655,7 @@ serv_connect_callback(rb_fde_t *F, int status, void *data)
 
 	/* pass my info to the new server */
 	send_capabilities(client_p, default_server_capabs
-			  | (ServerConfCompressed(server_p) && zlib_ok ? CAP_ZIP : 0)
-			  | (ServerConfTb(server_p) ? CAP_TB : 0));
+			  | (ServerConfCompressed(server_p) && zlib_ok ? CAP_ZIP : 0));
 
 
 

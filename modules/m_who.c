@@ -153,8 +153,7 @@ m_who(struct Client *client_p, struct Client *source_p, int parc, const char *pa
 		 */
 		if(lp != NULL)
 			do_who(source_p, target_p, chptr->chname,
-			       find_channel_status(lp->data,
-						   IsCapable(source_p, CLICAP_MULTI_PREFIX)));
+			       find_channel_status(lp->data));
 		else
 			do_who(source_p, target_p, NULL, "");
 
@@ -321,7 +320,6 @@ do_who_on_channel(struct Client *source_p, struct Channel *chptr, int server_ope
 	struct Client *target_p;
 	struct membership *msptr;
 	rb_dlink_node *ptr;
-	int combine = IsCapable(source_p, CLICAP_MULTI_PREFIX);
 
 	if(chptr->mode.mode & MODE_OPERONLY && !IsOper(source_p))
 		return;
@@ -335,7 +333,7 @@ do_who_on_channel(struct Client *source_p, struct Channel *chptr, int server_ope
 			continue;
 
 		do_who(source_p, target_p, chptr->chname,
-		       find_channel_status(msptr, combine));
+		       find_channel_status(msptr));
 	}
 }
 

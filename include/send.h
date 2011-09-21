@@ -55,7 +55,7 @@ AFP(2, 3);
      void sendto_match_butone(struct Client *, struct Client *,
 			      const char *, int, const char *, ...) AFP(5, 6);
      void sendto_match_servs(struct Client *source_p, const char *mask,
-			     int capab, int, const char *, ...) AFP(5, 6);
+			     const char *, ...) AFP(3, 4);
 
      void sendto_monitor(struct monitor *monptr, const char *, ...) AFP(2, 3);
 

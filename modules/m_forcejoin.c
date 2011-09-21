@@ -240,7 +240,7 @@ mo_forcepart(struct Client *client_p, struct Client *source_p, int parc, const c
 		parv[2]);
 
 	sendto_server(target_p, chptr,
-		      ":%s PART %s :%s", use_id(target_p), chptr->chname, target_p->name);
+		      ":%s PART %s :%s", target_p->id, chptr->chname, target_p->name);
 
 	sendto_channel_local(chptr, ":%s!%s@%s PART %s :%s",
 			     target_p->name, target_p->username,

@@ -68,7 +68,7 @@ struct Capability
 #define CAP_FUN_CMODES  0x004000/* nonsensical cmodes */
 #define CAP_REGEX       0x008000/* regex channel message filter */
 
-#define CAP_MASK        (CAP_QS  | CAP_ENCAP | CAP_ZIP  | \
+#define CAP_MASK        (CAP_QS | CAP_ZIP | CAP_TB | CAP_ENCAP | \
 			 CAP_SAVE | CAP_SAVETS_100 | \
 			 CAP_WIDE_MOTD | CAP_GCLICONN | CAP_EXT_CHARS | \
 			 CAP_NOCMODES | CAP_OPERCMODES | CAP_FORCE | \

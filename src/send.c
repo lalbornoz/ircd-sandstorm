@@ -516,7 +516,7 @@ sendto_channel_flags(struct Client *one, struct Client *source_p,
 				  source_p->name, source_p->username, source_p->host, buf);
 
 	rb_linebuf_putmsg(&rb_linebuf_name, NULL, NULL, ":%s %s", source_p->name, buf);
-	rb_linebuf_putmsg(&rb_linebuf_id, NULL, NULL, ":%s %s", use_id(source_p), buf);
+	rb_linebuf_putmsg(&rb_linebuf_id, NULL, NULL, ":%s %s", source_p->id, buf);
 
 	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, chptr->members.head)
 	{
@@ -539,12 +539,7 @@ sendto_channel_flags(struct Client *one, struct Client *source_p,
 		{
 			if(target_p->from->localClient->serial != current_serial)
 			{
-				if(has_id(target_p->from))
-					send_rb_linebuf_remote(target_p, source_p, &rb_linebuf_id);
-				else
-					send_rb_linebuf_remote(target_p, source_p,
-							       &rb_linebuf_name);
-
+				send_rb_linebuf_remote(target_p, source_p, &rb_linebuf_id);
 				target_p->from->localClient->serial = current_serial;
 			}
 		}
@@ -693,7 +688,7 @@ sendto_match_butone(struct Client *one, struct Client *source_p,
 				  source_p->name, source_p->username, source_p->host, buf);
 
 	rb_linebuf_putmsg(&rb_linebuf_name, NULL, NULL, ":%s %s", source_p->name, buf);
-	rb_linebuf_putmsg(&rb_linebuf_id, NULL, NULL, ":%s %s", use_id(source_p), buf);
+	rb_linebuf_putmsg(&rb_linebuf_id, NULL, NULL, ":%s %s", source_p->id, buf);
 
 	if(what == MATCH_HOST)
 	{
@@ -722,10 +717,7 @@ sendto_match_butone(struct Client *one, struct Client *source_p,
 		if(target_p == one)
 			continue;
 
-		if(has_id(target_p))
-			send_rb_linebuf_remote(target_p, source_p, &rb_linebuf_id);
-		else
-			send_rb_linebuf_remote(target_p, source_p, &rb_linebuf_name);
+		send_rb_linebuf_remote(target_p, source_p, &rb_linebuf_id);
 	}
 
 	rb_linebuf_donebuf(&rb_linebuf_local);
@@ -735,13 +727,12 @@ sendto_match_butone(struct Client *one, struct Client *source_p,
 
 /* sendto_match_servs()
  *
- * inputs       - source, mask to send to, caps needed, va_args
+ * inputs       - source, mask to send to, va_args
  * outputs      - 
  * side effects - message is sent to matching servers with caps.
  */
 void
-sendto_match_servs(struct Client *source_p, const char *mask, int cap,
-		   int nocap, const char *pattern, ...)
+sendto_match_servs(struct Client *source_p, const char *mask, const char *pattern, ...)
 {
 	static char buf[BUFSIZE];
 	va_list args;
@@ -760,7 +751,7 @@ sendto_match_servs(struct Client *source_p, const char *mask, int cap,
 	rb_vsnprintf(buf, sizeof(buf), pattern, args);
 	va_end(args);
 
-	rb_linebuf_putmsg(&rb_linebuf_id, NULL, NULL, ":%s %s", use_id(source_p), buf);
+	rb_linebuf_putmsg(&rb_linebuf_id, NULL, NULL, ":%s %s", source_p->id, buf);
 	rb_linebuf_putmsg(&rb_linebuf_name, NULL, NULL, ":%s %s", source_p->name, buf);
 
 	current_serial++;
@@ -783,16 +774,7 @@ sendto_match_servs(struct Client *source_p, const char *mask, int cap,
 			 */
 			target_p->from->localClient->serial = current_serial;
 
-			if(cap && !IsCapable(target_p->from, cap))
-				continue;
-
-			if(nocap && !NotCapable(target_p->from, nocap))
-				continue;
-
-			if(has_id(target_p->from))
-				send_linebuf(target_p->from, &rb_linebuf_id);
-			else
-				send_linebuf(target_p->from, &rb_linebuf_name);
+			send_linebuf(target_p->from, &rb_linebuf_id);
 		}
 	}
 
@@ -1061,7 +1043,7 @@ kill_client_serv_butone(struct Client *one, struct Client *target_p, const char 
 	rb_linebuf_putmsg(&rb_linebuf_name, NULL, NULL, ":%s KILL %s :%s",
 			  me.name, target_p->name, buf);
 	rb_linebuf_putmsg(&rb_linebuf_id, NULL, NULL, ":%s KILL %s :%s",
-			  use_id(&me), use_id(target_p), buf);
+			  me.id, target_p->id, buf);
 
 	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, serv_list.head)
 	{
@@ -1070,14 +1052,10 @@ kill_client_serv_butone(struct Client *one, struct Client *target_p, const char 
 		/* ok, if the client we're supposed to not send to has an
 		 * ID, then we still want to issue the kill there..
 		 */
-		if(one != NULL && (client_p == one->from) &&
-		   (!has_id(client_p) || !has_id(target_p)))
+		if(one != NULL && (client_p == one->from))
 			continue;
 
-		if(has_id(client_p))
-			send_linebuf(client_p, &rb_linebuf_id);
-		else
-			send_linebuf(client_p, &rb_linebuf_name);
+		send_linebuf(client_p, &rb_linebuf_id);
 	}
 
 	rb_linebuf_donebuf(&rb_linebuf_id);

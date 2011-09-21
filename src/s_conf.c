@@ -775,7 +775,6 @@ set_default_conf(void)
 	ConfigFileEntry.max_targets = MAX_TARGETS_DEFAULT;
 	ConfigFileEntry.egdpool_path = NULL;
 	ConfigFileEntry.use_whois_actually = YES;
-	ConfigFileEntry.burst_away = NO;
 	ConfigFileEntry.hide_spoof_ips = YES;
 #ifdef HAVE_ZLIB
 	ConfigFileEntry.compression_level = 4;
@@ -787,7 +786,6 @@ set_default_conf(void)
 
 	ConfigChannel.use_sslonly = NO;
 	ConfigChannel.max_chans_per_user = 15;
-	ConfigChannel.burst_topicwho = YES;
 
 	ConfigChannel.default_split_user_count = 15000;
 	ConfigChannel.default_split_server_count = 10;

@@ -110,12 +110,8 @@ struct LocalUser;
 #define TS_DOESTS       0x10000000
 #define DoesTS(x)       ((x)->tsinfo & TS_DOESTS)
 
-#define has_id(source)	((source)->id[0] != '\0')
-#define use_id(source)	((source)->id[0] != '\0' ? (source)->id : (source)->name)
-
-/* if target is TS6, use id if it has one, else name */
-#define get_id(source, target) ((IsServer(target->from) && has_id(target->from)) ? \
-				use_id(source) : (source)->name)
+#define get_id(source, target) ((IsServer(target->from)) ? \
+				(source)->id : (source)->name)
 
 /* housekeeping flags */
 
@@ -136,11 +132,10 @@ struct LocalUser;
 #define FLAGS_EXEMPTFLOOD       0x00020000
 #define FLAGS_NOLIMIT           0x00040000
 #define FLAGS_IDLE_LINED        0x00080000
-#define FLAGS_CLICAP		0x00100000
-#define FLAGS_PING_COOKIE       0x00200000
-#define FLAGS_IP_SPOOFING       0x00400000
-#define FLAGS_FLOODDONE         0x00800000
-#define FLAGS_EXEMPTSHIDE	0x02000000
+#define FLAGS_PING_COOKIE       0x00100000
+#define FLAGS_IP_SPOOFING       0x00200000
+#define FLAGS_FLOODDONE         0x00400000
+#define FLAGS_EXEMPTSHIDE	0x00800000
 
 /* flags for local clients, this needs stuff moved from above to here at some point */
 #define LFLAGS_SSL		0x00000001
@@ -188,8 +183,6 @@ struct LocalUser;
 		      UMODE_OPERSPY | UMODE_CCONNEXT | \
 		      UMODE_DEAF)
 #define SEND_UMODES  ALL_UMODES
-
-#define CLICAP_MULTI_PREFIX	0x0001
 
 /*
  * flags macros.

@@ -184,7 +184,7 @@ core_m_squit_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 @STATIC_MODULES_FALSE@am_core_m_squit_la_rpath = -rpath $(coredir)
 libmodules_la_LIBADD =
 am__libmodules_la_SOURCES_DIST = m_accept.c m_admin.c m_adminwall.c \
-	m_away.c m_capab.c m_cap.c m_close.c m_connect.c \
+	m_away.c m_capab.c m_close.c m_connect.c \
 	m_dline.c m_encap.c m_flags.c m_forcenames.c m_forcejoin.c m_help.c \
 	m_info.c m_invite.c m_ison.c m_kline.c m_links.c m_list.c \
 	m_locops.c m_lusers.c m_map.c m_mkpasswd.c m_monitor.c m_motd.c \
@@ -201,8 +201,7 @@ am__libmodules_la_SOURCES_DIST = m_accept.c m_admin.c m_adminwall.c \
 	core/m_quit.c core/m_server.c core/m_squit.c
 @STATIC_MODULES_TRUE@am__objects_1 = m_accept.lo m_admin.lo \
 @STATIC_MODULES_TRUE@	m_adminwall.lo m_away.lo m_capab.lo \
-@STATIC_MODULES_TRUE@	m_cap.lo m_close.lo \
-@STATIC_MODULES_TRUE@	m_connect.lo m_dline.lo m_encap.lo \
+@STATIC_MODULES_TRUE@	m_close.lo m_connect.lo m_dline.lo m_encap.lo \
 @STATIC_MODULES_TRUE@	m_flags.lo m_forcenames.lo m_forcejoin.lo m_help.lo \
 @STATIC_MODULES_TRUE@	m_info.lo m_invite.lo m_ison.lo \
 @STATIC_MODULES_TRUE@	m_kline.lo m_links.lo \
@@ -266,14 +265,6 @@ m_away_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(m_away_la_LDFLAGS) $(LDFLAGS) -o $@
 @STATIC_MODULES_FALSE@am_m_away_la_rpath = -rpath $(modulesdir)
-@STATIC_MODULES_FALSE@m_cap_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
-am__m_cap_la_SOURCES_DIST = m_cap.c
-@STATIC_MODULES_FALSE@am_m_cap_la_OBJECTS = m_cap.lo
-m_cap_la_OBJECTS = $(am_m_cap_la_OBJECTS)
-m_cap_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(m_cap_la_LDFLAGS) \
-	$(LDFLAGS) -o $@
-@STATIC_MODULES_FALSE@am_m_cap_la_rpath = -rpath $(modulesdir)
 @STATIC_MODULES_FALSE@m_capab_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am__m_capab_la_SOURCES_DIST = m_capab.c
 @STATIC_MODULES_FALSE@am_m_capab_la_OBJECTS = m_capab.lo
@@ -752,7 +743,7 @@ SOURCES = $(core_m_die_la_SOURCES) $(core_m_error_la_SOURCES) \
 	$(core_m_server_la_SOURCES) $(core_m_squit_la_SOURCES) \
 	$(libmodules_la_SOURCES) $(m_accept_la_SOURCES) \
 	$(m_admin_la_SOURCES) $(m_adminwall_la_SOURCES) \
-	$(m_away_la_SOURCES) $(m_cap_la_SOURCES) $(m_capab_la_SOURCES) \
+	$(m_away_la_SOURCES) $(m_capab_la_SOURCES) \
 	$(m_close_la_SOURCES) \
 	$(m_connect_la_SOURCES) $(m_dline_la_SOURCES) \
 	$(m_encap_la_SOURCES) $(m_flags_la_SOURCES) \
@@ -796,7 +787,7 @@ DIST_SOURCES = $(am__core_m_die_la_SOURCES_DIST) \
 	$(am__libmodules_la_SOURCES_DIST) \
 	$(am__m_accept_la_SOURCES_DIST) $(am__m_admin_la_SOURCES_DIST) \
 	$(am__m_adminwall_la_SOURCES_DIST) \
-	$(am__m_away_la_SOURCES_DIST) $(am__m_cap_la_SOURCES_DIST) \
+	$(am__m_away_la_SOURCES_DIST) \
 	$(am__m_capab_la_SOURCES_DIST) $(am__m_close_la_SOURCES_DIST) \
 	$(am__m_connect_la_SOURCES_DIST) \
 	$(am__m_dline_la_SOURCES_DIST) $(am__m_encap_la_SOURCES_DIST) \
@@ -999,7 +990,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_adminwall_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_away_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_capab_la_LDFLAGS = -module $(MODULE_FLAGS)  
-@STATIC_MODULES_FALSE@m_cap_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_close_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_connect_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_dline_la_LDFLAGS = -module $(MODULE_FLAGS)  
@@ -1059,7 +1049,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_adminwall_la_SOURCES = m_adminwall.c
 @STATIC_MODULES_FALSE@m_away_la_SOURCES = m_away.c
 @STATIC_MODULES_FALSE@m_capab_la_SOURCES = m_capab.c
-@STATIC_MODULES_FALSE@m_cap_la_SOURCES = m_cap.c
 @STATIC_MODULES_FALSE@m_close_la_SOURCES = m_close.c
 @STATIC_MODULES_FALSE@m_connect_la_SOURCES = m_connect.c
 @STATIC_MODULES_FALSE@m_dline_la_SOURCES = m_dline.c
@@ -1119,7 +1108,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_adminwall_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_away_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_capab_la_LIBADD = $(MODULE_LIBS)     
-@STATIC_MODULES_FALSE@m_cap_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_close_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_connect_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_dline_la_LIBADD = $(MODULE_LIBS)     
@@ -1204,7 +1192,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_adminwall.la	\
 @STATIC_MODULES_FALSE@m_away.la	\
 @STATIC_MODULES_FALSE@m_capab.la	\
-@STATIC_MODULES_FALSE@m_cap.la	\
 @STATIC_MODULES_FALSE@m_close.la	\
 @STATIC_MODULES_FALSE@m_connect.la	\
 @STATIC_MODULES_FALSE@m_dline.la	\
@@ -1292,7 +1279,6 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_TRUE@m_adminwall.c	\
 @STATIC_MODULES_TRUE@m_away.c	\
 @STATIC_MODULES_TRUE@m_capab.c	\
-@STATIC_MODULES_TRUE@m_cap.c	\
 @STATIC_MODULES_TRUE@m_close.c	\
 @STATIC_MODULES_TRUE@m_connect.c	\
 @STATIC_MODULES_TRUE@m_dline.c	\
@@ -1544,8 +1530,6 @@ m_adminwall.la: $(m_adminwall_la_OBJECTS) $(m_adminwall_la_DEPENDENCIES)
 	$(m_adminwall_la_LINK) $(am_m_adminwall_la_rpath) $(m_adminwall_la_OBJECTS) $(m_adminwall_la_LIBADD) $(LIBS)
 m_away.la: $(m_away_la_OBJECTS) $(m_away_la_DEPENDENCIES) 
 	$(m_away_la_LINK) $(am_m_away_la_rpath) $(m_away_la_OBJECTS) $(m_away_la_LIBADD) $(LIBS)
-m_cap.la: $(m_cap_la_OBJECTS) $(m_cap_la_DEPENDENCIES) 
-	$(m_cap_la_LINK) $(am_m_cap_la_rpath) $(m_cap_la_OBJECTS) $(m_cap_la_LIBADD) $(LIBS)
 m_capab.la: $(m_capab_la_OBJECTS) $(m_capab_la_DEPENDENCIES) 
 	$(m_capab_la_LINK) $(am_m_capab_la_rpath) $(m_capab_la_OBJECTS) $(m_capab_la_LIBADD) $(LIBS)
 m_close.la: $(m_close_la_OBJECTS) $(m_close_la_DEPENDENCIES) 
@@ -1691,7 +1675,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_admin.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_adminwall.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_away.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_cap.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_capab.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_close.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_connect.Plo@am__quote@

@@ -196,7 +196,6 @@ struct server_conf
 #define ServerConfVhosted(x)	((x)->flags & SERVER_VHOSTED)
 #define ServerConfEncrypted(x)	((x)->flags & SERVER_ENCRYPTED)
 #define ServerConfCompressed(x)	((x)->flags & SERVER_COMPRESSED)
-#define ServerConfTb(x)		((x)->flags & SERVER_TB)
 #define ServerConfAutoconn(x)	((x)->flags & SERVER_AUTOCONN)
 #define ServerConfSSL(x)	((x)->flags & SERVER_SSL)
 

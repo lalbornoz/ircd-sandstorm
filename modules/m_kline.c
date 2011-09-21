@@ -142,7 +142,7 @@ mo_kline(struct Client *client_p, struct Client *source_p, int parc, const char 
 
 	if(target_server != NULL)
 	{
-		sendto_match_servs(source_p, target_server, CAP_ENCAP, NOCAPS,
+		sendto_match_servs(source_p, target_server,
 				   "ENCAP %s KLINE %d %s %s :%s",
 				   target_server, tkline_time, user, host, reason);
 
@@ -274,8 +274,8 @@ mo_unkline(struct Client *client_p, struct Client *source_p, int parc, const cha
 			return 0;
 		}
 
-		sendto_match_servs(source_p, parv[3], CAP_ENCAP, NOCAPS,
-				   "ENCAP %s UNKLINE %s %s", parv[3], user, host);
+		sendto_match_servs(source_p, parv[3], "ENCAP %s UNKLINE %s %s",
+				   parv[3], user, host);
 
 		if(match(parv[3], me.name) == 0)
 			return 0;

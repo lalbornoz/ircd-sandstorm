@@ -78,15 +78,14 @@ struct ConfItem
 #define CONF_FLAGS_SPOOF_IP             0x00000010
 #define CONF_FLAGS_SPOOF_NOTICE		0x00000020
 #define CONF_FLAGS_REDIR                0x00000040
-#define CONF_FLAGS_EXEMPTFLOOD          0x00000200
-#define CONF_FLAGS_EXEMPTSHIDE		0x00000800
-#define CONF_FLAGS_NEED_SSL		0x00002000
+#define CONF_FLAGS_EXEMPTFLOOD          0x00000080
+#define CONF_FLAGS_EXEMPTSHIDE		0x00000100
+#define CONF_FLAGS_NEED_SSL		0x00000200
 /* server flags */
-#define CONF_FLAGS_ENCRYPTED            0x00004000
-#define CONF_FLAGS_COMPRESSED           0x00008000
-#define CONF_FLAGS_TEMPORARY            0x00010000
-#define CONF_FLAGS_TB			0x00020000
-#define CONF_FLAGS_LOCKED		0x00040000
+#define CONF_FLAGS_ENCRYPTED            0x00000400
+#define CONF_FLAGS_COMPRESSED           0x00001000
+#define CONF_FLAGS_TEMPORARY            0x00002000
+#define CONF_FLAGS_LOCKED		0x00004000
 
 /* Macros for struct ConfItem */
 #define IsConfBan(x)		((x)->status & (CONF_KILL|CONF_DLINE))
@@ -101,7 +100,6 @@ struct ConfItem
 #define IsConfSpoofNotice(x)    ((x)->flags & CONF_FLAGS_SPOOF_NOTICE)
 #define IsConfEncrypted(x)      ((x)->flags & CONF_FLAGS_ENCRYPTED)
 #define IsConfCompressed(x)     ((x)->flags & CONF_FLAGS_COMPRESSED)
-#define IsConfTburst(x)		((x)->flags & CONF_FLAGS_TB)
 #define IsConfLocked(x)		((x)->flags & CONF_FLAGS_LOCKED)
 #define IsConfSSLNeeded(x)	((x)->flags & CONF_FLAGS_NEED_SSL)
 
@@ -176,7 +174,6 @@ struct config_file_entry
 	int disable_auth;
 	int connect_timeout;
 	int post_registration_delay;
-	int burst_away;
 	int reject_after_count;
 	int reject_duration;
 	int throttle_count;
@@ -202,7 +199,6 @@ struct config_channel_entry
 	int no_join_on_split;
 	int default_split_server_count;
 	int default_split_user_count;
-	int burst_topicwho;
 	int topiclen;
 	int max_regex;
 };

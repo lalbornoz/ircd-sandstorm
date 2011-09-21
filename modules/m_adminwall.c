@@ -63,7 +63,7 @@ mo_adminwall(struct Client *client_p, struct Client *source_p, int parc, const c
 		return 0;
 	}
 	sendto_wallops_flags(UMODE_ADMIN, source_p, "ADMINWALL - %s", parv[1]);
-	sendto_match_servs(source_p, "*", CAP_ENCAP, NOCAPS, "ENCAP * ADMINWALL :%s", parv[1]);
+	sendto_match_servs(source_p, "*", "ENCAP * ADMINWALL :%s", parv[1]);
 	return 0;
 }
 

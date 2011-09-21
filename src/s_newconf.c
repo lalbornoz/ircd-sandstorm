@@ -179,8 +179,8 @@ cluster_generic(struct Client *source_p, const char *command, int cltype, const 
 		if(!(shared_p->flags & cltype))
 			continue;
 
-		sendto_match_servs(source_p, shared_p->server, CAP_ENCAP, NOCAPS,
-				   "ENCAP %s %s %s", shared_p->server, command, buffer);
+		sendto_match_servs(source_p, shared_p->server, "ENCAP %s %s %s",
+				   shared_p->server, command, buffer);
 	}
 }
 
