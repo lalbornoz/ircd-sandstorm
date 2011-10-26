@@ -73,16 +73,17 @@ struct ConfItem
 /* access flags... */
 #define CONF_FLAGS_NO_TILDE             0x00000001
 #define CONF_FLAGS_NEED_IDENTD          0x00000002
-#define CONF_FLAGS_EXEMPTKLINE          0x00000004
-#define CONF_FLAGS_NOLIMIT              0x00000008
-#define CONF_FLAGS_SPOOF_IP             0x00000010
-#define CONF_FLAGS_SPOOF_NOTICE		0x00000020
-#define CONF_FLAGS_REDIR                0x00000040
-#define CONF_FLAGS_EXEMPTFLOOD          0x00000080
-#define CONF_FLAGS_EXEMPTSHIDE		0x00000100
-#define CONF_FLAGS_NEED_SSL		0x00000200
+#define CONF_FLAGS_NO_MOTD 		0x00000004
+#define CONF_FLAGS_EXEMPTKLINE          0x00000008
+#define CONF_FLAGS_NOLIMIT              0x00000010
+#define CONF_FLAGS_SPOOF_IP             0x00000020
+#define CONF_FLAGS_SPOOF_NOTICE		0x00000040
+#define CONF_FLAGS_REDIR                0x00000080
+#define CONF_FLAGS_EXEMPTFLOOD          0x00000100
+#define CONF_FLAGS_EXEMPTSHIDE		0x00000200
+#define CONF_FLAGS_NEED_SSL		0x00000400
 /* server flags */
-#define CONF_FLAGS_ENCRYPTED            0x00000400
+#define CONF_FLAGS_ENCRYPTED            0x00000800
 #define CONF_FLAGS_COMPRESSED           0x00001000
 #define CONF_FLAGS_TEMPORARY            0x00002000
 #define CONF_FLAGS_LOCKED		0x00004000
@@ -92,6 +93,7 @@ struct ConfItem
 
 #define IsNoTilde(x)            ((x)->flags & CONF_FLAGS_NO_TILDE)
 #define IsNeedIdentd(x)         ((x)->flags & CONF_FLAGS_NEED_IDENTD)
+#define IsNoMotd(x)             ((x)->flags & CONF_FLAGS_NO_MOTD)
 #define IsConfExemptKline(x)    ((x)->flags & CONF_FLAGS_EXEMPTKLINE)
 #define IsConfExemptLimits(x)   ((x)->flags & CONF_FLAGS_NOLIMIT)
 #define IsConfExemptFlood(x)    ((x)->flags & CONF_FLAGS_EXEMPTFLOOD)

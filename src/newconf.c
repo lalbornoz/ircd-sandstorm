@@ -172,6 +172,7 @@ static struct mode_table auth_table[] = {
 	{"need_ident",		CONF_FLAGS_NEED_IDENTD	},
 	{"have_ident",		CONF_FLAGS_NEED_IDENTD	},
 	{"need_ssl", 		CONF_FLAGS_NEED_SSL	},
+	{"no_motd",		CONF_FLAGS_NO_MOTD	},
 	{NULL, 0}
 };
 

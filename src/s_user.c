@@ -37,6 +37,7 @@
 #include "parse.h"
 #include "numeric.h"
 #include "s_conf.h"
+#include "hostmask.h"
 #include "s_newconf.h"
 #include "s_log.h"
 #include "s_serv.h"
@@ -866,6 +867,8 @@ send_umode_out(struct Client *client_p, struct Client *source_p, int old)
 void
 user_welcome(struct Client *source_p)
 {
+	struct ConfItem *aconf = NULL;
+
 	SetCork(source_p);
 	sendto_one(source_p, form_str(RPL_WELCOME), me.name, source_p->name,
 		   ServerInfo.network_name, source_p->name);
@@ -879,7 +882,11 @@ user_welcome(struct Client *source_p)
 
 	show_lusers(source_p);
 
-	if(ConfigFileEntry.short_motd)
+	aconf = find_address_conf(source_p->host, source_p->sockhost,
+		source_p->username, (struct sockaddr *)&source_p->localClient->ip,
+		GET_SS_FAMILY(&source_p->localClient->ip));
+
+	if(ConfigFileEntry.short_motd || ((NULL != aconf) && IsNoMotd (aconf)))
 	{
 		sendto_one(source_p,
 			   "NOTICE %s :*** Notice -- motd was last changed at %s",
