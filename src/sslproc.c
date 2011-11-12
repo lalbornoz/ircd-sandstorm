@@ -434,13 +434,13 @@ ssl_process_cmd_recv(ssl_ctl_t * ctl)
 			break;
 		case 'I':
 			ircd_ssl_ok = 0;
-			ilog(L_MAIN, cannot_setup_ssl);
-			sendto_realops_flags(UMODE_ALL, L_ALL, cannot_setup_ssl);
+			ilog(L_MAIN, "%s", cannot_setup_ssl);
+			sendto_realops_flags(UMODE_ALL, L_ALL, "%s", cannot_setup_ssl);
 		case 'U':
 			zlib_ok = 0;
 			ircd_ssl_ok = 0;
-			ilog(L_MAIN, no_ssl_or_zlib);
-			sendto_realops_flags(UMODE_ALL, L_ALL, no_ssl_or_zlib);
+			ilog(L_MAIN, "%s", no_ssl_or_zlib);
+			sendto_realops_flags(UMODE_ALL, L_ALL, "%s", no_ssl_or_zlib);
 			ssl_killall();
 			break;
 		case 'z':

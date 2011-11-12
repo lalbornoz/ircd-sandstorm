@@ -101,7 +101,7 @@ mo_kill(struct Client *client_p, struct Client *source_p, int parc, const char *
 	}
 	if(IsServer(target_p) || IsMe(target_p))
 	{
-		sendto_one_numeric(source_p, ERR_CANTKILLSERVER, form_str(ERR_CANTKILLSERVER));
+		sendto_one_numeric(source_p, ERR_CANTKILLSERVER, "%s", form_str(ERR_CANTKILLSERVER));
 		return 0;
 	}
 

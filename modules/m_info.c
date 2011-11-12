@@ -728,7 +728,7 @@ m_info(struct Client *client_p, struct Client *source_p, int parc, const char *p
 	{
 		/* safe enough to give this on a local connect only */
 		sendto_one(source_p, form_str(RPL_LOAD2HI), me.name, source_p->name, "INFO");
-		sendto_one_numeric(source_p, RPL_ENDOFINFO, form_str(RPL_ENDOFINFO));
+		sendto_one_numeric(source_p, RPL_ENDOFINFO, "%s", form_str(RPL_ENDOFINFO));
 		return 0;
 	}
 	else
@@ -742,7 +742,7 @@ m_info(struct Client *client_p, struct Client *source_p, int parc, const char *p
 	send_info_text(source_p);
 	send_birthdate_online_time(source_p);
 	ClearCork(source_p);
-	sendto_one_numeric(source_p, RPL_ENDOFINFO, form_str(RPL_ENDOFINFO));
+	sendto_one_numeric(source_p, RPL_ENDOFINFO, "%s", form_str(RPL_ENDOFINFO));
 	return 0;
 }
 
@@ -767,7 +767,7 @@ mo_info(struct Client *client_p, struct Client *source_p, int parc, const char *
                 }
 		send_birthdate_online_time(source_p);
 		ClearCork(source_p);
-		sendto_one_numeric(source_p, RPL_ENDOFINFO, form_str(RPL_ENDOFINFO));
+		sendto_one_numeric(source_p, RPL_ENDOFINFO, "%s", form_str(RPL_ENDOFINFO));
 	}
 
 	return 0;
