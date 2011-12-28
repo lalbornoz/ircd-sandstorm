@@ -156,7 +156,12 @@ valid:
 	sendto_common_channels_local(target_p, ":%s!%s@%s NICK :%s",
 				     target_p->name, target_p->username, target_p->host, newnick);
 
-	add_history(target_p, 1);
+	if(target_p->user) {
+		add_history(target_p, 1);
+
+		sendto_server(NULL, NULL, ":%s NICK %s :%ld",
+				target_p->id, newnick, (long)target_p->tsinfo);
+	};
 
 	del_from_hash(HASH_CLIENT, target_p->name, target_p);
 	strcpy(target_p->user->name, newnick);
