@@ -268,6 +268,11 @@ ms_rmask(struct Client *client_p, struct Client *source_p, int parc, const char 
 		mode_type = CHFL_REGEX;
 		break;
 
+	case 'e':
+		regexlist = &chptr->regex_exlist;
+		mode_type = CHFL_REGEX_EX;
+		break;
+
 		/* maybe we should just blindly propagate this? */
 	default:
 		return 0;
