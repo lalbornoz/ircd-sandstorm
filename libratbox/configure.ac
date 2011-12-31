@@ -135,7 +135,7 @@ AC_TYPE_UID_T
 dnl Checks for header files.
 AC_HEADER_STDC
 
-AC_CHECK_HEADERS([crypt.h unistd.h sys/socket.h sys/stat.h sys/time.h time.h netinet/in.h arpa/inet.h errno.h sys/uio.h spawn.h sys/poll.h sys/epoll.h sys/select.h sys/devpoll.h sys/event.h port.h signal.h sys/signalfd.h sys/timerfd.h])
+AC_CHECK_HEADERS([crypt.h unistd.h sys/socket.h sys/stat.h sys/time.h time.h netinet/in.h arpa/inet.h errno.h sys/uio.h spawn.h sys/poll.h sys/epoll.h sys/select.h sys/devpoll.h sys/event.h port.h signal.h sys/timerfd.h])
 AC_HEADER_TIME
 
 dnl Networking Functions
@@ -260,7 +260,7 @@ AC_CHECK_TYPE([sa_family_t], [],
 
 
 dnl check for various functions...
-AC_CHECK_FUNCS([socketpair gettimeofday writev sendmsg gmtime_r strtok_r usleep posix_spawn strlcpy strlcat strnlen fstat signalfd select poll kevent port_create epoll_ctl arc4random getrusage timerfd_create])	
+AC_CHECK_FUNCS([socketpair gettimeofday writev sendmsg gmtime_r strtok_r usleep posix_spawn strlcpy strlcat strnlen fstat select poll kevent port_create epoll_ctl arc4random getrusage timerfd_create])	
 
 AC_SEARCH_LIBS(nanosleep, rt posix4, AC_DEFINE(HAVE_NANOSLEEP, 1, [Define if you have nanosleep]))
 AC_SEARCH_LIBS(timer_create, rt, AC_DEFINE(HAVE_TIMER_CREATE, 1, [Define if you have timer_create]))
