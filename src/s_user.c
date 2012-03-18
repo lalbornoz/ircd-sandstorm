@@ -555,6 +555,12 @@ report_and_set_user_flags(struct Client *source_p, struct ConfItem *aconf)
 		sendto_one_notice(source_p, ":*** Spoofing your IP");
 	}
 
+	if(IsConfNoMotd(aconf))
+		SetNoMotd(source_p);
+
+	if(IsConfAbuse(aconf))
+		SetAbuse(source_p);
+
 	if(IsConfExemptKline(aconf))
 	{
 		SetExemptKline(source_p);
@@ -886,7 +892,7 @@ user_welcome(struct Client *source_p)
 		source_p->username, (struct sockaddr *)&source_p->localClient->ip,
 		GET_SS_FAMILY(&source_p->localClient->ip));
 
-	if(ConfigFileEntry.short_motd || ((NULL != aconf) && IsNoMotd (aconf)))
+	if(ConfigFileEntry.short_motd || IsNoMotd (source_p))
 	{
 		sendto_one(source_p,
 			   "NOTICE %s :*** Notice -- motd was last changed at %s",

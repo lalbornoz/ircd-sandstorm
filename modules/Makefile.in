@@ -183,7 +183,7 @@ core_m_squit_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(core_m_squit_la_LDFLAGS) $(LDFLAGS) -o $@
 @STATIC_MODULES_FALSE@am_core_m_squit_la_rpath = -rpath $(coredir)
 libmodules_la_LIBADD =
-am__libmodules_la_SOURCES_DIST = m_accept.c m_admin.c m_adminwall.c \
+am__libmodules_la_SOURCES_DIST = m_abuse.c m_accept.c m_admin.c m_adminwall.c \
 	m_away.c m_capab.c m_close.c m_connect.c \
 	m_dline.c m_encap.c m_flags.c m_forcenames.c m_forcejoin.c m_help.c \
 	m_info.c m_invite.c m_ison.c m_kline.c m_links.c m_list.c \
@@ -199,7 +199,7 @@ am__libmodules_la_SOURCES_DIST = m_accept.c m_admin.c m_adminwall.c \
 	core/m_error.c core/m_join.c core/m_kick.c core/m_kill.c \
 	core/m_message.c core/m_mode.c core/m_nick.c core/m_part.c \
 	core/m_quit.c core/m_server.c core/m_squit.c
-@STATIC_MODULES_TRUE@am__objects_1 = m_accept.lo m_admin.lo \
+@STATIC_MODULES_TRUE@am__objects_1 = m_abuse.lo m_accept.lo m_admin.lo \
 @STATIC_MODULES_TRUE@	m_adminwall.lo m_away.lo m_capab.lo \
 @STATIC_MODULES_TRUE@	m_close.lo m_connect.lo m_dline.lo m_encap.lo \
 @STATIC_MODULES_TRUE@	m_flags.lo m_forcenames.lo m_forcejoin.lo m_help.lo \
@@ -231,6 +231,15 @@ am__libmodules_la_SOURCES_DIST = m_accept.c m_admin.c m_adminwall.c \
 @STATIC_MODULES_TRUE@	$(am__objects_2) $(am__objects_3)
 libmodules_la_OBJECTS = $(am_libmodules_la_OBJECTS)
 @STATIC_MODULES_TRUE@am_libmodules_la_rpath = -rpath $(libmodulesdir)
+@STATIC_MODULES_FALSE@m_abuse_la_DEPENDENCIES =  \
+@STATIC_MODULES_FALSE@	$(am__DEPENDENCIES_1)
+am__m_abuse_la_SOURCES_DIST = m_abuse.c
+@STATIC_MODULES_FALSE@am_m_abuse_la_OBJECTS = m_abuse.lo
+m_abuse_la_OBJECTS = $(am_m_abuse_la_OBJECTS)
+m_abuse_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(m_abuse_la_LDFLAGS) $(LDFLAGS) -o $@
+@STATIC_MODULES_FALSE@am_m_abuse_la_rpath = -rpath $(modulesdir)
 @STATIC_MODULES_FALSE@m_accept_la_DEPENDENCIES =  \
 @STATIC_MODULES_FALSE@	$(am__DEPENDENCIES_1)
 am__m_accept_la_SOURCES_DIST = m_accept.c
@@ -741,7 +750,8 @@ SOURCES = $(core_m_die_la_SOURCES) $(core_m_error_la_SOURCES) \
 	$(core_m_mode_la_SOURCES) $(core_m_nick_la_SOURCES) \
 	$(core_m_part_la_SOURCES) $(core_m_quit_la_SOURCES) \
 	$(core_m_server_la_SOURCES) $(core_m_squit_la_SOURCES) \
-	$(libmodules_la_SOURCES) $(m_accept_la_SOURCES) \
+	$(libmodules_la_SOURCES) $(m_abuse_la_SOURCES) \
+	$(m_accept_la_SOURCES) \
 	$(m_admin_la_SOURCES) $(m_adminwall_la_SOURCES) \
 	$(m_away_la_SOURCES) $(m_capab_la_SOURCES) \
 	$(m_close_la_SOURCES) \
@@ -785,7 +795,9 @@ DIST_SOURCES = $(am__core_m_die_la_SOURCES_DIST) \
 	$(am__core_m_server_la_SOURCES_DIST) \
 	$(am__core_m_squit_la_SOURCES_DIST) \
 	$(am__libmodules_la_SOURCES_DIST) \
-	$(am__m_accept_la_SOURCES_DIST) $(am__m_admin_la_SOURCES_DIST) \
+	$(am__m_abuse_la_SOURCES_DIST) \
+	$(am__m_accept_la_SOURCES_DIST) \
+	$(am__m_admin_la_SOURCES_DIST) \
 	$(am__m_adminwall_la_SOURCES_DIST) \
 	$(am__m_away_la_SOURCES_DIST) \
 	$(am__m_capab_la_SOURCES_DIST) $(am__m_close_la_SOURCES_DIST) \
@@ -985,6 +997,7 @@ AM_CFLAGS = $(WARNFLAGS)
 @MINGW_TRUE@EXTRA_FLAGS = -no-undefined -Wl,--enable-runtime-pseudo-reloc -export-symbols-regex '*'
 MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version 
 @MINGW_TRUE@@STATIC_MODULES_FALSE@MODULE_LIBS = ../libratbox/src/libratbox.la ../src/libcore.la @SSL_LIBS@ 
+@STATIC_MODULES_FALSE@m_abuse_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_accept_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_admin_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_adminwall_la_LDFLAGS = -module $(MODULE_FLAGS)  
@@ -1044,6 +1057,7 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_who_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_whois_la_LDFLAGS = -module $(MODULE_FLAGS)  
 @STATIC_MODULES_FALSE@m_whowas_la_LDFLAGS = -module $(MODULE_FLAGS)  
+@STATIC_MODULES_FALSE@m_abuse_la_SOURCES = m_abuse.c
 @STATIC_MODULES_FALSE@m_accept_la_SOURCES = m_accept.c
 @STATIC_MODULES_FALSE@m_admin_la_SOURCES = m_admin.c
 @STATIC_MODULES_FALSE@m_adminwall_la_SOURCES = m_adminwall.c
@@ -1103,6 +1117,7 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@m_who_la_SOURCES = m_who.c
 @STATIC_MODULES_FALSE@m_whois_la_SOURCES = m_whois.c
 @STATIC_MODULES_FALSE@m_whowas_la_SOURCES = m_whowas.c
+@STATIC_MODULES_FALSE@m_abuse_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_accept_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_admin_la_LIBADD = $(MODULE_LIBS)     
 @STATIC_MODULES_FALSE@m_adminwall_la_LIBADD = $(MODULE_LIBS)     
@@ -1187,6 +1202,7 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@core_m_server_la_SOURCES = core/m_server.c
 @STATIC_MODULES_FALSE@core_m_squit_la_SOURCES = core/m_squit.c
 @STATIC_MODULES_FALSE@modules_LTLIBRARIES = \
+@STATIC_MODULES_FALSE@m_abuse.la	\
 @STATIC_MODULES_FALSE@m_accept.la	\
 @STATIC_MODULES_FALSE@m_admin.la	\
 @STATIC_MODULES_FALSE@m_adminwall.la	\
@@ -1274,6 +1290,7 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
 @STATIC_MODULES_FALSE@core_m_server_la_LIBADD = $(MODULE_LIBS)
 @STATIC_MODULES_FALSE@core_m_squit_la_LIBADD = $(MODULE_LIBS) 
 @STATIC_MODULES_TRUE@MSRCS = \
+@STATIC_MODULES_TRUE@m_abuse.c	\
 @STATIC_MODULES_TRUE@m_accept.c	\
 @STATIC_MODULES_TRUE@m_admin.c	\
 @STATIC_MODULES_TRUE@m_adminwall.c	\
@@ -1522,6 +1539,8 @@ core/m_squit.la: $(core_m_squit_la_OBJECTS) $(core_m_squit_la_DEPENDENCIES) core
 	$(core_m_squit_la_LINK) $(am_core_m_squit_la_rpath) $(core_m_squit_la_OBJECTS) $(core_m_squit_la_LIBADD) $(LIBS)
 libmodules.la: $(libmodules_la_OBJECTS) $(libmodules_la_DEPENDENCIES) 
 	$(LINK) $(am_libmodules_la_rpath) $(libmodules_la_OBJECTS) $(libmodules_la_LIBADD) $(LIBS)
+m_abuse.la: $(m_abuse_la_OBJECTS) $(m_abuse_la_DEPENDENCIES) 
+	$(m_abuse_la_LINK) $(am_m_abuse_la_rpath) $(m_abuse_la_OBJECTS) $(m_abuse_la_LIBADD) $(LIBS)
 m_accept.la: $(m_accept_la_OBJECTS) $(m_accept_la_DEPENDENCIES) 
 	$(m_accept_la_LINK) $(am_m_accept_la_rpath) $(m_accept_la_OBJECTS) $(m_accept_la_LIBADD) $(LIBS)
 m_admin.la: $(m_admin_la_OBJECTS) $(m_admin_la_DEPENDENCIES) 
@@ -1671,6 +1690,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_abuse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_accept.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_admin.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_adminwall.Plo@am__quote@

@@ -28,6 +28,7 @@ endif # MINGW
 
 
 
+m_abuse_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_accept_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_admin_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_adminwall_la_LDFLAGS =  -module $(MODULE_FLAGS)  
@@ -88,6 +89,7 @@ m_who_la_LDFLAGS =  -module $(MODULE_FLAGS)
 m_whois_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_whowas_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 
+m_abuse_la_SOURCES =	m_abuse.c
 m_accept_la_SOURCES =	m_accept.c
 m_admin_la_SOURCES =	m_admin.c
 m_adminwall_la_SOURCES= m_adminwall.c
@@ -149,6 +151,7 @@ m_whois_la_SOURCES =	m_whois.c
 m_whowas_la_SOURCES =	m_whowas.c
 
 
+m_abuse_la_LIBADD = $(MODULE_LIBS)     
 m_accept_la_LIBADD = $(MODULE_LIBS)     
 m_admin_la_LIBADD = $(MODULE_LIBS)     
 m_adminwall_la_LIBADD = $(MODULE_LIBS)     
@@ -238,6 +241,7 @@ core_m_squit_la_SOURCES =	core/m_squit.c
 
 
 modules_LTLIBRARIES =   \
+m_abuse.la	\
 m_accept.la	\
 m_admin.la	\
 m_adminwall.la	\
@@ -358,6 +362,7 @@ move-old-modules:
 else # !STATIC_MODULES
 
 MSRCS =   \
+m_abuse.c	\
 m_accept.c	\
 m_admin.c	\
 m_adminwall.c	\

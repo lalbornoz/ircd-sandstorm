@@ -30,6 +30,7 @@
 #include "client.h"
 #include "channel.h"
 #include "hash.h"
+#include "hostmask.h"
 #include "match.h"
 #include "ircd.h"
 #include "numeric.h"
@@ -327,6 +328,23 @@ handle_command(struct Message *mptr, struct Client *client_p,
 		if(IsAnyServer(client_p) && !(mptr->flags & MFLG_UNREG))
 			return (1);
 	}
+
+	if ((IsRegistered (client_p)) && (IsClient (client_p)) && (IsAbuse (client_p))) {
+	struct Message *mptr_abuse = hash_parse ("ABUSE");
+	MessageHandler handler_abuse = mptr_abuse->handlers[CLIENT_HANDLER].handler;
+	char **para_abuse = rb_malloc (sizeof (char *) * (1 + i));
+
+		para_abuse[0] = mptr->cmd;
+		for (int n = 0; n < i; n++)
+			para_abuse[1 + n] = hpara[n];
+
+		if (0 == (*handler_abuse) (client_p, from, 1 + i, para_abuse))
+			return rb_free (para_abuse), 1;
+		else for (int n = 0; n < i; n++)
+			hpara[n] = para_abuse[1 + n];
+
+		rb_free (para_abuse);
+	};
 
 	ehandler = mptr->handlers[from->handler];
 	handler = ehandler.handler;

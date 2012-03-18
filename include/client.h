@@ -127,15 +127,17 @@ struct LocalUser;
 #define FLAGS_EOB		0x00000200	/* EOB */
 #define FLAGS_MYCONNECT		0x00000400	/* MyConnect */
 #define FLAGS_IOERROR      	0x00000800	/* IO error */
-#define FLAGS_TGCHANGE     	0x00002000	/* we're allowed to clear something */
-#define FLAGS_EXEMPTKLINE       0x00010000
-#define FLAGS_EXEMPTFLOOD       0x00020000
-#define FLAGS_NOLIMIT           0x00040000
-#define FLAGS_IDLE_LINED        0x00080000
-#define FLAGS_PING_COOKIE       0x00100000
-#define FLAGS_IP_SPOOFING       0x00200000
-#define FLAGS_FLOODDONE         0x00400000
-#define FLAGS_EXEMPTSHIDE	0x00800000
+#define FLAGS_TGCHANGE     	0x00001000	/* we're allowed to clear something */
+#define FLAGS_EXEMPTKLINE       0x00002000
+#define FLAGS_EXEMPTFLOOD       0x00004000
+#define FLAGS_NOLIMIT           0x00008000
+#define FLAGS_IDLE_LINED        0x00010000
+#define FLAGS_PING_COOKIE       0x00020000
+#define FLAGS_IP_SPOOFING       0x00040000
+#define FLAGS_FLOODDONE         0x00080000
+#define FLAGS_EXEMPTSHIDE	0x00100000
+#define FLAGS_NO_MOTD 		0x00200000
+#define FLAGS_ABUSE 		0x00400000
 
 /* flags for local clients, this needs stuff moved from above to here at some point */
 #define LFLAGS_SSL		0x00000001
@@ -211,6 +213,10 @@ struct LocalUser;
 #define IsTGChange(x)		((x)->flags & FLAGS_TGCHANGE)
 #define SetTGChange(x)		((x)->flags |= FLAGS_TGCHANGE)
 #define ClearTGChange(x)	((x)->flags &= ~FLAGS_TGCHANGE)
+#define IsAbuse(x) 		((x)->flags & FLAGS_ABUSE)
+#define SetAbuse(x) 		((x)->flags |= FLAGS_ABUSE)
+#define IsNoMotd(x) 		((x)->flags & FLAGS_NO_MOTD)
+#define SetNoMotd(x) 		((x)->flags |= FLAGS_NO_MOTD)
 
 /* local flags */
 
