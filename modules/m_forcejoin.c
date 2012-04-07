@@ -125,6 +125,10 @@ mo_forcejoin(struct Client *client_p, struct Client *source_p, int parc, const c
 				     target_p->name, target_p->username,
 				     target_p->host, chptr->chname);
 
+		sendto_server(target_p, chptr,
+			":%s JOIN %ld %s +",
+			target_p->id, (long)chptr->channelts, chptr->chname);
+
 		if(chptr->topic != NULL)
 		{
 			sendto_one(target_p, form_str(RPL_TOPIC), me.name,
