@@ -227,7 +227,7 @@ set_bind(char **parv)
 		rb_inet_pton(AF_INET, ipv4, &ipv4_addr);
 #ifdef RB_IPV6
 	if(!strcmp(ipv6, "0"))
-		memcpy(&ipv6_addr, &in6addr_any, sizeof(&ipv6_addr));
+		memcpy(&ipv6_addr, &in6addr_any, sizeof(ipv6_addr));
 	else
 		rb_inet_pton(AF_INET6, ipv6, &ipv6_addr);
 #endif
