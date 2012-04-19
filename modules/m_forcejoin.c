@@ -203,6 +203,8 @@ mo_forcepart(struct Client *client_p, struct Client *source_p, int parc, const c
 	struct Channel *chptr;
 	struct membership *msptr;
 
+	char *reason = NULL;
+
 	if(!IsOper(source_p))
 	{
 		sendto_one(source_p, form_str(ERR_NOPRIVS), me.name, source_p->name, "forcepart");
@@ -222,6 +224,8 @@ mo_forcepart(struct Client *client_p, struct Client *source_p, int parc, const c
 	if(!IsClient(target_p))
 		return 0;
 
+	if(parc > 3)
+		reason = LOCAL_COPY_N(parv[3], REASONLEN);
 
 	if((chptr = find_channel(parv[2])) == NULL)
 	{
@@ -237,18 +241,34 @@ mo_forcepart(struct Client *client_p, struct Client *source_p, int parc, const c
 		return 0;
 	}
 
-	sendto_allops_flags(UMODE_FULL, L_ALL,
-		"%s (%s@%s) issued FORCEPART for %s (%s@%s) to %s",
-		source_p->name, source_p->username, source_p->host,
-		target_p->name, target_p->username, target_p->host,
-		parv[2]);
+	if(!EmptyString(reason))
+	{
+		sendto_allops_flags(UMODE_FULL, L_ALL,
+			"%s (%s@%s) issued FORCEPART for %s (%s@%s) to %s (reason: %s)",
+			source_p->name, source_p->username, source_p->host,
+			target_p->name, target_p->username, target_p->host,
+			parv[2], reason);
 
-	sendto_server(target_p, chptr,
-		      ":%s PART %s :%s", target_p->id, chptr->chname, target_p->name);
+		sendto_server(target_p, chptr,
+			      ":%s PART %s :%s", target_p->id, chptr->chname, reason);
+		sendto_channel_local(chptr, ":%s!%s@%s PART %s :%s",
+				     target_p->name, target_p->username,
+				     target_p->host, chptr->chname, reason);
+	}
+	else
+	{
+		sendto_allops_flags(UMODE_FULL, L_ALL,
+			"%s (%s@%s) issued FORCEPART for %s (%s@%s) to %s",
+			source_p->name, source_p->username, source_p->host,
+			target_p->name, target_p->username, target_p->host,
+			parv[2]);
 
-	sendto_channel_local(chptr, ":%s!%s@%s PART %s :%s",
-			     target_p->name, target_p->username,
-			     target_p->host, chptr->chname, target_p->name);
+		sendto_server(target_p, chptr,
+			      ":%s PART %s", target_p->id, chptr->chname);
+		sendto_channel_local(chptr, ":%s!%s@%s PART %s",
+				     target_p->name, target_p->username,
+				     target_p->host, chptr->chname);
+	}
 
 
 	remove_user_from_channel(msptr);
