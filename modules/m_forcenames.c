@@ -219,17 +219,18 @@ mo_forceuser(struct Client *client_p, struct Client *source_p, int parc, const c
 	rb_strlcpy(newusername, parv[2], sizeof(newusername));
 
 	if(newusername != NULL && !EmptyString(newusername) &&
-	   valid_username(newusername))
+	   valid_username(newusername)) {
+		sendto_allops_flags(UMODE_FULL, L_ALL,
+			"%s (%s@%s) issued FORCEUSER for %s (%s@%s) to %s",
+			source_p->name, source_p->username, source_p->host,
+			target_p->name, target_p->username, target_p->host,
+			newusername);
+
 		rb_strlcpy(target_p->username, newusername, sizeof(target_p->username));
 
-	sendto_allops_flags(UMODE_FULL, L_ALL,
-		"%s (%s@%s) issued FORCEUSER for %s (%s@%s) to %s",
-		source_p->name, source_p->username, source_p->host,
-		target_p->name, target_p->username, target_p->host,
-		newusername);
-
-	sendto_server(client_p, NULL, ":%s FORCEUSER %s %s",
-			source_p->name, target_p->name, newusername);
+		sendto_server(client_p, NULL, ":%s FORCEUSER %s :%s",
+				source_p->name, target_p->name, newusername);
+	}
 
 	return 0;
 }
@@ -266,21 +267,21 @@ mo_forcehost(struct Client *client_p, struct Client *source_p, int parc, const c
 			sendto_one_notice(source_p, ":FORCEHOST changed from %s to %s", parv[1], target_p->name);
 	}
 
-
 	rb_strlcpy(newhostname, parv[2], sizeof(newhostname));
 
 	if(newhostname != NULL && !EmptyString(newhostname) &&
-	   valid_hostname(newhostname))
+	   valid_hostname(newhostname)) {
+		sendto_allops_flags(UMODE_FULL, L_ALL,
+			"%s (%s@%s) issued FORCEHOST for %s (%s@%s) to %s",
+			source_p->name, source_p->username, source_p->host,
+			target_p->name, target_p->username, target_p->host,
+			newhostname);
+
 		rb_strlcpy(target_p->host, newhostname, sizeof(target_p->host));
 
-	sendto_allops_flags(UMODE_FULL, L_ALL,
-		"%s (%s@%s) issued FORCEHOST for %s (%s@%s) to %s",
-		source_p->name, source_p->username, source_p->host,
-		target_p->name, target_p->username, target_p->host,
-		newhostname);
-
-	sendto_server(client_p, NULL, ":%s FORCEHOST %s %s",
-			source_p->name, target_p->name, newhostname);
+		sendto_server(client_p, NULL, ":%s FORCEHOST %s :%s",
+				source_p->name, target_p->name, newhostname);
+	}
 
 	return 0;
 }
@@ -320,17 +321,18 @@ mo_forcegecos(struct Client *client_p, struct Client *source_p, int parc, const 
 
 	rb_strlcpy(newgecos, parv[2], sizeof(newgecos));
 
-	if(newgecos != NULL && !EmptyString(newgecos))
+	if(newgecos != NULL && !EmptyString(newgecos)) {
+		sendto_allops_flags(UMODE_FULL, L_ALL,
+			"%s (%s@%s) issued FORCEGECOS for %s (%s@%s) to %s",
+			source_p->name, source_p->username, source_p->host,
+			target_p->name, target_p->username, target_p->host,
+			newgecos);
+
 		rb_strlcpy(target_p->info, newgecos, sizeof(target_p->info));
 
-	sendto_allops_flags(UMODE_FULL, L_ALL,
-		"%s (%s@%s) issued FORCEGECOS for %s (%s@%s) to %s",
-		source_p->name, source_p->username, source_p->host,
-		target_p->name, target_p->username, target_p->host,
-		newgecos);
-
-	sendto_server(client_p, NULL, ":%s FORCEGECOS %s %s",
-			source_p->name, target_p->name, newgecos);
+		sendto_server(client_p, NULL, ":%s FORCEGECOS %s :%s",
+				source_p->name, target_p->name, newgecos);
+	}
 
 	return 0;
 }
