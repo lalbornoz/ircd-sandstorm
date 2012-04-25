@@ -104,7 +104,7 @@ mo_forcenick(struct Client *client_p, struct Client *source_p, int parc, const c
 		our_parv[1] = target_p->name;
 	}
 
-        if((hunt_server(client_p, source_p, ":%s FORCENICK %s %s", 1, parc, our_parv)) != HUNTED_ISME)
+        if((hunt_server(client_p, source_p, ":%s FORCENICK %s :%s", 1, parc, our_parv)) != HUNTED_ISME)
                 return 0;
 
 	/* Duplicate and NUL terminate the supplied target nick name to enforce change to. */

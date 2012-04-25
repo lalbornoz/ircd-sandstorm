@@ -211,7 +211,12 @@ mo_forcepart(struct Client *client_p, struct Client *source_p, int parc, const c
 		return 0;
 	}
 
-	if((hunt_server(client_p, source_p, ":%s FORCEPART %s %s", 1, parc, parv)) != HUNTED_ISME)
+	if((parc > 3)
+	&& (hunt_server(client_p, source_p, ":%s FORCEPART %s %s :%s", 1, parc, parv) != HUNTED_ISME))
+		return 0;
+
+	if((parc <= 3)
+	&& (hunt_server(client_p, source_p, ":%s FORCEPART %s %s", 1, parc, parv) != HUNTED_ISME))
 		return 0;
 
 	/* if target_p == NULL then let the oper know */
