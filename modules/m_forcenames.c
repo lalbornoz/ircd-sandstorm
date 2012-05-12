@@ -109,6 +109,7 @@ mo_forcenick(struct Client *client_p, struct Client *source_p, int parc, const c
 
 	/* Duplicate and NUL terminate the supplied target nick name to enforce change to. */
 	rb_strlcpy(newnick, parv[2], sizeof(newnick));
+	nick_sp_fixup (&newnick[0], sizeof (newnick));
 	if(newnick == NULL || EmptyString(newnick))
 	{
 		sendto_one(source_p, form_str(ERR_NONICKNAMEGIVEN),

@@ -114,6 +114,8 @@ mr_nick(struct Client *client_p, struct Client *source_p, int parc, const char *
 	/* copy the nick and terminate it */
 	rb_strlcpy(nick, parv[1], sizeof(nick));
 
+	nick_sp_fixup (&nick[0], sizeof (nick));
+
 	/* check the nickname is ok */
 	if(!valid_nick(nick, 1))
 	{
@@ -161,6 +163,8 @@ m_nick(struct Client *client_p, struct Client *source_p, int parc, const char *p
 
 	/* terminate nick to NICKLEN, we dont want valid_nick() to error! */
 	rb_strlcpy(nick, parv[1], sizeof(nick));
+
+	nick_sp_fixup (&nick[0], sizeof (nick));
 
 	/* check the nickname is ok */
 	if(!valid_nick(nick, 1))

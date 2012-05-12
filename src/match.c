@@ -646,6 +646,19 @@ valid_servername(const char *servername)
 }
 
 
+void
+nick_sp_fixup(char *nick, size_t nicksz)
+{
+size_t nicklen = strlen (nick);
+
+	for (size_t n = 0; n < nicklen; n++)
+		if ( (0x20 == nick[n])
+		&&  ((1 + nicklen) < nicksz))
+			memmove (&nick[2 + n], &nick[1 + n], nicklen - n),
+			nick[n++] = 0xC2, nick[n] = 0xA0,
+			nicklen++;
+}
+
 
 const unsigned char ToLowerTab[] = {
 	0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa,

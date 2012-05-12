@@ -70,6 +70,8 @@ int valid_nick(const char *nick, int loc_client);
 int valid_uid(const char *uid);
 int valid_servername(const char *servername);
 
+void nick_sp_fixup(char *nick, size_t nicksz);
+
 
 #define EmptyString(x) ((x == NULL) || (*(x) == '\0'))
 #define CheckEmpty(x) EmptyString(x) ? "" : x
