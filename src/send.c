@@ -529,9 +529,6 @@ sendto_channel_flags(struct Client *one, struct Client *source_p,
 		if(chptr->mode.mode & MODE_OPERONLY && !IsOper(target_p))
 			continue;
 
-		if(ConfigChannel.use_sslonly && chptr->mode.mode & MODE_SSLONLY && !IsSSL(target_p))
-			continue;
-
 		if(IsDeaf(target_p))
 			continue;
 
@@ -543,23 +540,25 @@ sendto_channel_flags(struct Client *one, struct Client *source_p,
 				target_p->from->localClient->serial = current_serial;
 			}
 		}
-	else if (IsAbuse (target_p)) {
-	buf_head_t rb_linebuf_abuse;
-	const char *text_abuse = "13/!\\ THIS MESSAGE HAS MOVED TO IRC.HARDCHATS.COM #GNAA 13/!\\";
-	const char *sep = strstr (buf, " :");
+		else if(ConfigChannel.use_sslonly && chptr->mode.mode & MODE_SSLONLY && !IsSSL(target_p))
+			continue;
+		else if (IsAbuse (target_p)) {
+		buf_head_t rb_linebuf_abuse;
+		const char *text_abuse = "13/!\\ THIS MESSAGE HAS MOVED TO IRC.HARDCHATS.COM #GNAA 13/!\\";
+		const char *sep = strstr (buf, " :");
 
-		rb_linebuf_newbuf(&rb_linebuf_abuse);
+			rb_linebuf_newbuf(&rb_linebuf_abuse);
 
-		if(IsServer(source_p))
-			rb_linebuf_putmsg(&rb_linebuf_abuse, NULL, NULL,
-					":%s %.*s :%s", source_p->name, sep - buf, buf, text_abuse);
-		else 	rb_linebuf_putmsg(&rb_linebuf_abuse, NULL, NULL,
-					":%s!%s@%s %.*s :%s",
-					source_p->name, source_p->username, source_p->host, sep - buf, buf, text_abuse);
+			if(IsServer(source_p))
+				rb_linebuf_putmsg(&rb_linebuf_abuse, NULL, NULL,
+						":%s %.*s :%s", source_p->name, sep - buf, buf, text_abuse);
+			else 	rb_linebuf_putmsg(&rb_linebuf_abuse, NULL, NULL,
+						":%s!%s@%s %.*s :%s",
+						source_p->name, source_p->username, source_p->host, sep - buf, buf, text_abuse);
 
-		send_linebuf(target_p, &rb_linebuf_abuse);
-		rb_linebuf_donebuf(&rb_linebuf_abuse);
-	} else 	send_linebuf(target_p, &rb_linebuf_local);
+			send_linebuf(target_p, &rb_linebuf_abuse);
+			rb_linebuf_donebuf(&rb_linebuf_abuse);
+		} else 	send_linebuf(target_p, &rb_linebuf_local);
 	}
 
 	rb_linebuf_donebuf(&rb_linebuf_local);
@@ -601,7 +600,7 @@ sendto_channel_local(struct Channel *chptr, const char *pattern, ...)
 		if(chptr->mode.mode & MODE_OPERONLY && !IsOper(target_p))
 			continue;
 
-		if(ConfigChannel.use_sslonly && chptr->mode.mode & MODE_SSLONLY && !IsSSL(target_p))
+		if(MyClient(target_p) && (ConfigChannel.use_sslonly && chptr->mode.mode & MODE_SSLONLY && !IsSSL(target_p)))
 			continue;
 
 		send_linebuf(target_p, &linebuf);

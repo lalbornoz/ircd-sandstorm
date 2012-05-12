@@ -602,7 +602,7 @@ can_send(struct Channel *chptr, struct Client *source_p, struct membership *mspt
 	if(chptr->mode.mode & MODE_OPERONLY && !IsOper(source_p))
 		return CAN_SEND_NO;
 
-	if(ConfigChannel.use_sslonly && chptr->mode.mode & MODE_SSLONLY && !IsSSL(source_p))
+	if(MyClient (source_p) && (ConfigChannel.use_sslonly && chptr->mode.mode & MODE_SSLONLY && !IsSSL(source_p)))
 		return CAN_SEND_NO;
 
 	if(msptr == NULL)
