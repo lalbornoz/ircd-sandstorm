@@ -349,8 +349,9 @@ m_challenge(struct Client *client_p, struct Client *source_p, int parc, const ch
 			return 0;
 		}
 
+		parv[1]++;
 		b_response =
-			rb_base64_decode((const unsigned char *)++parv[1], strlen(parv[1]), &len);
+			rb_base64_decode((const unsigned char *)parv[1], strlen(parv[1]), &len);
 
 		if(len != SHA_DIGEST_LENGTH
 		   || memcmp(source_p->localClient->chal_resp, b_response, SHA_DIGEST_LENGTH))
