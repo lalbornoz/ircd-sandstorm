@@ -588,7 +588,7 @@ unload_one_module(const char *name, int warn)
 	lt_dlclose(modlist[modindex]->address);
 
 	rb_free(modlist[modindex]->name);
-	memcpy(&modlist[modindex], &modlist[modindex + 1],
+	memmove(&modlist[modindex], &modlist[modindex + 1],
 	       sizeof(struct module) * ((num_mods - 1) - modindex));
 
 	if(num_mods != 0)
