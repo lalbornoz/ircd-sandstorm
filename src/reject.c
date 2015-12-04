@@ -331,16 +331,28 @@ void
 remove_perm_dlines(void)
 {
 	rb_patricia_node_t *pnode;
+	rb_dlink_list list;
+	rb_dlink_node *ptr, *next;
 	struct ConfItem *aconf;
+	
+	memset(&list, 0, sizeof(list));
+	
 	RB_PATRICIA_WALK(dline_tree->head, pnode)
 	{
 		aconf = pnode->data;
 		if(!(aconf->flags & CONF_FLAGS_TEMPORARY))
 		{
-			remove_dline(aconf);	
+			rb_dlinkAddAlloc(aconf, &list);
 		}		
 	}
 	RB_PATRICIA_WALK_END;
+	
+	RB_DLINK_FOREACH_SAFE(ptr, next, list.head)
+	{
+		aconf = ptr->data;
+		remove_dline(aconf);
+		rb_free_rb_dlink_node(ptr);
+	}
 }
 
 void
