@@ -50,7 +50,7 @@ int32_to_buf(char *buf, int32_t x)
 	memcpy(buf, &x, sizeof(x));
 	return;
 }
-
+#if 0
 static inline uint16_t
 buf_to_uint16(char *buf)
 {
@@ -65,7 +65,7 @@ uint16_to_buf(char *buf, uint16_t x)
 	memcpy(buf, &x, sizeof(x));
 	return;
 }
-
+#endif
 
 static char inbuf[READBUF_SIZE];
 #ifdef HAVE_ZLIB
@@ -1256,28 +1256,33 @@ dummy_handler(int sig)
 static void
 setup_signals()
 {
-#ifndef _WIN32
-	struct sigaction act;
+#ifndef _WIN32   
+        struct sigaction act;
 
-	act.sa_flags = 0;
-	act.sa_handler = SIG_IGN;
-	sigemptyset(&act.sa_mask);
-	sigaddset(&act.sa_mask, SIGPIPE);
-	sigaddset(&act.sa_mask, SIGALRM);
+        act.sa_flags = 0;
+        act.sa_handler = SIG_IGN;
+        sigemptyset(&act.sa_mask);
+        sigaddset(&act.sa_mask, SIGPIPE);
+        sigaction(SIGPIPE, &act, 0);
+        sigaddset(&act.sa_mask, SIGALRM);
+        sigaction(SIGALRM, &act, 0);
+        sigaddset(&act.sa_mask, SIGINT);
+        sigaction(SIGINT, &act, 0); 
 #ifdef SIGTRAP
-	sigaddset(&act.sa_mask, SIGTRAP);
+        sigaddset(&act.sa_mask, SIGTRAP);
+        sigaction(SIGTRAP, &act, 0);
 #endif
-
+ 
 #ifdef SIGWINCH
-	sigaddset(&act.sa_mask, SIGWINCH);
-	sigaction(SIGWINCH, &act, 0);
+        sigaddset(&act.sa_mask, SIGWINCH);
+        sigaction(SIGWINCH, &act, 0);
 #endif
-	sigaction(SIGPIPE, &act, 0);
-#ifdef SIGTRAP
-	sigaction(SIGTRAP, &act, 0);
+        sigaction(SIGPIPE, &act, 0);
+#ifdef SIGTRAP  
+        sigaction(SIGTRAP, &act, 0);
 #endif
-
-	act.sa_handler = dummy_handler;
-	sigaction(SIGALRM, &act, 0);
+ 
+        act.sa_handler = dummy_handler;
+        sigaction(SIGALRM, &act, 0);
 #endif
 }

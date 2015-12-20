@@ -72,32 +72,37 @@ static void
 setup_signals()
 {
 #ifndef WINDOWS
-	struct sigaction act;
-
-	act.sa_flags = 0;
-	act.sa_handler = SIG_IGN;
-	sigemptyset(&act.sa_mask);
-	sigaddset(&act.sa_mask, SIGPIPE);
-	sigaddset(&act.sa_mask, SIGALRM);
+        struct sigaction act;
+  
+        act.sa_flags = 0;
+        act.sa_handler = SIG_IGN;
+        sigemptyset(&act.sa_mask);
+        sigaddset(&act.sa_mask, SIGPIPE);
+        sigaction(SIGPIPE, &act, 0);
+        sigaddset(&act.sa_mask, SIGALRM);
+        sigaction(SIGALRM, &act, 0);
+        sigaddset(&act.sa_mask, SIGINT);
+        sigaction(SIGINT, &act, 0);
 #ifdef SIGTRAP
-	sigaddset(&act.sa_mask, SIGTRAP);
+        sigaddset(&act.sa_mask, SIGTRAP);
+        sigaction(SIGTRAP, &act, 0);
 #endif
-
+ 
 #ifdef SIGWINCH
-	sigaddset(&act.sa_mask, SIGWINCH);
-	sigaction(SIGWINCH, &act, 0);
+        sigaddset(&act.sa_mask, SIGWINCH);
+        sigaction(SIGWINCH, &act, 0);
 #endif
-	sigaction(SIGPIPE, &act, 0);
+        sigaction(SIGPIPE, &act, 0);
 #ifdef SIGTRAP
-	sigaction(SIGTRAP, &act, 0);
+        sigaction(SIGTRAP, &act, 0);
 #endif
 
-	act.sa_handler = dummy_handler;
-	sigaction(SIGALRM, &act, 0);
-
-	act.sa_handler = rehash;
-	sigaddset(&act.sa_mask, SIGHUP);
-	sigaction(SIGHUP, &act, 0);
+        act.sa_handler = dummy_handler;
+        sigaddset(&act.sa_mask, SIGALRM);
+        sigaction(SIGALRM, &act, 0);
+        act.sa_handler = rehash;
+        sigaddset(&act.sa_mask, SIGHUP);
+        sigaction(SIGHUP, &act, 0);
 #endif
 }
 
