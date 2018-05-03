@@ -49,7 +49,7 @@
 #include "ircd.h"
 
 static char bandb_add_letter[LAST_BANDB_TYPE] = {
-	'K', 'D',
+	'K', 'D', 'R'
 };
 
 rb_dlink_list bandb_pending;
@@ -140,7 +140,7 @@ bandb_add(bandb_type type, struct Client *source_p, const char *mask1,
 }
 
 static char bandb_del_letter[LAST_BANDB_TYPE] = {
-	'k', 'd',
+	'k', 'd', 'r'
 };
 
 void
@@ -182,6 +182,14 @@ bandb_handle_ban(char *parv[], int parc)
 
 	case 'D':
 		aconf->status = CONF_DLINE;
+		break;
+
+	case 'R':
+		if(IsChannelName(aconf->host))
+			aconf->status = CONF_RESV_CHANNEL;
+		else
+			aconf->status = CONF_RESV_NICK;
+
 		break;
 	}
 
@@ -252,6 +260,35 @@ bandb_check_dline(struct ConfItem *aconf)
 	return 1;
 }
 
+static int
+bandb_check_resv_channel(struct ConfItem *aconf)
+{
+	const char *p;
+
+	if(hash_find_resv(aconf->host) || strlen(aconf->host) > CHANNELLEN)
+		return 0;
+
+	for(p = aconf->host; *p; p++)
+	{
+		if(!IsChanChar(*p))
+			return 0;
+	}
+
+	return 1;
+}
+
+static int
+bandb_check_resv_nick(struct ConfItem *aconf)
+{
+	if(!clean_resv_nick(aconf->host))
+		return 0;
+
+	if(find_nick_resv(aconf->host))
+		return 0;
+
+	return 1;
+}
+
 static void
 bandb_handle_clear(void)
 {
@@ -271,6 +308,7 @@ bandb_handle_finish(void)
 	rb_dlink_node *ptr, *next_ptr;
 
 	clear_out_address_conf_bans();
+	clear_s_newconf_bans();
 	remove_perm_dlines();
 	
 	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, bandb_pending.head)
@@ -292,6 +330,22 @@ bandb_handle_finish(void)
 		case CONF_DLINE:
 			if(bandb_check_dline(aconf))
 				add_dline(aconf);
+			else
+				free_conf(aconf);
+
+			break;
+
+		case CONF_RESV_CHANNEL:
+			if(bandb_check_resv_channel(aconf))
+				add_to_hash(HASH_RESV, aconf->host, aconf);
+			else
+				free_conf(aconf);
+
+			break;
+
+		case CONF_RESV_NICK:
+			if(bandb_check_resv_nick(aconf))
+				rb_dlinkAddAlloc(aconf, &resv_conf_list);
 			else
 				free_conf(aconf);
 

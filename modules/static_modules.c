@@ -61,6 +61,7 @@ extern struct mapi_header_av1 m_pong_mheader;
 extern struct mapi_header_av1 m_post_mheader;
 extern struct mapi_header_av1 m_rehash_mheader;
 extern struct mapi_header_av1 m_restart_mheader;
+extern struct mapi_header_av1 m_resv_mheader;
 extern struct mapi_header_av1 m_set_mheader;
 extern struct mapi_header_av1 m_spy_admin_notice_mheader;
 extern struct mapi_header_av1 m_spy_info_notice_mheader;
@@ -134,6 +135,7 @@ const struct mapi_header_av1 *static_mapi_headers[] = {
 	&m_post_mheader,
 	&m_rehash_mheader,
 	&m_restart_mheader,
+	&m_resv_mheader,
 	&m_set_mheader,
 	&m_spy_admin_notice_mheader,
 	&m_spy_info_notice_mheader,

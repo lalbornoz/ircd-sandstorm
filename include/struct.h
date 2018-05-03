@@ -118,11 +118,6 @@ struct LocalUser
 	 * The following fields are allocated only for local clients
 	 * (directly connected to *this* server with a socket.
 	 */
-	/* Anti flooding part, all because of lamers... */
-	time_t last_join_time;	/* when this client last 
-				   joined a channel */
-	time_t last_leave_time;	/* when this client last 
-				 * left a channel */
 	time_t last_caller_id_time;
 
 	time_t lasttime;	/* last time we parsed something */

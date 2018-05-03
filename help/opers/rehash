@@ -4,7 +4,7 @@ When no [option] is given, ircd will re-read the
 ircd.conf file.
 
 [option] can be one of the following:
-  BANS     - Re-reads kline.conf and dline.conf
+  BANS     - Re-reads kline.conf, dline.conf and resv.conf
   DNS      - Restarts DNS
   HELP     - Re-reads help files
   IDENT    - Restarts the ident daemon
@@ -13,5 +13,6 @@ ircd.conf file.
   REJECTCACHE - Clears the reject cache
   TDLINES  - Clears temporary D Lines
   TKLINES  - Clears temporary K Lines
+  TRESVS   - Clears temporary nick and channel resvs
 
 - Requires Oper Priv: H

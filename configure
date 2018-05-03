@@ -11578,51 +11578,6 @@ CC="$lt_save_CC"
 
 
 
-# Only expand once:
-
-
-
-
-
-  if test "X$CC" != "X"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${CC} accepts -fstack-protector" >&5
-$as_echo_n "checking whether ${CC} accepts -fstack-protector... " >&6; }
-if test "${ssp_cv_cc+set}" = set; then :
-  $as_echo_n "(cached) " >&6
-else
-  ssp_old_cflags="$CFLAGS"
-       CFLAGS="$CFLAGS -fstack-protector"
-       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  ssp_cv_cc=yes
-else
-  ssp_cv_cc=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-       CFLAGS="$ssp_old_cflags"
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ssp_cv_cc" >&5
-$as_echo "$ssp_cv_cc" >&6; }
-    if test $ssp_cv_cc = yes; then
-      CFLAGS="$CFLAGS -fstack-protector"
-
-$as_echo "#define ENABLE_SSP_CC 1" >>confdefs.h
-
-    fi
-  fi
-
-
 cc_accepts_flag()
 {
 	local CFLAGS="$@"

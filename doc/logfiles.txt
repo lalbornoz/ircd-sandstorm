@@ -24,3 +24,4 @@ If 'U' is specified before token, it is a removal rather than an addition.
 Token is one of:
   K = kline
   D = dline
+  R = resv

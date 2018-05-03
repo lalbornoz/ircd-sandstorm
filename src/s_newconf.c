@@ -54,6 +54,7 @@ rb_dlink_list cluster_conf_list;
 rb_dlink_list oper_conf_list;
 rb_dlink_list hubleaf_conf_list;
 rb_dlink_list server_conf_list;
+rb_dlink_list resv_conf_list;	/* nicks only! */
 static rb_dlink_list nd_list;	/* nick delay */
 rb_dlink_list tgchange_list;
 
@@ -61,6 +62,7 @@ rb_patricia_tree_t *tgchange_tree;
 
 static rb_bh *nd_heap = NULL;
 
+static void expire_temp_rlines(void *unused);
 static void expire_nd_entries(void *unused);
 
 void
@@ -69,6 +71,7 @@ init_s_newconf(void)
 	tgchange_tree = rb_new_patricia(PATRICIA_BITS);
 	nd_heap = rb_bh_create(sizeof(struct nd_entry), ND_HEAP_SIZE, "nd_heap");
 	rb_event_addish("expire_nd_entries", expire_nd_entries, NULL, 30);
+	rb_event_addish("expire_temp_rlines", expire_temp_rlines, NULL, 60);
 }
 
 void
@@ -115,6 +118,27 @@ clear_s_newconf(void)
 		else
 			server_p->flags |= SERVER_ILLEGAL;
 	}
+}
+
+void
+clear_s_newconf_bans(void)
+{
+	struct ConfItem *aconf;
+	rb_dlink_node *ptr, *next_ptr;
+
+	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, resv_conf_list.head)
+	{
+		aconf = ptr->data;
+
+		/* temporary resv */
+		if(aconf->flags & CONF_FLAGS_TEMPORARY)
+			continue;
+
+		free_conf(aconf);
+		rb_dlinkDestroy(ptr, &resv_conf_list);
+	}
+
+	clear_resv_hash();
 }
 
 struct remote_conf *
@@ -266,6 +290,7 @@ struct oper_flags
 };
 static struct oper_flags oper_flagtable[] = {
 	{OPER_KLINE, 'K', 'k'},
+	{OPER_RESV, 'Q', 'q'},
 	{OPER_GLOBKILL, 'O', 'o'},
 	{OPER_LOCKILL, 'C', 'c'},
 	{OPER_REMOTE, 'R', 'r'},
@@ -469,6 +494,78 @@ set_server_conf_autoconn(struct Client *source_p, char *name, int newval)
 		sendto_one_notice(source_p, ":Can't find %s", name);
 }
 
+struct ConfItem *
+find_nick_resv(const char *name)
+{
+	struct ConfItem *aconf;
+	rb_dlink_node *ptr;
+
+	RB_DLINK_FOREACH(ptr, resv_conf_list.head)
+	{
+		aconf = ptr->data;
+
+		if(match_esc(aconf->host, name))
+		{
+			aconf->port++;
+			return aconf;
+		}
+	}
+
+	return NULL;
+}
+
+struct ConfItem *
+find_nick_resv_mask(const char *name)
+{
+	struct ConfItem *aconf;
+	rb_dlink_node *ptr;
+
+	RB_DLINK_FOREACH(ptr, resv_conf_list.head)
+	{
+		aconf = ptr->data;
+
+		if(!irccmp(aconf->host, name))
+			return aconf;
+	}
+
+	return NULL;
+}
+
+/* clean_resv_nick()
+ *
+ * inputs	- nick
+ * outputs	- 1 if nick is vaild resv, 0 otherwise
+ * side effects -
+ */
+int
+clean_resv_nick(const char *nick)
+{
+	char tmpch;
+	int as = 0;
+	int q = 0;
+	int ch = 0;
+
+	if(*nick == '-' || IsDigit(*nick))
+		return 0;
+
+	while((tmpch = *nick++))
+	{
+		if(tmpch == '?' || tmpch == '@' || tmpch == '#')
+			q++;
+		else if(tmpch == '*')
+			as++;
+		else if(IsNickChar(tmpch))
+			ch++;
+		else
+			return 0;
+	}
+
+	if(!ch && as)
+		return 0;
+
+	return 1;
+}
+
 time_t
 valid_temp_time(const char *p)
 {
@@ -490,6 +587,45 @@ valid_temp_time(const char *p)
 		result = (60 * 24 * 7 * 52);
 
 	return (result * 60);
+}
+
+static void
+expire_temp_rlines(void *unused)
+{
+	struct ConfItem *aconf;
+	rb_dlink_node *ptr;
+	rb_dlink_node *next_ptr;
+	int i;
+
+	HASH_WALK_SAFE(i, R_MAX, ptr, next_ptr, resvTable)
+	{
+		aconf = ptr->data;
+
+		if((aconf->flags & CONF_FLAGS_TEMPORARY) && aconf->hold <= rb_current_time())
+		{
+			if(ConfigFileEntry.tkline_expire_notices)
+				sendto_realops_flags(UMODE_ALL, L_ALL,
+						     "Temporary RESV for [%s] expired",
+						     aconf->host);
+
+			free_conf(aconf);
+			rb_dlinkDestroy(ptr, &resvTable[i]);
+		}
+	}
+	HASH_WALK_END RB_DLINK_FOREACH_SAFE(ptr, next_ptr, resv_conf_list.head)
+	{
+		aconf = ptr->data;
+
+		if((aconf->flags & CONF_FLAGS_TEMPORARY) && aconf->hold <= rb_current_time())
+		{
+			if(ConfigFileEntry.tkline_expire_notices)
+				sendto_realops_flags(UMODE_ALL, L_ALL,
+						     "Temporary RESV for [%s] expired",
+						     aconf->host);
+			free_conf(aconf);
+			rb_dlinkDestroy(ptr, &resv_conf_list);
+		}
+	}
 }
 
 unsigned long

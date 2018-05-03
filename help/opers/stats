@@ -28,6 +28,8 @@ X f - Shows File Descriptors
 ^ o - Shows O/o lines
 ^ P - Shows configured ports
   p - Shows opers connected and their idle times
+* q - Shows temporary resv'd nicks and channels
+* Q - Shows resv'd nicks and channels
 * r - Shows resource usage by ircd
 * t - Shows generic server stats
 * U - Shows shared blocks (Old U: lines)

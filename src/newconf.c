@@ -153,6 +153,7 @@ static struct mode_table flag_table[] = {
 	{"die",			OPER_DIE		},
 	{"admin",		OPER_ADMIN		},
 	{"hidden_admin",	OPER_HADMIN		},
+	{"resv",		OPER_RESV		},
 	{"operwall",		OPER_OPERWALL		},
 	{"oper_spy",		OPER_SPY		},
 	{"hidden_oper",		OPER_INVIS		},
@@ -168,6 +169,8 @@ static struct mode_table auth_table[] = {
 	{"kline_exempt",	CONF_FLAGS_EXEMPTKLINE	},
 	{"flood_exempt",	CONF_FLAGS_EXEMPTFLOOD	},
 	{"shide_exempt",	CONF_FLAGS_EXEMPTSHIDE	},
+	{"jupe_exempt",		CONF_FLAGS_EXEMPTJUPE	},
+	{"resv_exempt",		CONF_FLAGS_EXEMPTRESV	},
 	{"no_tilde",		CONF_FLAGS_NO_TILDE	},
 	{"need_ident",		CONF_FLAGS_NEED_IDENTD	},
 	{"have_ident",		CONF_FLAGS_NEED_IDENTD	},
@@ -191,6 +194,9 @@ static struct mode_table cluster_table[] = {
 	{ "tkline",	SHARED_TKLINE	},
 	{ "unkline",	SHARED_UNKLINE	},
 	{ "locops",	SHARED_LOCOPS	},
+	{ "resv",	SHARED_PRESV	},
+	{ "tresv",	SHARED_TRESV	},
+	{ "unresv",	SHARED_UNRESV	},
 	{ "all",	CLUSTER_ALL	},
 	{NULL, 0}
 };
@@ -198,8 +204,11 @@ static struct mode_table cluster_table[] = {
 static struct mode_table shared_table[] =
 {
 	{ "kline",	SHARED_PKLINE|SHARED_TKLINE	},
+	{ "resv",	SHARED_PRESV|SHARED_TRESV	},
 	{ "tkline",	SHARED_TKLINE	},
 	{ "unkline",	SHARED_UNKLINE	},
+	{ "tresv",	SHARED_TRESV	},
+	{ "unresv",	SHARED_UNRESV	},
 	{ "locops",	SHARED_LOCOPS	},
 	{ "all",	SHARED_ALL	},
 	{ "none",	0		},
@@ -2293,6 +2302,7 @@ static struct conf_items conf_general_table[] =
 	{ "kline_reason",	CF_QSTRING, NULL, REALLEN, &ConfigFileEntry.kline_reason },
 
 	{ "disable_fake_channels",	 CF_YESNO, NULL, 0, &ConfigFileEntry.disable_fake_channels },
+	{ "min_nonwildcard_simple",	 CF_INT,   NULL, 0, &ConfigFileEntry.min_nonwildcard_simple },
 	{ "non_redundant_klines",	 CF_YESNO, NULL, 0, &ConfigFileEntry.non_redundant_klines },
 	{ "tkline_expire_notices",	 CF_YESNO, NULL, 0, &ConfigFileEntry.tkline_expire_notices },
 

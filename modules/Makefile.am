@@ -63,6 +63,7 @@ m_pong_la_LDFLAGS =  -module $(MODULE_FLAGS)
 m_post_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_rehash_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_restart_la_LDFLAGS =  -module $(MODULE_FLAGS)  
+m_resv_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_set_la_LDFLAGS =  -module $(MODULE_FLAGS)  
 m_spy_admin_notice_la_LDFLAGS =  -module $(MODULE_FLAGS)
 m_spy_info_notice_la_LDFLAGS =  -module $(MODULE_FLAGS)
@@ -124,6 +125,7 @@ m_pong_la_SOURCES =	m_pong.c
 m_post_la_SOURCES =	m_post.c
 m_rehash_la_SOURCES =	m_rehash.c
 m_restart_la_SOURCES =	m_restart.c
+m_resv_la_SOURCES =	m_resv.c
 m_set_la_SOURCES =	m_set.c
 m_spy_admin_notice_la_SOURCES = 	m_spy_admin_notice.c
 m_spy_info_notice_la_SOURCES = 		m_spy_info_notice.c
@@ -186,6 +188,7 @@ m_pong_la_LIBADD = $(MODULE_LIBS)
 m_post_la_LIBADD = $(MODULE_LIBS)     
 m_rehash_la_LIBADD = $(MODULE_LIBS)     
 m_restart_la_LIBADD = $(MODULE_LIBS)     
+m_resv_la_LIBADD = $(MODULE_LIBS)     
 m_set_la_LIBADD = $(MODULE_LIBS)     
 m_spy_admin_notice_la_LIBADD = $(MODULE_LIBS)
 m_spy_info_notice_la_LIBADD = $(MODULE_LIBS)
@@ -276,6 +279,7 @@ m_pong.la	\
 m_post.la	\
 m_rehash.la	\
 m_restart.la	\
+m_resv.la	\
 m_set.la	\
 m_spy_admin_notice.la		\
 m_spy_info_notice.la		\
@@ -397,6 +401,7 @@ m_pong.c	\
 m_post.c	\
 m_rehash.c	\
 m_restart.c	\
+m_resv.c	\
 m_set.c	\
 m_spy_admin_notice.c		\
 m_spy_info_notice.c		\

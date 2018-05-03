@@ -69,6 +69,8 @@ mapi_clist_av1 force_clist[] = { &forcejoin_msgtab, &forcepart_msgtab, NULL };
 
 DECLARE_MODULE_AV1(force, NULL, NULL, force_clist, NULL, NULL, "$Revision$");
 
+static void do_join_0(struct Client *client_p, struct Client *source_p);
+
 /*
  * m_forcejoin
  *      parv[0] = sender prefix
@@ -109,7 +111,13 @@ mo_forcejoin(struct Client *client_p, struct Client *source_p, int parc, const c
 		target_p->name, target_p->username, target_p->host,
 		parv[2]);
 
-	if((chptr = find_channel(parv[2])) != NULL)
+	/* join 0 parts all channels */
+	if(parv[2][0] == '0' && parv[2][1] == '\0')
+	{
+		if(target_p->user->channel.head != NULL)
+			do_join_0(&me, target_p);
+	}
+	else if((chptr = find_channel(parv[2])) != NULL)
 	{
 		if(IsMember(target_p, chptr))
 		{
@@ -182,7 +190,6 @@ mo_forcejoin(struct Client *client_p, struct Client *source_p, int parc, const c
 
 		sendto_channel_local(chptr, ":%s MODE %s +l 1488", me.name, chptr->chname);
 
-		target_p->localClient->last_join_time = rb_current_time();
 		channel_member_names(chptr, target_p, 1);
 
 		/* we do this to let the oper know that a channel was created, this will be
@@ -249,7 +256,7 @@ mo_forcepart(struct Client *client_p, struct Client *source_p, int parc, const c
 	if(!EmptyString(reason))
 	{
 		sendto_allops_flags(UMODE_FULL, L_ALL,
-			"%s (%s@%s) issued FORCEPART for %s (%s@%s) to %s (reason: %s)",
+			"%s (%s@%s) issued FORCEPART for %s (%s@%s) from %s (reason: %s)",
 			source_p->name, source_p->username, source_p->host,
 			target_p->name, target_p->username, target_p->host,
 			parv[2], reason);
@@ -263,7 +270,7 @@ mo_forcepart(struct Client *client_p, struct Client *source_p, int parc, const c
 	else
 	{
 		sendto_allops_flags(UMODE_FULL, L_ALL,
-			"%s (%s@%s) issued FORCEPART for %s (%s@%s) to %s",
+			"%s (%s@%s) issued FORCEPART for %s (%s@%s) from %s",
 			source_p->name, source_p->username, source_p->host,
 			target_p->name, target_p->username, target_p->host,
 			parv[2]);
@@ -280,3 +287,40 @@ mo_forcepart(struct Client *client_p, struct Client *source_p, int parc, const c
 
 	return 0;
 }
+
+/*
+ * do_join_0
+ *
+ * inputs	- pointer to client doing join 0
+ * output	- NONE
+ * side effects	- Use has decided to join 0. This is legacy
+ *		  from the days when channels were numbers not names. *sigh*
+ *		  There is a bunch of evilness necessary here due to
+ * 		  anti spambot code.
+ */
+static void
+do_join_0(struct Client *client_p, struct Client *source_p)
+{
+	struct membership *msptr;
+	struct Channel *chptr = NULL;
+	rb_dlink_node *ptr;
+
+	/* Finish the flood grace period... */
+	if(MyClient(source_p) && !IsFloodDone(source_p))
+		flood_endgrace(source_p);
+
+
+	sendto_server(client_p, NULL, ":%s JOIN 0", source_p->id);
+
+	while((ptr = source_p->user->channel.head))
+	{
+		msptr = ptr->data;
+		chptr = msptr->chptr;
+		sendto_channel_local(chptr, ":%s!%s@%s PART %s",
+				     source_p->name,
+				     source_p->username, source_p->host, chptr->chname);
+		remove_user_from_channel(msptr);
+	}
+}
+
+

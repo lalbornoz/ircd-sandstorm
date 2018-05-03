@@ -61,9 +61,11 @@ struct ConfItem
 #define CONF_ILLEGAL            0x80000000
 #define CONF_SKIPUSER		0x0001	/* skip username checks (ie, *@x) */
 #define CONF_CLIENT             0x0002
-#define CONF_KILL               0x0040
-#define CONF_DLINE             0x20000
-#define CONF_EXEMPTDLINE      0x100000
+#define CONF_KILL               0x0004
+#define CONF_RESV_CHANNEL	0x0008
+#define CONF_RESV_NICK		0x0010
+#define CONF_DLINE              0x0020
+#define CONF_EXEMPTDLINE        0x0040
 
 #define IsIllegal(x)    ((x)->status & CONF_ILLEGAL)
 
@@ -80,17 +82,20 @@ struct ConfItem
 #define CONF_FLAGS_SPOOF_IP             0x00000040
 #define CONF_FLAGS_SPOOF_NOTICE		0x00000080
 #define CONF_FLAGS_REDIR                0x00000100
-#define CONF_FLAGS_EXEMPTFLOOD          0x00000200
-#define CONF_FLAGS_EXEMPTSHIDE		0x00000400
-#define CONF_FLAGS_NEED_SSL		0x00000800
+#define CONF_FLAGS_EXEMPTRESV		0x00000200	/* exempt from resvs */
+#define CONF_FLAGS_EXEMPTFLOOD          0x00000400
+#define CONF_FLAGS_EXEMPTSHIDE		0x00000800
+#define CONF_FLAGS_EXEMPTJUPE		0x00001000	/* exempt from resv generating warnings */
+#define CONF_FLAGS_NEED_SSL		0x00002000
 /* server flags */
-#define CONF_FLAGS_ENCRYPTED            0x00001000
-#define CONF_FLAGS_COMPRESSED           0x00002000
-#define CONF_FLAGS_TEMPORARY            0x00004000
-#define CONF_FLAGS_LOCKED		0x00008000
+#define CONF_FLAGS_ENCRYPTED            0x00004000
+#define CONF_FLAGS_COMPRESSED           0x00008000
+#define CONF_FLAGS_TEMPORARY            0x00010000
+#define CONF_FLAGS_LOCKED		0x00020000
 
 /* Macros for struct ConfItem */
-#define IsConfBan(x)		((x)->status & (CONF_KILL|CONF_DLINE))
+#define IsConfBan(x)		((x)->status & (CONF_KILL|CONF_DLINE|\
+						CONF_RESV_CHANNEL|CONF_RESV_NICK))
 
 #define IsNoTilde(x)            ((x)->flags & CONF_FLAGS_NO_TILDE)
 #define IsNeedIdentd(x)         ((x)->flags & CONF_FLAGS_NEED_IDENTD)
@@ -100,6 +105,8 @@ struct ConfItem
 #define IsConfExemptLimits(x)   ((x)->flags & CONF_FLAGS_NOLIMIT)
 #define IsConfExemptFlood(x)    ((x)->flags & CONF_FLAGS_EXEMPTFLOOD)
 #define IsConfExemptShide(x)	((x)->flags & CONF_FLAGS_EXEMPTSHIDE)
+#define IsConfExemptJupe(x)	((x)->flags & CONF_FLAGS_EXEMPTJUPE)
+#define IsConfExemptResv(x)	((x)->flags & CONF_FLAGS_EXEMPTRESV)
 #define IsConfDoSpoofIp(x)      ((x)->flags & CONF_FLAGS_SPOOF_IP)
 #define IsConfSpoofNotice(x)    ((x)->flags & CONF_FLAGS_SPOOF_NOTICE)
 #define IsConfEncrypted(x)      ((x)->flags & CONF_FLAGS_ENCRYPTED)
@@ -171,6 +178,7 @@ struct config_file_entry
 	int caller_id_wait;
 	int min_nonwildcard;
 	int client_flood;
+	int min_nonwildcard_simple;
 	int use_egd;
 	int ping_cookie;
 	int tkline_expire_notices;
@@ -203,6 +211,7 @@ struct config_channel_entry
 	int no_join_on_split;
 	int default_split_server_count;
 	int default_split_user_count;
+	int no_oper_resvs;
 	int topiclen;
 	int max_regex;
 };

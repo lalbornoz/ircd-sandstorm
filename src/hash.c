@@ -42,6 +42,7 @@
 #define hash_id(x) (fnv_hash((const unsigned char *)(x), U_MAX_BITS, 0))
 #define hash_channel(x) (fnv_hash_upper_len((const unsigned char *)(x), CH_MAX_BITS, 30))
 #define hash_hostname(x) (fnv_hash_upper_len((const unsigned char *)(x), HOST_MAX_BITS, 30))
+#define hash_resv(x) (fnv_hash_upper_len((const unsigned char *)(x), R_MAX_BITS, 30))
 #define hash_cli_fd(x)	(x % CLI_FD_MAX)
 
 
@@ -49,6 +50,7 @@ static rb_dlink_list clientbyfdTable[U_MAX];
 static rb_dlink_list clientTable[U_MAX];
 static rb_dlink_list channelTable[CH_MAX];
 static rb_dlink_list idTable[U_MAX];
+rb_dlink_list resvTable[R_MAX];
 static rb_dlink_list hostTable[HOST_MAX];
 static rb_dlink_list helpTable[HELP_MAX];
 rb_dlink_list ndTable[U_MAX];
@@ -183,7 +185,9 @@ static struct _hash_function
 	{
 	fnv_hash_upper_len, channelTable, CH_MAX_BITS, 30},
 	{
-	fnv_hash_upper_len, hostTable, HOST_MAX_BITS, 30}
+	fnv_hash_upper_len, hostTable, HOST_MAX_BITS, 30},
+	{
+	fnv_hash_upper_len, resvTable, R_MAX_BITS, 30}
 };
 
 void
@@ -558,6 +562,37 @@ get_or_create_channel(struct Client *client_p, const char *chname, int *isnew)
 	return chptr;
 }
 
+/* hash_find_resv()
+ *
+ * hunts for a resv entry in the resv hash table
+ */
+struct ConfItem *
+hash_find_resv(const char *name)
+{
+	struct ConfItem *aconf;
+	rb_dlink_node *ptr;
+	unsigned int hashv;
+
+	s_assert(name != NULL);
+	if(EmptyString(name))
+		return NULL;
+
+	hashv = hash_resv(name);
+
+	RB_DLINK_FOREACH(ptr, resvTable[hashv].head)
+	{
+		aconf = ptr->data;
+
+		if(!irccmp(name, aconf->host))
+		{
+			aconf->port++;
+			return aconf;
+		}
+	}
+
+	return NULL;
+}
+
 struct cachefile *
 hash_find_help(const char *name, int flags)
 {
@@ -580,6 +615,27 @@ hash_find_help(const char *name, int flags)
 
 	return NULL;
 }
+
+void
+clear_resv_hash(void)
+{
+	struct ConfItem *aconf;
+	rb_dlink_node *ptr;
+	rb_dlink_node *next_ptr;
+	int i;
+
+	HASH_WALK_SAFE(i, R_MAX, ptr, next_ptr, resvTable)
+	{
+		aconf = ptr->data;
+
+		/* skip temp resvs */
+		if(aconf->flags & CONF_FLAGS_TEMPORARY)
+			continue;
+
+		free_conf(ptr->data);
+		rb_dlinkDestroy(ptr, &resvTable[i]);
+	}
+HASH_WALK_END}
 
 struct nd_entry *
 hash_find_nd(const char *name)

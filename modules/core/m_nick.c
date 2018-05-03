@@ -123,6 +123,14 @@ mr_nick(struct Client *client_p, struct Client *source_p, int parc, const char *
 			   me.name, EmptyString(parv[0]) ? "*" : parv[0], parv[1]);
 		return 0;
 	}
+ 
+	/* check if the nick is resv'd */
+	if(!IsExemptResv(source_p) && find_nick_resv(nick))
+	{
+		sendto_one(source_p, form_str(ERR_ERRONEUSNICKNAME),
+			   me.name, EmptyString(source_p->name) ? "*" : source_p->name, nick);
+		return 0;
+	}
 
 	if(hash_find_nd(nick))
 	{
@@ -170,6 +178,12 @@ m_nick(struct Client *client_p, struct Client *source_p, int parc, const char *p
 	if(!valid_nick(nick, 1))
 	{
 		sendto_one(source_p, form_str(ERR_ERRONEUSNICKNAME), me.name, parv[0], nick);
+		return 0;
+	}
+
+	if(find_nick_resv(nick))
+	{
+		sendto_one(source_p, form_str(ERR_ERRONEUSNICKNAME), me.name, source_p->name, nick);
 		return 0;
 	}
 

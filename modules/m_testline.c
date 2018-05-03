@@ -60,6 +60,7 @@ static int
 mo_testline(struct Client *client_p, struct Client *source_p, int parc, const char *parv[])
 {
 	struct ConfItem *aconf;
+	struct ConfItem *resv_p;
 	struct rb_sockaddr_storage ip;
 	const char *name = NULL;
 	const char *username = NULL;
@@ -70,6 +71,29 @@ mo_testline(struct Client *client_p, struct Client *source_p, int parc, const ch
 	int type;
 
 	mask = LOCAL_COPY(parv[1]);
+
+	if(IsChannelName(mask))
+	{
+		resv_p = hash_find_resv(mask);
+		if(resv_p != NULL)
+		{
+			sendto_one(source_p, form_str(RPL_TESTLINE),
+				   me.name, source_p->name,
+				   (resv_p->flags & CONF_FLAGS_TEMPORARY) ? 'q' : 'Q',
+				   (resv_p->flags & CONF_FLAGS_TEMPORARY) ? (long)((resv_p->hold -
+										    rb_current_time
+										    ()) / 60) : 0L,
+				   resv_p->host, resv_p->passwd);
+			/* this is a false positive, so make sure it isn't counted in stats q
+			 * --nenolod
+			 */
+			resv_p->port--;
+		}
+		else
+			sendto_one(source_p, form_str(RPL_NOTESTLINE),
+				   me.name, source_p->name, parv[1]);
+		return 0;
+	}
 
 	if((p = strchr(mask, '!')))
 	{
@@ -137,7 +161,25 @@ mo_testline(struct Client *client_p, struct Client *source_p, int parc, const ch
 		}
 	}
 
-	/* we can print the I: if it exists */
+	/* they asked us to check a nick, so hunt for resvs.. */
+	if(name && (resv_p = find_nick_resv(name)))
+	{
+		sendto_one(source_p, form_str(RPL_TESTLINE),
+			   me.name, source_p->name,
+			   (resv_p->flags & CONF_FLAGS_TEMPORARY) ? 'q' : 'Q',
+			   (resv_p->flags & CONF_FLAGS_TEMPORARY) ? (long)((resv_p->hold -
+									    rb_current_time()) /
+									   60) : 0L, resv_p->host,
+			   resv_p->passwd);
+
+		/* this is a false positive, so make sure it isn't counted in stats q
+		 * --nenolod
+		 */
+		resv_p->port--;
+		return 0;
+ 	}
+ 
+	/* no matching resv, we can print the I: if it exists */
 	if(aconf && aconf->status & CONF_CLIENT)
 	{
 		sendto_one_numeric(source_p, RPL_STATSILINE, form_str(RPL_STATSILINE),

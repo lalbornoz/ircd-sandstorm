@@ -78,6 +78,7 @@ m_join(struct Client *client_p, struct Client *source_p, int parc, const char *p
 {
 	static char jbuf[BUFSIZE];
 	struct Channel *chptr = NULL;
+	struct ConfItem *aconf;
 	char *name;
 	char *key = NULL;
 	int i, flags = 0;
@@ -114,6 +115,28 @@ m_join(struct Client *client_p, struct Client *source_p, int parc, const char *p
 		{
 			sendto_one_numeric(source_p, ERR_NOSUCHCHANNEL,
 					   form_str(ERR_NOSUCHCHANNEL), name);
+			continue;
+		}
+
+		/* see if its resv'd */
+		if(!IsExemptResv(source_p) && (aconf = hash_find_resv(name)))
+		{
+			sendto_one_numeric(source_p, ERR_BADCHANNAME,
+					   form_str(ERR_BADCHANNAME), name);
+
+			/* dont warn for opers */
+			if(!IsExemptJupe(source_p) && !IsOper(source_p))
+				sendto_realops_flags(UMODE_SPY, L_ALL,
+						     "User %s (%s@%s) is attempting to join locally juped channel %s (%s)",
+						     source_p->name, source_p->username,
+						     source_p->host, name, aconf->passwd);
+
+			/* dont update tracking for jupe exempt users, these
+			 * are likely to be spamtrap leaves
+			 */
+			else if(IsExemptJupe(source_p))
+				aconf->port--;
+
 			continue;
 		}
 
@@ -181,8 +204,6 @@ m_join(struct Client *client_p, struct Client *source_p, int parc, const char *p
 		{
 			sendto_one(source_p, form_str(ERR_TOOMANYCHANNELS),
 				   me.name, source_p->name, name);
-			if(successful_join_count)
-				source_p->localClient->last_join_time = rb_current_time();
 			return 0;
 		}
 
@@ -253,9 +274,6 @@ m_join(struct Client *client_p, struct Client *source_p, int parc, const char *p
 		}
 
 		channel_member_names(chptr, source_p, 1);
-
-		if(successful_join_count)
-			source_p->localClient->last_join_time = rb_current_time();
 	}
 
 	return 0;

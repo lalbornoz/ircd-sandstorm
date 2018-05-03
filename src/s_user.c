@@ -579,13 +579,24 @@ report_and_set_user_flags(struct Client *source_p, struct ConfItem *aconf)
 		SetExemptFlood(source_p);
 		sendto_one_notice(source_p, ":*** You are exempt from flood limits");
 	}
-
-	if(IsConfExemptShide(aconf))
+ 
+	if(IsConfExemptJupe(aconf))
 	{
-		SetExemptShide(source_p);
-		sendto_one_notice(source_p, ":*** You are exempt from serverhiding");
+		SetExemptJupe(source_p);
+		sendto_one_notice(source_p, ":*** You are exempt from juped channel warnings");
 	}
 
+ 	if(IsConfExemptShide(aconf))
+ 	{
+ 		SetExemptShide(source_p);
+ 		sendto_one_notice(source_p, ":*** You are exempt from serverhiding");
+ 	}
+ 
+	if(IsConfExemptResv(aconf))
+	{
+		SetExemptResv(source_p);
+		sendto_one_notice(source_p, ":*** You are exempt from resvs");
+	}
 	ClearCork(source_p);
 	send_pop_queue(source_p);
 }
@@ -750,13 +761,15 @@ user_mode(struct Client *client_p, struct Client *source_p, int parc, const char
 	if(badflag)
 		sendto_one(source_p, form_str(ERR_UMODEUNKNOWNFLAG), me.name, source_p->name);
 
-	if((source_p->umodes & UMODE_OPERWALL) && !IsOperOperwall(source_p))
+	if(MyConnect(source_p) && (source_p->umodes & UMODE_OPERWALL) &&
+	   !IsOperOperwall(source_p))
 	{
 		sendto_one_notice(source_p, ":*** You need oper and operwall flag for +z");
 		source_p->umodes &= ~UMODE_OPERWALL;
 	}
 
-	if((source_p->umodes & UMODE_NCHANGE) && !IsOperN(source_p))
+	if(MyConnect(source_p) && (source_p->umodes & UMODE_NCHANGE) &&
+	   !IsOperN(source_p))
 	{
 		sendto_one_notice(source_p, ":*** You need oper and nick_changes flag for +n");
 		source_p->umodes &= ~UMODE_NCHANGE;	/* only tcm's really need this */

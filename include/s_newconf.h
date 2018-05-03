@@ -46,12 +46,14 @@ extern rb_dlink_list shared_conf_list;
 extern rb_dlink_list oper_conf_list;
 extern rb_dlink_list hubleaf_conf_list;
 extern rb_dlink_list server_conf_list;
+extern rb_dlink_list resv_conf_list;
 extern rb_dlink_list tgchange_list;
 
 extern rb_patricia_tree_t *tgchange_tree;
 
 void init_s_newconf(void);
 void clear_s_newconf(void);
+void clear_s_newconf_bans(void);
 
 #define FREE_TARGET(x) ((x)->localClient->targinfo[0])
 #define USED_TARGETS(x) ((x)->localClient->targinfo[1])
@@ -82,8 +84,12 @@ struct remote_conf
 #define SHARED_PKLINE	0x0002
 #define SHARED_UNKLINE	0x0004
 #define SHARED_LOCOPS	0x0008
+#define SHARED_TRESV	0x0010
+#define SHARED_PRESV	0x0020
+#define SHARED_UNRESV	0x0040
 
-#define SHARED_ALL	(SHARED_TKLINE | SHARED_PKLINE | SHARED_UNKLINE)
+#define SHARED_ALL	(SHARED_TKLINE | SHARED_PKLINE | SHARED_UNKLINE |\
+			SHARED_TRESV | SHARED_PRESV | SHARED_UNRESV)
 #define CLUSTER_ALL	(SHARED_ALL | SHARED_LOCOPS)
 
 /* flags used in hub/leaf */
@@ -118,19 +124,20 @@ void cluster_generic(struct Client *, const char *, int cltype, const char *form
 #define OPER_LOCKILL	0x00008
 #define OPER_GLOBKILL	0x00010
 #define OPER_REMOTE	0x00020
-#define OPER_NICKS	0x00200
-#define OPER_REHASH	0x00400
-#define OPER_DIE	0x00800
-#define OPER_ADMIN	0x01000
-#define OPER_HADMIN	0x02000
-#define OPER_OPERWALL	0x04000
-#define OPER_INVIS	0x08000
-#define OPER_SPY	0x10000
-#define OPER_REMOTEBAN	0x20000
-#define OPER_NEEDSSL	0x40000
+#define OPER_RESV	0x00040
+#define OPER_NICKS	0x00080
+#define OPER_REHASH	0x00100
+#define OPER_DIE	0x00200
+#define OPER_ADMIN	0x00400
+#define OPER_HADMIN	0x00800
+#define OPER_OPERWALL	0x01000
+#define OPER_INVIS	0x02000
+#define OPER_SPY	0x04000
+#define OPER_REMOTEBAN	0x08000
+#define OPER_NEEDSSL	0x10000
 
 #define OPER_FLAGS	(OPER_KLINE|OPER_UNKLINE|OPER_LOCKILL|OPER_GLOBKILL|\
-			 OPER_REMOTE|\
+			 OPER_REMOTE|OPER_RESV|\
 			 OPER_NICKS|OPER_REHASH|OPER_DIE|OPER_ADMIN|\
 			 OPER_HADMIN|OPER_OPERWALL|OPER_INVIS|OPER_SPY|\
 			 OPER_REMOTEBAN)
@@ -144,6 +151,7 @@ void cluster_generic(struct Client *, const char *, int cltype, const char *form
 #define IsOperUnkline(x)        ((x)->operflags & OPER_UNKLINE)
 #define IsOperN(x)              ((x)->operflags & OPER_NICKS)
 #define IsOperK(x)              ((x)->operflags & OPER_KLINE)
+#define IsOperResv(x)           ((x)->operflags & OPER_RESV)
 #define IsOperDie(x)            ((x)->operflags & OPER_DIE)
 #define IsOperRehash(x)         ((x)->operflags & OPER_REHASH)
 #define IsOperHiddenAdmin(x)    ((x)->operflags & OPER_HADMIN)
@@ -212,7 +220,11 @@ void detach_server_conf(struct Client *);
 void set_server_conf_autoconn(struct Client *source_p, char *name, int newval);
 
 
+struct ConfItem *find_nick_resv(const char *name);
+struct ConfItem *find_nick_resv_mask(const char *name);
+
 int valid_wild_card_simple(const char *);
+int clean_resv_nick(const char *);
 time_t valid_temp_time(const char *p);
 
 struct nd_entry

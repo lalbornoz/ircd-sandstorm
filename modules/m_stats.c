@@ -103,6 +103,8 @@ static void stats_messages(struct Client *);
 static void stats_oper(struct Client *);
 static void stats_operedup(struct Client *);
 static void stats_ports(struct Client *);
+static void stats_tresv(struct Client *);
+static void stats_resv(struct Client *);
 static void stats_usage(struct Client *);
 static void stats_tstats(struct Client *);
 static void stats_uptime(struct Client *);
@@ -146,6 +148,8 @@ static struct StatsStruct stats_cmd_table[] = {
 	{'O', stats_oper, 0, 0,},
 	{'p', stats_operedup, 0, 0,},
 	{'P', stats_ports, 0, 0,},
+	{'q', stats_tresv, 1, 0,},
+	{'Q', stats_resv, 1, 0,},
 	{'r', stats_usage, 1, 0,},
 	{'R', stats_usage, 1, 0,},
 	{'t', stats_tstats, 1, 0,},
@@ -685,6 +689,59 @@ stats_ports(struct Client *source_p)
 }
 
 static void
+stats_tresv(struct Client *source_p)
+{
+	struct ConfItem *aconf;
+	rb_dlink_node *ptr;
+	int i;
+
+	RB_DLINK_FOREACH(ptr, resv_conf_list.head)
+	{
+		aconf = ptr->data;
+		if(aconf->flags & CONF_FLAGS_TEMPORARY)
+			sendto_one_numeric(source_p, RPL_STATSQLINE,
+					   form_str(RPL_STATSQLINE),
+					   'q', aconf->port, aconf->host, aconf->passwd);
+	}
+
+	HASH_WALK(i, R_MAX, ptr, resvTable)
+	{
+		aconf = ptr->data;
+		if(aconf->flags & CONF_FLAGS_TEMPORARY)
+			sendto_one_numeric(source_p, RPL_STATSQLINE,
+					   form_str(RPL_STATSQLINE),
+					   'q', aconf->port, aconf->host, aconf->passwd);
+	}
+HASH_WALK_END}
+
+
+static void
+stats_resv(struct Client *source_p)
+{
+	struct ConfItem *aconf;
+	rb_dlink_node *ptr;
+	int i;
+
+	RB_DLINK_FOREACH(ptr, resv_conf_list.head)
+	{
+		aconf = ptr->data;
+		if((aconf->flags & CONF_FLAGS_TEMPORARY) == 0)
+			sendto_one_numeric(source_p, RPL_STATSQLINE,
+					   form_str(RPL_STATSQLINE),
+					   'Q', aconf->port, aconf->host, aconf->passwd);
+	}
+
+	HASH_WALK(i, R_MAX, ptr, resvTable)
+	{
+		aconf = ptr->data;
+		if((aconf->flags & CONF_FLAGS_TEMPORARY) == 0)
+			sendto_one_numeric(source_p, RPL_STATSQLINE,
+					   form_str(RPL_STATSQLINE),
+					   'Q', aconf->port, aconf->host, aconf->passwd);
+	}
+HASH_WALK_END}
+
+static void
 stats_usage(struct Client *source_p)
 {
 #ifndef _WIN32
@@ -816,6 +873,9 @@ static struct shared_flags shared_flagtable[] = {
 	{SHARED_PKLINE, 'K'},
 	{SHARED_TKLINE, 'k'},
 	{SHARED_UNKLINE, 'U'},
+	{SHARED_PRESV, 'Q'},
+	{SHARED_TRESV, 'q'},
+	{SHARED_UNRESV, 'R'},
 	{SHARED_LOCOPS, 'L'},
 	{0, '\0'}
 };

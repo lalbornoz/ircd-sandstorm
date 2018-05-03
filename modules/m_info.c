@@ -477,6 +477,12 @@ static struct InfoStruct info_table[] = {
 		"Minimum non-wildcard chars in K/G lines",
 	},
 	{
+		"min_nonwildcard_simple",
+		OUTPUT_DECIMAL,
+		{ &ConfigFileEntry.min_nonwildcard_simple }, 
+		"Minimum non-wildcard chars in xlines/resvs",
+	},
+	{
 		"network_name",
 		OUTPUT_STRING,
 		{ &ServerInfo.network_name }, 

@@ -62,6 +62,7 @@
 #define CPATH    ETCPATH "/ircd.conf"	/* ircd.conf file */
 #define KPATH    ETCPATH "/kline.conf"	/* kline file */
 #define DLPATH   ETCPATH "/dline.conf"	/* dline file */
+#define RESVPATH ETCPATH "/resv.conf"	/* resv file */
 #define RPATH    ETCPATH "/ircd.rsa"	/* ircd rsa private keyfile */
 #define MPATH    ETCPATH "/ircd.motd"	/* MOTD file */
 #define LPATH    LOGPATH "/ircd.log"	/* ircd logfile */
