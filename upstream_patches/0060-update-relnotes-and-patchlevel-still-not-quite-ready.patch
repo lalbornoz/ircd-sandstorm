@@ -1,0 +1,34 @@
+From 7c8ba3df297136e38825c63569b73791c115f62a Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Tue, 13 Oct 2015 15:04:20 +0000
+Subject: [PATCH 60/89] update relnotes and patchlevel still not quite ready
+ though..
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@28761 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ include/patchlevel.h | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
+
+diff --git a/include/patchlevel.h b/include/patchlevel.h
+index 042ac9d..d9e53e4 100644
+--- a/include/patchlevel.h
++++ b/include/patchlevel.h
+@@ -25,14 +25,5 @@
+  */
+ 
+ #ifndef PATCHLEVEL
+-#define PATCHLEVEL   "ircd-ratbox-3.0.8"
+-#define PATCHLEVEL_NUM	0300060500
+-
+-/* patchlevel numbers:
+- * <major><minor><point><status><statusnum>
+- *
+- * Where status is:
+- * 0=alpha, 1=beta, 2=rc, 5=release
+- */
+-
++#define PATCHLEVEL   "ircd-ratbox-3.0.9"
+ #endif
+-- 
+2.7.4
+

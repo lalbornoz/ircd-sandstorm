@@ -1,0 +1,25 @@
+From 15f2beb93f3d72c470b611902abbdd0763030821 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Mon, 12 Oct 2015 15:49:10 +0000
+Subject: [PATCH 53/89] unconditionally send MAP isupport
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@28739 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ src/supported.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/supported.c b/src/supported.c
+index e241462..74dac59 100644
+--- a/src/supported.c
++++ b/src/supported.c
+@@ -291,6 +291,6 @@ init_isupport(void)
+ 	add_isupport("MONITOR", isupport_intptr, &ConfigFileEntry.max_monitor);
+ 	add_isupport("FNC", isupport_string, "");
+ 	add_isupport("ACCEPT", isupport_intptr, &ConfigFileEntry.max_accept);
+-	add_isupport("MAP", isupport_boolean, &ConfigFileEntry.map_oper_only);
++	add_isupport("MAP", isupport_string, "");
+ 	add_isupport("TARGMAX", isupport_targmax, NULL);
+ }
+-- 
+2.7.4
+

@@ -1,0 +1,949 @@
+From 559c55ae5039bdbaab41b19743c383143e72781a Mon Sep 17 00:00:00 2001
+From: "Daniel Reidy (dubkat)" <dubkat@gmail.com>
+Date: Thu, 13 Oct 2011 05:09:59 +0000
+Subject: [PATCH 06/89] tabs here, spaces there. clean up the .confs so that
+ everything is nice and neat add cconnext to oper only umode, as it is useless
+ for non-opers
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27227 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ doc/example.conf       | 187 ++++++++++++++++++++++-----------------------
+ doc/example.efnet.conf | 201 ++++++++++++++++++++++++-------------------------
+ 2 files changed, 190 insertions(+), 198 deletions(-)
+
+diff --git a/doc/example.conf b/doc/example.conf
+index 6696cd2..4c22b9f 100755
+--- a/doc/example.conf
++++ b/doc/example.conf
+@@ -1,7 +1,7 @@
+ /* doc/example.conf - ircd-ratbox Example configuration file
+  *
+  * Copyright (C) 2000-2002 Hybrid Development Team
+- * Copyright (C) 2002-2003 ircd-ratbox development team
++ * Copyright (C) 2002-2011 ircd-ratbox development team
+  *
+  * Written by ejb, wcampbel, db, leeh and others
+  *
+@@ -40,7 +40,7 @@
+  * This config file is NOT suitable for EFNet.  EFNet admins should use
+  * example.efnet.conf
+  */
+- 
++
+  /* serverinfo {}:  Contains information about the server. (OLD M:) */
+ serverinfo {
+ 	/* name: the name of our server */
+@@ -98,13 +98,13 @@ serverinfo {
+ 	default_max_clients = 10000;
+ 
+ 	/* ssl_private_key: our ssl private key */
+-        ssl_private_key = "etc/test.key";
++	ssl_private_key = "etc/test.key";
+ 
+ 	/* ssl_cert: certificate for our ssl server */
+-        ssl_cert = "etc/test.cert";
++	ssl_cert = "etc/test.cert";
+ 
+ 	/* ssl_dh_params: DH parameters, generate with openssl dhparam -out dh.pem 1024 */
+-        ssl_dh_params = "etc/dh.pem";
++	ssl_dh_params = "etc/dh.pem";
+ 
+ 	/* ssld_count: number of ssld processes you want to start, if you
+ 	 * have a really busy server, using N-1 where N is the number of
+@@ -163,20 +163,20 @@ class "users" {
+ 	 */
+ 	ping_time = 2 minutes;
+ 
+-        /* number per ident: the number of users per user@host networkwide
+-         * allowed to connect.  Unidented connections are classified as
+-         * the same ident.
+-         */
+-        number_per_ident = 2;
++	/* number per ident: the number of users per user@host networkwide
++	 * allowed to connect.  Unidented connections are classified as
++	 * the same ident.
++	 */
++	number_per_ident = 2;
+ 
+ 	/* number per ip: the number of local users per host allowed */
+ 	number_per_ip = 3;
+ 
+-        /* number per ip global: the number of network wide connections
+-         * per host allowed for a user, including connections to the
+-         * local server.
+-         */
+-        number_per_ip_global = 5;
++	/* number per ip global: the number of network wide connections
++	 * per host allowed for a user, including connections to the
++	 * local server.
++	 */
++	number_per_ip_global = 5;
+ 
+ 	/* cidr_ipv4_bitlen:  Limits numbers of connections from a subnet size
+ 	 */
+@@ -238,15 +238,15 @@ listen {
+ 	 *
+ 	 * ports are seperated via a comma, a range may be specified using ".."
+ 	 */
+-	
++
+ 	/* aftype: accepts either ipv4 or ipv6 as the IP type to use
+-         * when the address to bind to is not specified 
+-         */
++	 * when the address to bind to is not specified 
++	 */
+ 	aftype = ipv4;
++
+ 	/* port: listen on all available IPs, ports 5000 and 6665 to 6669 */
+ 	port = 5000, 6665 .. 6669;
+ 
+-	
+ 	/* listen on :: on port 7003 */
+ 	aftype = ipv6;
+ 	port = 7003;
+@@ -258,10 +258,10 @@ listen {
+ 	port = 7000, 7001;
+ 
+ 	host = "3ffe:1234:a:b:c::d";
+-        port = 7002;
++	port = 7002;
+ 
+ 	/* sslport sets up an SSL/TLS listener, otherwise it acts just like
+- 	 * the port option above
++	 * the port option above
+ 	 */
+ 	sslport = 9999;
+ };
+@@ -279,12 +279,12 @@ auth {
+ 	 * flags = ...; below if it is.
+ 	 */
+ 	password = "letmein";
+-	
++
+ 	/* spoof: fake the users user@host to be be this.  You may either
+ 	 * specify a host or a user@host to spoof to.  This is free-form,
+ 	 * just do everyone a favour and dont abuse it. (OLD I: = flag)
+ 	 */
+-        spoof = "I.still.hate.packets";
++	spoof = "I.still.hate.packets";
+ 
+ 	/* Possible flags in auth:
+ 	 * 
+@@ -293,20 +293,20 @@ auth {
+ 	 * exceed_limit (old > flag)  | allow user to exceed class user limits
+ 	 * kline_exempt (old ^ flag)  | exempt this user from k/g/xlines
+ 	 * gline_exempt (old _ flag)  | exempt this user from glines
+-	 * spambot_exempt	      | exempt this user from spambot checks
+-	 * shide_exempt		      | exempt this user from serverhiding
++	 * spambot_exempt	          | exempt this user from spambot checks
++	 * shide_exempt		          | exempt this user from serverhiding
+ 	 * jupe_exempt                | exempt this user from generating
+ 	 *                              warnings joining juped channels
+ 	 * resv_exempt                | exempt this user from resvs
+-         * flood_exempt               | exempt this user from flood limits
+-         *                                     USE WITH CAUTION.
++	 * flood_exempt               | exempt this user from flood limits
++	 *                              USE WITH CAUTION.
+ 	 * no_tilde     (old - flag)  | don't prefix ~ to username if no ident
+ 	 * need_ident   (old + flag)  | require ident for user in this class
+-	 * need_ssl	              | a SSL/TLS connection is required for 
++	 * need_ssl	                  | a SSL/TLS connection is required for 
+ 	 *                              this auth
+ 	 */
+ 	flags = kline_exempt, exceed_limit;
+-	
++
+ 	/* class: the class the user is placed in */
+ 	class = "opers";
+ };
+@@ -318,7 +318,7 @@ auth {
+ 	 */
+ 	redirserv = "irc.fi";
+ 	redirport = 6667;
+-	
++
+ 	user = "*.fi";
+ 
+ 	/* class: a class is required even though it is not used */
+@@ -339,7 +339,7 @@ operator "god" {
+ 
+ 	/* user: the user@host required for this operator.  CIDR *is*
+ 	 * supported now.
+- 	 * multiple user="" lines are supported.
++	 * multiple user="" lines are supported.
+ 	 */
+ 	user = "*god@*";
+ 	user = "*@127.0.0.1";
+@@ -386,20 +386,20 @@ operator "god" {
+ 	 *               may (un)load modules and see the
+ 	 *               real IPs of servers.
+ 	 * hidden_admin: gives admin privileges except
+-	 *		 will not have the admin lines in
+-	 *		 stats p and whois.
+-	 * xline:	 allows use of /quote xline/unxline
+-	 * resv:	 allows use of /quote resv/unresv
++	 *               will not have the admin lines in
++	 *               stats p and whois.
++	 * xline:        allows use of /quote xline/unxline
++	 * resv:         allows use of /quote resv/unresv
+ 	 * operwall:     allows the oper to send operwalls [DEFAULT]
+-	 * oper_spy:	 allows 'operspy' features to see through +s
+-	 * 		 channels etc. see /quote help operspy
++	 * oper_spy:     allows 'operspy' features to see through +s
++	 *               channels etc. see /quote help operspy
+ 	 * hidden_oper:  hides the oper from /stats p    (OLD UMODE +p)	
+ 	 * remoteban:    allows remote kline etc [DEFAULT]
+ 	 * need_ssl:     oper must be connected via SSL/TLS to oper up
+ 	 *               
+-         */
++	 */
+ 	flags = global_kill, remote, kline, unkline, gline,
+-		die, rehash, admin, xline, resv, operwall;
++	        die, rehash, admin, xline, resv, operwall;
+ };
+ 
+ /* connect {}: controls servers we connect to (OLD C:, N:, H:, L:) */
+@@ -439,26 +439,26 @@ connect "irc.uplink.com" {
+ 	class = "server";
+ 
+ 	/* flags: controls special options for this server
+-	 * encrypted	- marks the accept_password as being crypt()'d
+-	 * autoconn	- automatically connect to this server
+-	 * compressed	- compress traffic via ziplinks
+-	 * topicburst	- burst topics between servers
+-	 * ssl		- ssl/tls encrypted server connections
++	 * encrypted  - marks the accept_password as being crypt()'d
++	 * autoconn   - automatically connect to this server
++	 * compressed - compress traffic via ziplinks
++	 * topicburst - burst topics between servers
++	 * ssl        - ssl/tls encrypted server connections
+ 	 */
+ 	flags = compressed, topicburst;
+ };
+ 
+ connect "ipv6.some.server" {
+-        host = "3ffd:dead:beef::1";
+-        send_password = "password";
+-        accept_password = "password";
+-        port = 6666;
++	 host = "3ffd:dead:beef::1";
++	 send_password = "password";
++	 accept_password = "password";
++	 port = 6666;
+ 
+ 	/* aftype: controls whether the connection uses "ipv4" or "ipv6".
+ 	 * Default is ipv4.
+ 	 */
+ 	aftype = ipv6;
+-        class = "server";
++	class = "server";
+ };
+ 
+ /* cluster {}; servers that we propagate things to automatically.
+@@ -520,6 +520,7 @@ shared {
+ 	 * The first field must be a user@host, the second field is an
+ 	 * optional server.  These may be stacked.
+ 	 */
++
+ 	/* flags: list of what to allow them to place, all the oper lines
+ 	 * above this (up until another flags entry) will receive these
+ 	 * flags.  This *must* be present.
+@@ -601,13 +602,13 @@ channel {
+ 	/* max chans: The maximum number of channels a user can join/be on. */
+ 	max_chans_per_user = 15;
+ 
+-        /* quiet on ban: stop banned people talking in channels. */
+-        quiet_on_ban = yes;
++	/* quiet on ban: stop banned people talking in channels. */
++	quiet_on_ban = yes;
+ 
+-        /* max bans: maximum number of +b/e/I modes in a channel */
+-        max_bans = 25;
++	/* max bans: maximum number of +b/e/I modes in a channel */
++	max_bans = 25;
+ 
+-        /* splitcode: split users, split servers and either no join on split
++	/* splitcode: split users, split servers and either no join on split
+ 	 * or no create on split must be enabled for split checking.
+ 	 * splitmode will be entered on either split users or split servers
+ 	 * dropping below the limit.
+@@ -644,7 +645,6 @@ channel {
+ 	topiclen = 160;
+ };
+ 
+-
+ /* The serverhide block contains the options regarding serverhiding */
+ serverhide {
+ 	/* flatten links: this option will show all servers in /links appear
+@@ -660,7 +660,7 @@ serverhide {
+ 	/* hidden: hide this server from a /links output on servers that
+ 	 * support it.  this allows hub servers to be hidden etc.
+ 	 */
+-        hidden = no;
++	hidden = no;
+ 
+ 	/* disable hidden: prevent servers hiding themselves from a
+ 	 * /links ouput.
+@@ -668,8 +668,6 @@ serverhide {
+ 	disable_hidden = no;
+ };
+ 
+-
+-
+ /* The general block contains many of the options that were once compiled
+  * in options in config.h.  The general block is read at start time.
+  */
+@@ -705,16 +703,16 @@ general {
+ 	 */
+ 	disable_fake_channels = no;
+ 
+-        /* tkline_expire_notices: give a notice to opers when a tkline
+-         * expires
+-         */
+-        tkline_expire_notices = no;
++	/* tkline_expire_notices: give a notice to opers when a tkline
++	 * expires
++	 */
++	tkline_expire_notices = no;
+ 
+ 	/* floodcount: the default value of floodcount that is configurable
+ 	 * via /quote set floodcount.  This is the amount of lines a user
+ 	 * may send to any other user/channel in one second.
+ 	 */
+-        default_floodcount = 10;
++	default_floodcount = 10;
+ 
+ 	/* failed oper notice: send a notice to all opers on the server when 
+ 	 * someone tries to OPER and uses the wrong password, host or ident.
+@@ -730,9 +728,9 @@ general {
+ 	 * without a '.' in them.  this will add one to the end.  only needed
+ 	 * for older servers.
+ 	 */
+-        dot_in_ip6_addr = no;
+-        
+-        /* min nonwildcard: the minimum non wildcard characters in k/d/g lines
++	dot_in_ip6_addr = no;
++
++	/* min nonwildcard: the minimum non wildcard characters in k/d/g lines
+ 	 * placed via the server.  klines hand placed are exempt from limits.
+ 	 * wildcard chars: '.' '*' '?' '@'
+ 	 */
+@@ -744,8 +742,8 @@ general {
+ 	 */
+ 	min_nonwildcard_simple = 3;
+ 
+-        /* max accept: maximum allowed /accept's for +g usermode */
+-        max_accept = 20;
++	/* max accept: maximum allowed /accept's for +g usermode */
++	max_accept = 20;
+ 
+ 	/* max monitor: the maximum amount of nicknames a client may have in
+ 	 * their monitor (server-side notify) list.
+@@ -759,10 +757,10 @@ general {
+ 	max_nick_time = 20 seconds;
+ 	max_nick_changes = 5;
+ 
+-        /* anti spam time: the minimum time a user must be connected before
++	/* anti spam time: the minimum time a user must be connected before
+ 	 * custom quit messages are allowed.
+ 	 */
+-        anti_spam_exit_message_time = 5 minutes;
++	anti_spam_exit_message_time = 5 minutes;
+ 
+ 	/* ts delta: the time delta allowed between server clocks before
+ 	 * a warning is given, or before the link is dropped.  all servers
+@@ -786,7 +784,7 @@ general {
+ 	 * and are dlined.
+ 	 */
+ 	dline_with_reason = yes;
+-	
++
+ 	/* kline delay: delay the checking of klines until a specified time.
+ 	 * Useful if large kline lists are applied often to prevent the
+ 	 * server eating CPU.
+@@ -849,8 +847,8 @@ general {
+ 	 */
+ 	stats_k_oper_only=masked;
+ 
+-        /* map oper only: make /map oper only */
+-        map_oper_only = no;
++	/* map oper only: make /map oper only */
++	map_oper_only = no;
+ 
+ 	/* operspy admin only: make operspy notices to +Z admin only */
+ 	operspy_admin_only = no;
+@@ -902,16 +900,15 @@ general {
+ 	 */
+ 	gline_min_cidr = 16;
+ 
+-	
+ 	/* global_cidr_ipv4_bitlen:  limits numbers of connections from a subnet size globally 
+- 	 * global_cidr_ipv4_count: number of connections allowed from a given subnet
+-   	 * global_cidr_ipv6_bitlen and global_cidr_ipv6_count are the same as above but for ipv6
++	 * global_cidr_ipv4_count: number of connections allowed from a given subnet
++	 * global_cidr_ipv6_bitlen and global_cidr_ipv6_count are the same as above but for ipv6
+ 	 * 
+ 	 * global_cidr: if set to no, do not process limits
+ 	 *
+- 	 * The reason these are not in classes is that remote clients do not get assigned classes
+- 	 * Also this needs TS6 across the entire network to work in a reliable way
+-  	 */
++	 * The reason these are not in classes is that remote clients do not get assigned classes
++	 * Also this needs TS6 across the entire network to work in a reliable way
++	 */
+ 	global_cidr_ipv4_bitlen = 24;
+ 	global_cidr_ipv4_count = 384;
+ 
+@@ -921,7 +918,7 @@ general {
+ 
+ 	/* REMOVE ME.  The following line checks you've been reading. */
+ 	havent_read_conf = yes;
+-	
++
+ 	/* max targets: the maximum amount of targets in a single 
+ 	 * PRIVMSG/NOTICE.  set to 999 NOT 0 for unlimited.
+ 	 */
+@@ -941,10 +938,10 @@ general {
+ 	 */
+ 	post_registration_delay = 0 seconds;
+ 
+-        /* use_whois_actually: send clients requesting a whois a numeric
+-         * giving the real IP of non-spoofed clients to prevent DNS abuse.
+-         */
+-        use_whois_actually = yes;
++	/* use_whois_actually: send clients requesting a whois a numeric
++	 * giving the real IP of non-spoofed clients to prevent DNS abuse.
++	 */
++	use_whois_actually = yes;
+ 
+ 	/* usermodes configurable: a list of usermodes for the options below
+ 	 *
+@@ -968,10 +965,10 @@ general {
+ 	 * +z - operwall   - See oper generated WALLOPS
+ 	 * +Z - operspy	   - See operspy notices
+ 	 */
+-	 
++
+ 	/* oper only umodes: usermodes only opers may set */
+-	oper_only_umodes = bots, cconn, debug, full, skill, nchange, 
+-                     rej, spy, external, operwall, locops, unauth;
++	oper_only_umodes = bots, cconn, cconnext, debug, full, skill, nchange, 
++	                   rej, spy, external, operwall, locops, unauth;
+ 
+ 	/* oper umodes: default usermodes opers get when they /oper */
+ 	oper_umodes = locops, servnotice, operwall, wallop;
+@@ -987,7 +984,6 @@ general {
+ 	 */
+ 	#egdpool_path = "/var/run/egd-pool";
+ 
+-
+ 	/* compression level: level of compression for compressed links between
+ 	 * servers.  
+ 	 *
+@@ -996,13 +992,13 @@ general {
+ 	 */
+ 	#compression_level = 6;
+ 
+-        /* burst_away: This enables bursting away messages to servers.
+-         * With this disabled, we will only propogate AWAY messages
+-         * as users send them, but never burst them.  Be warned though
+-         * enabling this could increase the size of a burst significantly
+-         * for a large network, like EFnet.
+-         */
+-        burst_away = yes;
++	/* burst_away: This enables bursting away messages to servers.
++	 * With this disabled, we will only propogate AWAY messages
++	 * as users send them, but never burst them.  Be warned though
++	 * enabling this could increase the size of a burst significantly
++	 * for a large network, like EFnet.
++	 */
++	burst_away = yes;
+ 
+ 	/* reject duration: the amount of time to cache the rejection */
+ 	reject_duration = 5 minutes;
+@@ -1012,7 +1008,6 @@ general {
+ 	 */
+ 	reject_after_count = 3;
+ 
+-
+ 	/* throttle_duration: Amount of time that throttling will be applied to an IP
+ 	 * address.
+ 	 */
+diff --git a/doc/example.efnet.conf b/doc/example.efnet.conf
+index 2b434d8..cb92473 100644
+--- a/doc/example.efnet.conf
++++ b/doc/example.efnet.conf
+@@ -1,7 +1,7 @@
+ /* doc/example.efnet.conf - ircd-ratbox Example configuration file
+  *
+  * Copyright (C) 2000-2002 Hybrid Development Team
+- * Copyright (C) 2002-2003 ircd-ratbox development team
++ * Copyright (C) 2002-2011 ircd-ratbox development team
+  *
+  * Written by ejb, wcampbel, db, leeh and others
+  * Previously modified for EFNet by Disciple
+@@ -44,7 +44,7 @@
+  * properly.
+  */
+  
+- /* serverinfo {}:  Contains information about the server. (OLD M:) */
++/* serverinfo {}:  Contains information about the server. (OLD M:) */
+ serverinfo {
+ 	/* name: the name of our server */
+ 	name = "efnet.irc";
+@@ -83,15 +83,15 @@ serverinfo {
+ 	 */
+ 	#vhost6 = "3ffe:80e8:546::2";
+ 
+-        /* vhost_dns: the IP to bind outgoing dns requests when the dns server is
+-         * ipv4 
+-         */
+-        # vhost_dns = "192.169.0.2";
++	/* vhost_dns: the IP to bind outgoing dns requests when the dns server is
++	 * ipv4 
++	 */
++	# vhost_dns = "192.169.0.2";
+ 
+-        /* vhost6_dns: the IP to bind outgoing dns requests when the dns server is
+-         * ipv6
+-         */
+-        # vhost_dns6 = "3ffe:80e8:546::3";
++	/* vhost6_dns: the IP to bind outgoing dns requests when the dns server is
++	 * ipv6
++	 */
++	# vhost_dns6 = "3ffe:80e8:546::3";
+ 
+ 	/* default max clients: the default maximum number of clients
+ 	 * allowed to connect.  This can be changed once ircd has started by
+@@ -101,13 +101,13 @@ serverinfo {
+ 	default_max_clients = 10000;
+ 
+ 	/* ssl_private_key: our ssl private key */
+-        ssl_private_key = "etc/test.key";
++	ssl_private_key = "etc/test.key";
+ 
+ 	/* ssl_cert: certificate for our ssl server */
+-        ssl_cert = "etc/test.cert";
++	ssl_cert = "etc/test.cert";
+ 
+ 	/* ssl_dh_params: DH parameters, generate with openssl dhparam -out dh.pem 1024 */
+-        ssl_dh_params = "etc/dh.pem";
++	ssl_dh_params = "etc/dh.pem";
+ 
+ 	/* ssld_count: number of ssld processes you want to start, if you
+ 	 * have a really busy server, using N-1 where N is the number of
+@@ -166,20 +166,20 @@ class "users" {
+ 	 */
+ 	ping_time = 2 minutes;
+ 
+-        /* number per ident: the number of users per user@host networkwide
+-         * allowed to connect.  Unidented connections are classified as
+-         * the same ident.
+-         */
+-        number_per_ident = 2;
++	/* number per ident: the number of users per user@host networkwide
++	 * allowed to connect.  Unidented connections are classified as
++	 * the same ident.
++	 */
++	number_per_ident = 2;
+ 
+ 	/* number per ip: the number of local users per host allowed */
+ 	number_per_ip = 3;
+ 
+-        /* number per ip global: the number of network wide connections
+-         * per host allowed for a user, including connections to the
+-         * local server.
+-         */
+-        number_per_ip_global = 5;
++	/* number per ip global: the number of network wide connections
++	 * per host allowed for a user, including connections to the
++	 * local server.
++	 */
++	number_per_ip_global = 5;
+ 
+ 	/* cidr_ipv4_bitlen:  Limits numbers of connections from a subnet size
+ 	 */
+@@ -241,15 +241,14 @@ listen {
+ 	 *
+ 	 * ports are seperated via a comma, a range may be specified using ".."
+ 	 */
+-	
++
+ 	/* aftype: accepts either ipv4 or ipv6 as the IP type to use
+ 	 * when the address to bind to is not specified 
+ 	 */
+ 	aftype = ipv4;
++
+ 	/* port: listen on all available IPs, ports 5000 and 6665 to 6669 */
+ 	port = 5000, 6665 .. 6669;
+-
+-	
+ 	/* listen on :: on port 7003 */
+ 	aftype = ipv6;
+ 	port = 7003;
+@@ -261,12 +260,12 @@ listen {
+ 	port = 7000, 7001;
+ 
+ 	host = "3ffe:1234:a:b:c::d";
+-        port = 7002;
++	port = 7002;
+ 
+-        /* sslport sets up an SSL/TLS listener, otherwise it acts just like
+-         * the port option above
+-         */
+-        sslport = 9999;
++	/* sslport sets up an SSL/TLS listener, otherwise it acts just like
++	 * the port option above
++	 */
++	sslport = 9999;
+ 
+ };
+ 
+@@ -283,12 +282,12 @@ auth {
+ 	 * flags = ...; below if it is.
+ 	 */
+ 	password = "letmein";
+-	
++
+ 	/* spoof: fake the users user@host to be be this.  You may either
+ 	 * specify a host or a user@host to spoof to.  This is free-form,
+ 	 * just do everyone a favour and dont abuse it. (OLD I: = flag)
+ 	 */
+-        spoof = "I.still.hate.packets";
++	spoof = "I.still.hate.packets";
+ 
+ 	/* Possible flags in auth:
+ 	 * 
+@@ -297,20 +296,20 @@ auth {
+ 	 * exceed_limit (old > flag)  | allow user to exceed class user limits
+ 	 * kline_exempt (old ^ flag)  | exempt this user from k/g/xlines
+ 	 * gline_exempt (old _ flag)  | exempt this user from glines
+-	 * spambot_exempt	      | exempt this user from spambot checks
+-	 * shide_exempt		      | exempt this user from serverhiding
++	 * spambot_exempt	          | exempt this user from spambot checks
++	 * shide_exempt	              | exempt this user from serverhiding
+ 	 * jupe_exempt                | exempt this user from generating
+ 	 *                              warnings joining juped channels
+ 	 * resv_exempt                | exempt this user from resvs
+ 	 * flood_exempt               | exempt this user from flood limits
+-	 *                                     USE WITH CAUTION.
++	 *                              USE WITH CAUTION.
+ 	 * no_tilde     (old - flag)  | don't prefix ~ to username if no ident
+ 	 * need_ident   (old + flag)  | require ident for user in this class
+-	 * need_ssl	              | a SSL/TLS connection is required for 
++	 * need_ssl	                  | a SSL/TLS connection is required for 
+ 	 *                              this auth
+ 	 */
+ 	flags = kline_exempt, exceed_limit;
+-	
++
+ 	/* class: the class the user is placed in */
+ 	class = "opers";
+ };
+@@ -322,7 +321,7 @@ auth {
+ 	 */
+ 	redirserv = "irc.fi";
+ 	redirport = 6667;
+-	
++
+ 	user = "*.fi";
+ 
+ 	/* class: a class is required even though it is not used */
+@@ -343,7 +342,7 @@ operator "god" {
+ 
+ 	/* user: the user@host required for this operator.  CIDR *is*
+ 	 * supported now.
+- 	 * multiple user="" lines are supported.
++	 * multiple user="" lines are supported.
+ 	 */
+ 	user = "*god@*";
+ 	user = "*@127.0.0.1";
+@@ -390,20 +389,20 @@ operator "god" {
+ 	 *               may (un)load modules and see the
+ 	 *               real IPs of servers.
+ 	 * hidden_admin: gives admin privileges except
+-	 *		 will not have the admin lines in
+-	 *		 stats p and whois.
+-	 * xline:	 allows use of /quote xline/unxline
+-	 * resv:	 allows use of /quote resv/unresv
++	 *               will not have the admin lines in
++	 *               stats p and whois.
++	 * xline:        allows use of /quote xline/unxline
++	 * resv:         allows use of /quote resv/unresv
+ 	 * operwall:     allows the oper to send operwalls [DEFAULT]
+-	 * oper_spy:	 allows 'operspy' features to see through +s
+-	 * 		 channels etc. see /quote help operspy
++	 * oper_spy:     allows 'operspy' features to see through +s
++	 *               channels etc. see /quote help operspy
+ 	 * hidden_oper:  hides the oper from /stats p    (OLD UMODE +p)	
+ 	 * remoteban:    allows remote kline etc [DEFAULT]
+ 	 * need_ssl:     oper must be connected via SSL/TLS to oper up
+ 	 *               
+-         */
++	 */
+ 	flags = global_kill, remote, kline, unkline, gline,
+-		die, rehash, admin, xline, resv, operwall;
++	        die, rehash, admin, xline, resv, operwall;
+ };
+ 
+ /* connect {}: controls servers we connect to (OLD C:, N:, H:, L:) */
+@@ -443,26 +442,26 @@ connect "irc.uplink.com" {
+ 	class = "server";
+ 
+ 	/* flags: controls special options for this server
+-	 * encrypted	- marks the accept_password as being crypt()'d
+-	 * autoconn	- automatically connect to this server
+-	 * compressed	- compress traffic via ziplinks
+-	 * topicburst	- burst topics between servers
+-	 * ssl		- ssl/tls encrypted server connections
++	 * encrypted  - marks the accept_password as being crypt()'d
++	 * autoconn   - automatically connect to this server
++	 * compressed - compress traffic via ziplinks
++	 * topicburst - burst topics between servers
++	 * ssl        - ssl/tls encrypted server connections
+ 	 */
+ 	flags = compressed, topicburst;
+ };
+ 
+ connect "ipv6.some.server" {
+-        host = "3ffd:dead:beef::1";
+-        send_password = "password";
+-        accept_password = "password";
+-        port = 6666;
++	host = "3ffd:dead:beef::1";
++	send_password = "password";
++	accept_password = "password";
++	port = 6666;
+ 
+ 	/* aftype: controls whether the connection uses "ipv4" or "ipv6".
+ 	 * Default is ipv4.
+ 	 */
+ 	aftype = ipv6;
+-        class = "server";
++	class = "server";
+ };
+ 
+ /* cluster {}; servers that we propagate things to automatically.
+@@ -475,6 +474,7 @@ cluster {
+ 	/* name: the server to share with, this can be a wildcard and may be
+ 	 * stacked.
+ 	 */
++
+ 	/* flags: list of what to share, all the name lines above this (up
+ 	 * until another flags entry) will receive these flags.
+ 	 *
+@@ -516,6 +516,7 @@ shared {
+ 	 * The first field must be a user@host, the second field is an
+ 	 * optional server.  These may be stacked.
+ 	 */
++
+ 	/* flags: list of what to allow them to place, all the oper lines
+ 	 * above this (up until another flags entry) will receive these
+ 	 * flags.  This *must* be present.
+@@ -604,14 +605,14 @@ channel {
+ 	/* max chans: The maximum number of channels a user can join/be on. */
+ 	max_chans_per_user = 25;
+ 
+-        /* quiet on ban: stop banned people talking in channels. */
+-        quiet_on_ban = yes;
++	/* quiet on ban: stop banned people talking in channels. */
++	quiet_on_ban = yes;
+ 
+-        /* max bans: maximum number of +b/e/I modes in a channel */
++	/* max bans: maximum number of +b/e/I modes in a channel */
+ 	/* EFNET approved 100 at 01/08/03 */
+-        max_bans = 100;
++	max_bans = 100;
+ 
+-        /* splitcode: split users, split servers and either no join on split
++	/* splitcode: split users, split servers and either no join on split
+ 	 * or no create on split must be enabled for split checking.
+ 	 * splitmode will be entered on either split users or split servers
+ 	 * dropping below the limit.
+@@ -668,7 +669,7 @@ serverhide {
+ 	/* hidden: hide this server from a /links output on servers that
+ 	 * support it.  this allows hub servers to be hidden etc.
+ 	 */
+-        hidden = no;
++	hidden = no;
+ 
+ 	/* disable hidden: prevent servers hiding themselves from a
+ 	 * /links ouput.
+@@ -712,16 +713,16 @@ general {
+ 	 */
+ 	disable_fake_channels = yes;
+ 
+-        /* tkline_expire_notices: give a notice to opers when a tkline
+-         * expires
+-         */
+-        tkline_expire_notices = no;
++	/* tkline_expire_notices: give a notice to opers when a tkline
++	 * expires
++	 */
++	tkline_expire_notices = no;
+ 
+ 	/* floodcount: the default value of floodcount that is configurable
+ 	 * via /quote set floodcount.  This is the amount of lines a user
+ 	 * may send to any other user/channel in one second.
+ 	 */
+-        default_floodcount = 10;
++	default_floodcount = 10;
+ 
+ 	/* failed oper notice: send a notice to all opers on the server when 
+ 	 * someone tries to OPER and uses the wrong password, host or ident.
+@@ -737,9 +738,9 @@ general {
+ 	 * without a '.' in them.  this will add one to the end.  only needed
+ 	 * for older servers.
+ 	 */
+-        dot_in_ip6_addr = no;
+-        
+-        /* min nonwildcard: the minimum non wildcard characters in k/d/g lines
++	dot_in_ip6_addr = no;
++
++	/* min nonwildcard: the minimum non wildcard characters in k/d/g lines
+ 	 * placed via the server.  klines hand placed are exempt from limits.
+ 	 * wildcard chars: '.' '*' '?' '@'
+ 	 */
+@@ -751,8 +752,8 @@ general {
+ 	 */
+ 	min_nonwildcard_simple = 3;
+ 
+-        /* max accept: maximum allowed /accept's for +g usermode */
+-        max_accept = 20;
++	/* max accept: maximum allowed /accept's for +g usermode */
++	max_accept = 20;
+ 
+ 	/* max monitor: the maximum amount of nicknames a client may have in
+ 	 * their monitor (server-side notify) list.
+@@ -766,10 +767,10 @@ general {
+ 	max_nick_time = 20 seconds;
+ 	max_nick_changes = 5;
+ 
+-        /* anti spam time: the minimum time a user must be connected before
++	/* anti spam time: the minimum time a user must be connected before
+ 	 * custom quit messages are allowed.
+ 	 */
+-        anti_spam_exit_message_time = 5 minutes;
++	anti_spam_exit_message_time = 5 minutes;
+ 
+ 	/* ts delta: the time delta allowed between server clocks before
+ 	 * a warning is given, or before the link is dropped.  all servers
+@@ -793,7 +794,7 @@ general {
+ 	 * and are dlined.
+ 	 */
+ 	dline_with_reason = yes;
+-	
++
+ 	/* kline delay: delay the checking of klines until a specified time.
+ 	 * Useful if large kline lists are applied often to prevent the
+ 	 * server eating CPU.
+@@ -856,8 +857,8 @@ general {
+ 	 */
+ 	stats_k_oper_only = yes;
+ 
+-        /* map oper only: make /map oper only */
+-        map_oper_only = yes;
++	/* map oper only: make /map oper only */
++	map_oper_only = yes;
+ 
+ 	/* operspy admin only: make operspy notices to +Z admin only */
+ 	operspy_admin_only = no;
+@@ -916,16 +917,15 @@ general {
+ 	 */
+ 	gline_min_cidr = 16;
+ 
+-	
+ 	/* global_cidr_ipv4_bitlen:  limits numbers of connections from a subnet size globally 
+- 	 * global_cidr_ipv4_count: number of connections allowed from a given subnet
+-   	 * global_cidr_ipv6_bitlen and global_cidr_ipv6_count are the same as above but for ipv6
++	 * global_cidr_ipv4_count: number of connections allowed from a given subnet
++	 * global_cidr_ipv6_bitlen and global_cidr_ipv6_count are the same as above but for ipv6
+ 	 * 
+ 	 * global_cidr: if set to no, do not process limits
+ 	 *
+- 	 * The reason these are not in classes is that remote clients do not get assigned classes
+- 	 * Also this needs TS6 across the entire network to work in a reliable way
+-  	 */
++	 * The reason these are not in classes is that remote clients do not get assigned classes
++	 * Also this needs TS6 across the entire network to work in a reliable way
++	 */
+ 	global_cidr_ipv4_bitlen = 24;
+ 	global_cidr_ipv4_count = 128;
+ 
+@@ -935,7 +935,7 @@ general {
+ 
+ 	/* REMOVE ME.  The following line checks you've been reading. */
+ 	havent_read_conf = yes;
+-	
++
+ 	/* max targets: the maximum amount of targets in a single 
+ 	 * PRIVMSG/NOTICE.  set to 999 NOT 0 for unlimited.
+ 	 */
+@@ -955,10 +955,10 @@ general {
+ 	 */
+ 	post_registration_delay = 0 seconds;
+ 
+-        /* use_whois_actually: send clients requesting a whois a numeric
+-         * giving the real IP of non-spoofed clients to prevent DNS abuse.
+-         */
+-        use_whois_actually = yes;
++	/* use_whois_actually: send clients requesting a whois a numeric
++	 * giving the real IP of non-spoofed clients to prevent DNS abuse.
++	 */
++	use_whois_actually = yes;
+ 
+ 	/* usermodes configurable: a list of usermodes for the options below
+ 	 *
+@@ -982,10 +982,9 @@ general {
+ 	 * +z - operwall   - See oper generated WALLOPS
+ 	 * +Z - operspy	   - See operspy notices
+ 	 */
+-	 
+ 	/* oper only umodes: usermodes only opers may set */
+-	oper_only_umodes = bots, cconn, debug, full, skill, nchange, 
+-                     rej, spy, external, operwall, locops, unauth;
++	oper_only_umodes = bots, cconn, cconnext, debug, full, skill, nchange, 
++	                   rej, spy, external, operwall, locops, unauth;
+ 
+ 	/* oper umodes: default usermodes opers get when they /oper */
+ 	oper_umodes = locops, servnotice, operwall, wallop;
+@@ -1001,7 +1000,6 @@ general {
+ 	 */
+ 	#egdpool_path = "/var/run/egd-pool";
+ 
+-
+ 	/* compression level: level of compression for compressed links between
+ 	 * servers.  
+ 	 *
+@@ -1010,13 +1008,13 @@ general {
+ 	 */
+ 	#compression_level = 6;
+ 
+-        /* burst_away: This enables bursting away messages to servers.
+-         * With this disabled, we will only propogate AWAY messages
+-         * as users send them, but never burst them.  Be warned though
+-         * enabling this could increase the size of a burst significantly
+-         * for a large network, like EFnet.
+-         */
+-        burst_away = no;
++	/* burst_away: This enables bursting away messages to servers.
++	 * With this disabled, we will only propogate AWAY messages
++	 * as users send them, but never burst them.  Be warned though
++	 * enabling this could increase the size of a burst significantly
++	 * for a large network, like EFnet.
++	 */
++	burst_away = no;
+ 
+ 	/* reject duration: the amount of time to cache the rejection */
+ 	reject_duration = 5 minutes;
+@@ -1026,7 +1024,6 @@ general {
+ 	 */
+ 	reject_after_count = 3;
+ 
+-
+ 	/* throttle_duration: Amount of time that throttling will be applied to an IP
+ 	 * address.
+ 	 */
+-- 
+2.7.4
+

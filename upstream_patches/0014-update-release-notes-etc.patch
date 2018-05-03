@@ -1,0 +1,86 @@
+From 92cf2bcb020afd5ee061f6266a1070ad84ae63ff Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Sun, 6 Nov 2011 01:11:49 +0000
+Subject: [PATCH 14/89] update release notes etc
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27295 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ CREDITS              |  1 +
+ RELNOTES             | 16 ++++++++++++----
+ include/patchlevel.h |  2 +-
+ src/version.c.SH     |  2 +-
+ 4 files changed, 15 insertions(+), 6 deletions(-)
+
+diff --git a/CREDITS b/CREDITS
+index d1b3ae0..f31bade 100644
+--- a/CREDITS
++++ b/CREDITS
+@@ -9,6 +9,7 @@ jilles, Jilles Tjoelker <jilles -at- stack.nl>
+ 
+ Special thanks for support, code and ideas to:
+ 
++dubkat, Daniel Reidy <dubkat -at- gmail.com>
+ Hwy, W. Campbell <wcampbel -at- botbay.net>
+ larne, Edward Brocklesby <ejb -at- sdf.lonestar.org>
+  
+diff --git a/RELNOTES b/RELNOTES
+index 7437bd0..b9dae62 100644
+--- a/RELNOTES
++++ b/RELNOTES
+@@ -1,15 +1,23 @@
+ 
+-This is the current release version of the 'testing' tree of ircd-ratbox.
++Please note as of this release, the 3.0 branch is now marked as 'stable'. 
++The 2.2 branch will no longer be maintained.
+ 
+-NOTE: Whilst every effort has been made to make sure this code is usable, it
+-      is still not classified as a stable release.  You assume full
+-      responsibility for running this on a production network.
++This is the current release version of the 'stable' tree of ircd-ratbox.
+ 
+ If you are upgrading from 2.2, you must read doc/whats-new-3.0.txt
+ If you are upgrading from 2.1, you must read doc/whats-new-2.2.txt
+ If you are upgrading from 2.0, you must also read doc/whats-new-2.1.txt
+ If you are upgrading from 1.x, you must also read doc/whats-new-2.0.txt
+ 
++-- ircd-ratbox-3.0.7
++- remove sigio code. its buggyness makes it more trouble than its worth
++- stop logging to files when they are commented out in the ircd.conf
++- add help for GUNGLINE
++- make cross compiles work again 
++- fix error handling with GNUTLS
++- update included sqlite3 code to something recent
++- documentation cleanups/updates
++
+ -- ircd-ratbox-3.0.6
+ - fix a user-triggerable crash in /links handling when flatten_links is
+   disabled 
+diff --git a/include/patchlevel.h b/include/patchlevel.h
+index b35e8f5..1c8a764 100644
+--- a/include/patchlevel.h
++++ b/include/patchlevel.h
+@@ -25,7 +25,7 @@
+  */
+ 
+ #ifndef PATCHLEVEL
+-#define PATCHLEVEL   "ircd-ratbox-3.0.6"
++#define PATCHLEVEL   "ircd-ratbox-3.0.7"
+ #define PATCHLEVEL_NUM	0300060500
+ 
+ /* patchlevel numbers:
+diff --git a/src/version.c.SH b/src/version.c.SH
+index 24e6725..2c5c099 100644
+--- a/src/version.c.SH
++++ b/src/version.c.SH
+@@ -64,7 +64,7 @@ const char *infotext[] =
+   "Based on the original code written by Jarkko Oikarinen",
+   "Copyright 1988, 1989, 1990, 1991 University of Oulu, Computing Center",
+   "Copyright (c) 1996-2001 Hybrid Development Team", 
+-  "Copyright (c) 2002-2008 ircd-ratbox Development Team",
++  "Copyright (c) 2002-2011 ircd-ratbox Development Team",
+   "",
+   "This program is free software; you can redistribute it and/or",
+   "modify it under the terms of the GNU General Public License as",
+-- 
+2.7.4
+

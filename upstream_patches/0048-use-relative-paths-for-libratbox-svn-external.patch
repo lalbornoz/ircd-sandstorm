@@ -1,0 +1,36 @@
+From c1911ef47c816d01c06d828fb0c3480187e0dbae Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Tue, 6 Oct 2015 18:39:36 +0000
+Subject: [PATCH 48/89] use relative paths for libratbox svn:external
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@28721 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ RELNOTES | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/RELNOTES b/RELNOTES
+index 561fc49..08e91de 100644
+--- a/RELNOTES
++++ b/RELNOTES
+@@ -9,11 +9,17 @@ If you are upgrading from 2.1, you must read doc/whats-new-2.2.txt
+ If you are upgrading from 2.0, you must also read doc/whats-new-2.1.txt
+ If you are upgrading from 1.x, you must also read doc/whats-new-2.0.txt
+ 
++-- ircd-ratbox-3.0.9
++- Bugfixes in MONITOR
++- Fix 64bit time_t on 32bit OpenBSD
++- Fix MODRESTART crash on newer versions of glib
++- Ignore non-sense CIDR masks
++
++ 
+ -- ircd-ratbox-3.0.8
+ - fix embarrassing CAPAB crash - All admins should upgrade immediately
+ - various doc cleanups
+ 
+-
+ -- ircd-ratbox-3.0.7
+ - remove sigio code. its buggyness makes it more trouble than its worth
+ - stop logging to files when they are commented out in the ircd.conf
+-- 
+2.7.4
+

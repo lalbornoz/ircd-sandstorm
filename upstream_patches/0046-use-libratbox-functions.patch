@@ -1,0 +1,60 @@
+From 2a81944d3fbef2887992ba01797339b873753e9c Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Fri, 2 Oct 2015 16:49:39 +0000
+Subject: [PATCH 46/89] use libratbox functions
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@28681 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ contrib/m_flags.c    | 4 ++--
+ contrib/m_mkpasswd.c | 6 +++---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/contrib/m_flags.c b/contrib/m_flags.c
+index b4a3b33..7e54a03 100644
+--- a/contrib/m_flags.c
++++ b/contrib/m_flags.c
+@@ -167,7 +167,7 @@ m_flags(struct Client *client_p, struct Client *source_p, int parc, const char *
+ 	for(i = 1; i < parc; i++)
+ 	{
+ 		char *s = LOCAL_COPY(parv[i]);
+-		for(flag = strtok_r(s, " ", &p); flag; flag = strtok_r(NULL, " ", &p))
++		for(flag = rb_strtok_r(s, " ", &p); flag; flag = rb_strtok_r(NULL, " ", &p))
+ 		{
+ 			/* We default to being in ADD mode */
+ 			isadd = 1;
+@@ -268,7 +268,7 @@ mo_flags(struct Client *client_p, struct Client *source_p, int parc, const char
+ 	for(i = 1; i < parc; i++)
+ 	{
+ 		char *s = LOCAL_COPY(parv[i]);
+-		for(flag = strtok_r(s, " ", &p); flag; flag = strtok_r(NULL, " ", &p))
++		for(flag = rb_strtok_r(s, " ", &p); flag; flag = rb_strtok_r(NULL, " ", &p))
+ 		{
+ 			/* We default to being in ADD mode */
+ 			isadd = 1;
+diff --git a/contrib/m_mkpasswd.c b/contrib/m_mkpasswd.c
+index 1d21ff4..46400f4 100644
+--- a/contrib/m_mkpasswd.c
++++ b/contrib/m_mkpasswd.c
+@@ -147,8 +147,8 @@ static char *
+ make_salt(void)
+ {
+ 	static char salt[3];
+-	salt[0] = saltChars[random() % 64];
+-	salt[1] = saltChars[random() % 64];
++	salt[0] = saltChars[rb_random() % 64];
++	salt[1] = saltChars[rb_random() % 64];
+ 	salt[2] = '\0';
+ 	return salt;
+ }
+@@ -162,7 +162,7 @@ make_md5_salt(void)
+ 	salt[1] = '1';
+ 	salt[2] = '$';
+ 	for(i = 3; i < 11; i++)
+-		salt[i] = saltChars[random() % 64];
++		salt[i] = saltChars[rb_random() % 64];
+ 	salt[11] = '$';
+ 	salt[12] = '\0';
+ 	return salt;
+-- 
+2.7.4
+

@@ -1,0 +1,29 @@
+From 57cba9ec45a3a11b59bd6c9a945f68e2ad0ad86b Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Mon, 31 Dec 2012 21:31:20 +0000
+Subject: [PATCH 32/89] update relnotes
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27412 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ RELNOTES | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/RELNOTES b/RELNOTES
+index b9dae62..561fc49 100644
+--- a/RELNOTES
++++ b/RELNOTES
+@@ -9,6 +9,11 @@ If you are upgrading from 2.1, you must read doc/whats-new-2.2.txt
+ If you are upgrading from 2.0, you must also read doc/whats-new-2.1.txt
+ If you are upgrading from 1.x, you must also read doc/whats-new-2.0.txt
+ 
++-- ircd-ratbox-3.0.8
++- fix embarrassing CAPAB crash - All admins should upgrade immediately
++- various doc cleanups
++
++
+ -- ircd-ratbox-3.0.7
+ - remove sigio code. its buggyness makes it more trouble than its worth
+ - stop logging to files when they are commented out in the ircd.conf
+-- 
+2.7.4
+

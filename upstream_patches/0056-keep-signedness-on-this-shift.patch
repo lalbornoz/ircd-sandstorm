@@ -1,0 +1,26 @@
+From 7c9446576255946a10fd07802bb60dba796ddc3e Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Tue, 13 Oct 2015 14:47:21 +0000
+Subject: [PATCH 56/89] keep signedness on this shift
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@28753 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ ssld/ssld.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ssld/ssld.c b/ssld/ssld.c
+index 21255a5..b0c6f27 100644
+--- a/ssld/ssld.c
++++ b/ssld/ssld.c
+@@ -1232,7 +1232,7 @@ main(int argc, char **argv)
+ 		/* this is really useless... */
+ 		send_i_am_useless(mod_ctl);
+ 		/* sleep until the ircd kills us */
+-		rb_sleep(2 << 30, 0);
++		rb_sleep(2 << 29, 0);
+ 		exit(1);
+ 	}
+ 
+-- 
+2.7.4
+

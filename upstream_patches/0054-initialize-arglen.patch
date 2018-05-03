@@ -1,0 +1,26 @@
+From efe505b57b0cf00daed1974f2bfa687479ee4acb Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Tue, 13 Oct 2015 14:41:38 +0000
+Subject: [PATCH 54/89] initialize arglen
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@28749 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ src/channel.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/channel.c b/src/channel.c
+index e0d26b8..f7eeb08 100644
+--- a/src/channel.c
++++ b/src/channel.c
+@@ -971,7 +971,7 @@ send_cap_mode_changes(struct Client *client_p, struct Client *source_p,
+ 	int j;
+ 	int cap;
+ 	int nocap;
+-	int arglen;
++	int arglen = 0;
+ 
+ 	/* Now send to servers... */
+ 	for(j = 0; j < NCHCAP_COMBOS; j++)
+-- 
+2.7.4
+

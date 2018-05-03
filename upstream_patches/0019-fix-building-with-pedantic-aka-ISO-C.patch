@@ -1,0 +1,34 @@
+From c2d5031eaf77db5ece367d19df8bf891c737d2c5 Mon Sep 17 00:00:00 2001
+From: "Daniel Reidy (dubkat)" <dubkat@gmail.com>
+Date: Tue, 15 Nov 2011 03:37:28 +0000
+Subject: [PATCH 19/89] fix building with -pedantic aka ISO C
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27331 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ bandb/sqlite3/sqlite3.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/bandb/sqlite3/sqlite3.c b/bandb/sqlite3/sqlite3.c
+index 3f5ce2b..056093f 100644
+--- a/bandb/sqlite3/sqlite3.c
++++ b/bandb/sqlite3/sqlite3.c
+@@ -575,6 +575,7 @@ SQLITE_PRIVATE   void sqlite3Coverage(int);
+ #ifndef _SQLITE3_H_
+ #define _SQLITE3_H_
+ #include <stdarg.h>     /* Needed for the definition of va_list */
++#include <stdint.h>
+ 
+ /*
+ ** Make sure we can call this stuff from C++.
+@@ -90289,7 +90290,7 @@ SQLITE_PRIVATE void sqlite3AutoLoadExtensions(sqlite3 *db){
+       go = 0;
+     }else{
+       xInit = (int(*)(sqlite3*,char**,const sqlite3_api_routines*))
+-              wsdAutoext.aExt[i];
++              ((uintptr_t)wsdAutoext.aExt[i]);
+     }
+     sqlite3_mutex_leave(mutex);
+     zErrmsg = 0;
+-- 
+2.7.4
+

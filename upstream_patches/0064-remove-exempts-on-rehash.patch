@@ -1,0 +1,84 @@
+From 41839dd6bdc76ceea5f78fd57e99a62508405a73 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Thu, 10 Dec 2015 13:57:05 +0000
+Subject: [PATCH 64/89] remove exempts on rehash...
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@29215 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ include/reject.h |  2 +-
+ src/reject.c     | 28 ++++++++++++++++++++++++++--
+ src/s_conf.c     |  1 +
+ 3 files changed, 28 insertions(+), 3 deletions(-)
+
+diff --git a/include/reject.h b/include/reject.h
+index 0931ee4..42cbc32 100644
+--- a/include/reject.h
++++ b/include/reject.h
+@@ -52,5 +52,5 @@ void dec_global_cidr_count(struct Client *client_p);
+ int check_global_cidr_count(struct Client *client_p);
+ void rehash_global_cidr_tree(void);
+ void remove_perm_dlines(void);
+-
++void remove_exempts(void);
+ #endif
+diff --git a/src/reject.c b/src/reject.c
+index 64ff8c9..c32bb49 100644
+--- a/src/reject.c
++++ b/src/reject.c
+@@ -303,6 +303,30 @@ find_ipline_exact(rb_patricia_tree_t *t, struct sockaddr *addr, unsigned int bit
+ }
+ 
+ 
++void
++remove_exempts(void)
++{
++	rb_patricia_node_t *pnode;
++	rb_dlink_list list;
++	rb_dlink_node *ptr, *next;
++
++	memset(&list, 0, sizeof(list));
++
++	RB_PATRICIA_WALK(eline_tree->head, pnode)
++	{
++		rb_dlinkAddAlloc(pnode->data, &list);
++	}
++	RB_PATRICIA_WALK_END;
++
++	
++	RB_DLINK_FOREACH_SAFE(ptr, next, list.head)
++	{
++		delete_ipline((struct ConfItem *)ptr->data, eline_tree);
++		rb_free_rb_dlink_node(ptr); /* no need to use rb_dlinkDestroy */
++	}
++}
++
++
+ struct ConfItem *
+ find_dline(struct sockaddr *addr)
+ {
+@@ -345,8 +369,8 @@ remove_perm_dlines(void)
+ 			rb_dlinkAddAlloc(aconf, &list);
+ 		}		
+ 	}
+-	RB_PATRICIA_WALK_END;
+-	
++        RB_PATRICIA_WALK_END;
++
+ 	RB_DLINK_FOREACH_SAFE(ptr, next, list.head)
+ 	{
+ 		aconf = ptr->data;
+diff --git a/src/s_conf.c b/src/s_conf.c
+index 7dc5604..669f872 100644
+--- a/src/s_conf.c
++++ b/src/s_conf.c
+@@ -1167,6 +1167,7 @@ clear_out_old_conf(void)
+ 		MaxUsers(cltmp) = -1;
+ 	}
+ 
++	remove_exempts();
+ 	clear_out_address_conf();
+ 	clear_s_newconf();
+ 
+-- 
+2.7.4
+

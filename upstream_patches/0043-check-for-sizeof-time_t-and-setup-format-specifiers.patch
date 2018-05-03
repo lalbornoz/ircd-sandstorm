@@ -1,0 +1,370 @@
+From e6a2f62155c87695b11256ecd7e223498efdc240 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Tue, 29 Sep 2015 17:09:18 +0000
+Subject: [PATCH 43/89] check for sizeof(time_t) and setup format specifiers
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@28675 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ configure          | 265 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ configure.ac       |  17 ++++
+ include/setup.h.in |   6 ++
+ include/stdinc.h   |  15 +++
+ 4 files changed, 303 insertions(+)
+
+diff --git a/configure b/configure
+index 151f474..143b93e 100755
+--- a/configure
++++ b/configure
+@@ -2066,6 +2066,189 @@ $as_echo "$ac_res" >&6; }
+   eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+ 
+ } # ac_fn_c_check_type
++
++# ac_fn_c_compute_int LINENO EXPR VAR INCLUDES
++# --------------------------------------------
++# Tries to find the compile-time value of EXPR in a program that includes
++# INCLUDES, setting VAR accordingly. Returns whether the value could be
++# computed
++ac_fn_c_compute_int ()
++{
++  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
++  if test "$cross_compiling" = yes; then
++    # Depending upon the size, compute the lo and hi bounds.
++cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++$4
++int
++main ()
++{
++static int test_array [1 - 2 * !(($2) >= 0)];
++test_array [0] = 0;
++return test_array [0];
++
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_compile "$LINENO"; then :
++  ac_lo=0 ac_mid=0
++  while :; do
++    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++$4
++int
++main ()
++{
++static int test_array [1 - 2 * !(($2) <= $ac_mid)];
++test_array [0] = 0;
++return test_array [0];
++
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_compile "$LINENO"; then :
++  ac_hi=$ac_mid; break
++else
++  as_fn_arith $ac_mid + 1 && ac_lo=$as_val
++			if test $ac_lo -le $ac_mid; then
++			  ac_lo= ac_hi=
++			  break
++			fi
++			as_fn_arith 2 '*' $ac_mid + 1 && ac_mid=$as_val
++fi
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++  done
++else
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++$4
++int
++main ()
++{
++static int test_array [1 - 2 * !(($2) < 0)];
++test_array [0] = 0;
++return test_array [0];
++
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_compile "$LINENO"; then :
++  ac_hi=-1 ac_mid=-1
++  while :; do
++    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++$4
++int
++main ()
++{
++static int test_array [1 - 2 * !(($2) >= $ac_mid)];
++test_array [0] = 0;
++return test_array [0];
++
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_compile "$LINENO"; then :
++  ac_lo=$ac_mid; break
++else
++  as_fn_arith '(' $ac_mid ')' - 1 && ac_hi=$as_val
++			if test $ac_mid -le $ac_hi; then
++			  ac_lo= ac_hi=
++			  break
++			fi
++			as_fn_arith 2 '*' $ac_mid && ac_mid=$as_val
++fi
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++  done
++else
++  ac_lo= ac_hi=
++fi
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++fi
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++# Binary search between lo and hi bounds.
++while test "x$ac_lo" != "x$ac_hi"; do
++  as_fn_arith '(' $ac_hi - $ac_lo ')' / 2 + $ac_lo && ac_mid=$as_val
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++$4
++int
++main ()
++{
++static int test_array [1 - 2 * !(($2) <= $ac_mid)];
++test_array [0] = 0;
++return test_array [0];
++
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_compile "$LINENO"; then :
++  ac_hi=$ac_mid
++else
++  as_fn_arith '(' $ac_mid ')' + 1 && ac_lo=$as_val
++fi
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++done
++case $ac_lo in #((
++?*) eval "$3=\$ac_lo"; ac_retval=0 ;;
++'') ac_retval=1 ;;
++esac
++  else
++    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++$4
++static long int longval () { return $2; }
++static unsigned long int ulongval () { return $2; }
++#include <stdio.h>
++#include <stdlib.h>
++int
++main ()
++{
++
++  FILE *f = fopen ("conftest.val", "w");
++  if (! f)
++    return 1;
++  if (($2) < 0)
++    {
++      long int i = longval ();
++      if (i != ($2))
++	return 1;
++      fprintf (f, "%ld", i);
++    }
++  else
++    {
++      unsigned long int i = ulongval ();
++      if (i != ($2))
++	return 1;
++      fprintf (f, "%lu", i);
++    }
++  /* Do not output a trailing newline, as this causes \r\n confusion
++     on some platforms.  */
++  return ferror (f) || fclose (f) != 0;
++
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_run "$LINENO"; then :
++  echo >>conftest.val; read $3 <conftest.val; ac_retval=0
++else
++  ac_retval=1
++fi
++rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
++  conftest.$ac_objext conftest.beam conftest.$ac_ext
++rm -f conftest.val
++
++  fi
++  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
++  as_fn_set_status $ac_retval
++
++} # ac_fn_c_compute_int
+ cat >config.log <<_ACEOF
+ This file contains any messages produced by compilers while
+ running configure, to aid debugging if configure makes a mistake.
+@@ -14693,6 +14876,88 @@ _ACEOF
+ fi
+ 
+ 
++# The cast to long int works around a bug in the HP C Compiler
++# version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
++# declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
++# This bug is HP SR number 8606223364.
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking size of time_t" >&5
++$as_echo_n "checking size of time_t... " >&6; }
++if ${ac_cv_sizeof_time_t+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (time_t))" "ac_cv_sizeof_time_t"        "
++$ac_includes_default
++#ifdef TIME_WITH_SYS_TIME
++# include <sys/time.h>
++# include <time.h>
++#else
++# ifdef HAVE_SYS_TIME_H
++#  include <sys/time.h>
++# else
++#  include <time.h>
++# endif
++#endif
++
++"; then :
++
++else
++  if test "$ac_cv_type_time_t" = yes; then
++     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
++$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
++as_fn_error 77 "cannot compute sizeof (time_t)
++See \`config.log' for more details" "$LINENO" 5; }
++   else
++     ac_cv_sizeof_time_t=0
++   fi
++fi
++
++fi
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sizeof_time_t" >&5
++$as_echo "$ac_cv_sizeof_time_t" >&6; }
++
++
++
++cat >>confdefs.h <<_ACEOF
++#define SIZEOF_TIME_T $ac_cv_sizeof_time_t
++_ACEOF
++
++
++
++# The cast to long int works around a bug in the HP C Compiler
++# version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
++# declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
++# This bug is HP SR number 8606223364.
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking size of long" >&5
++$as_echo_n "checking size of long... " >&6; }
++if ${ac_cv_sizeof_long+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (long))" "ac_cv_sizeof_long"        "$ac_includes_default"; then :
++
++else
++  if test "$ac_cv_type_long" = yes; then
++     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
++$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
++as_fn_error 77 "cannot compute sizeof (long)
++See \`config.log' for more details" "$LINENO" 5; }
++   else
++     ac_cv_sizeof_long=0
++   fi
++fi
++
++fi
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sizeof_long" >&5
++$as_echo "$ac_cv_sizeof_long" >&6; }
++
++
++
++cat >>confdefs.h <<_ACEOF
++#define SIZEOF_LONG $ac_cv_sizeof_long
++_ACEOF
++
++
++
++
+ 
+ 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for OpenSSL" >&5
+diff --git a/configure.ac b/configure.ac
+index 29acf7c..19ceb50 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -194,6 +194,23 @@ AC_CHECK_HEADER(stdarg.h, , [AC_MSG_ERROR([** stdarg.h could not be found - ircd
+ 
+ AC_FUNC_ALLOCA
+ 
++AC_CHECK_SIZEOF(time_t,,[
++AC_INCLUDES_DEFAULT
++#ifdef TIME_WITH_SYS_TIME
++# include <sys/time.h>
++# include <time.h>
++#else
++# ifdef HAVE_SYS_TIME_H
++#  include <sys/time.h>
++# else
++#  include <time.h>
++# endif
++#endif
++])
++
++AC_CHECK_SIZEOF(long)
++
++
+ dnl Specialized functions checks
+ dnl ============================
+ 
+diff --git a/include/setup.h.in b/include/setup.h.in
+index 054ed3a..35b2be0 100644
+--- a/include/setup.h.in
++++ b/include/setup.h.in
+@@ -324,6 +324,12 @@
+ /* Extension that shared libs use */
+ #undef SHLIBEXT
+ 
++/* The size of `long', as computed by sizeof. */
++#undef SIZEOF_LONG
++
++/* The size of `time_t', as computed by sizeof. */
++#undef SIZEOF_TIME_T
++
+ /* Define this to enable soft asserts. */
+ #undef SOFT_ASSERT
+ 
+diff --git a/include/stdinc.h b/include/stdinc.h
+index ac6bc15..f6306ff 100644
+--- a/include/stdinc.h
++++ b/include/stdinc.h
+@@ -209,6 +209,21 @@ xc_strlcpy(char *dest, const char *src, size_t size)
+ # define INADDR_LOOPBACK ((in_addr_t) 0x7f000001)
+ #endif
+ 
++#if SIZEOF_TIME_T == 4
++#define RBTT_FMT "d"
++#else
++#if SIZEOF_TIME_T > 4 && SIZEOF_LONG == SIZEOF_TIME_T
++#define RBTT_FMT "ld"
++#else
++#define RBTT_FMT "lld"
++#endif
++#endif          
++
++#ifdef MINGW
++#undef RBTT_FMT 
++#define RBTT_FMT "ld"
++#endif
++
+ #include "ratbox_lib.h"
+ #include "ircd_defs.h"
+ #include "common.h"
+-- 
+2.7.4
+

@@ -1,0 +1,32 @@
+From 76f681a15984d90fca6604b2bbc24cb995cea5c6 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Fri, 18 Dec 2015 00:07:15 +0000
+Subject: [PATCH 70/89] change default key sizes to 2048 bits and self sign
+ using sha256
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@29235 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ doc/genssl.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/doc/genssl.sh b/doc/genssl.sh
+index 01269da..32b3591 100755
+--- a/doc/genssl.sh
++++ b/doc/genssl.sh
+@@ -21,11 +21,11 @@ fi
+ 
+ echo
+ echo "Generating 1024-bit self-signed RSA key for ${SERVER}... "
+-openssl req -new -newkey rsa:1024 -days ${SSL_DAYS_VALID} -nodes -x509 -keyout ${SERVER}.pem  -out ${SERVER}.pem
++openssl req -new -newkey rsa:2048 -sha256 -days ${SSL_DAYS_VALID} -nodes -x509 -keyout ${SERVER}.pem  -out ${SERVER}.pem
+ echo "Done creating self-signed cert"
+ 
+ echo -n "Generating DH parameters file... "
+-openssl dhparam -out dh.pem 1024
++openssl dhparam -out dh.pem 2048
+ echo "Done."
+ 
+ echo
+-- 
+2.7.4
+

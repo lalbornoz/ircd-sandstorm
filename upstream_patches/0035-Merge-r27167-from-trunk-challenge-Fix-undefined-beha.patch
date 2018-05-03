@@ -1,0 +1,30 @@
+From b20ae280a65d6c3931e1796a27436f6e8e035c5d Mon Sep 17 00:00:00 2001
+From: "Jilles Tjoelker (jilles)" <jilles@stack.nl>
+Date: Sat, 2 Feb 2013 20:33:47 +0000
+Subject: [PATCH 35/89] Merge r27167 from trunk: challenge: Fix undefined
+ behaviour (dependency on order of evaluation, or also "value [parv[1]] read
+ other than to determine new value to be stored")
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27437 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ modules/m_oper.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/modules/m_oper.c b/modules/m_oper.c
+index 9e22a15..b3f2dfa 100644
+--- a/modules/m_oper.c
++++ b/modules/m_oper.c
+@@ -353,8 +353,9 @@ m_challenge(struct Client *client_p, struct Client *source_p, int parc, const ch
+ 			return 0;
+ 		}
+ 
++		parv[1]++;
+ 		b_response =
+-			rb_base64_decode((const unsigned char *)++parv[1], strlen(parv[1]), &len);
++			rb_base64_decode((const unsigned char *)parv[1], strlen(parv[1]), &len);
+ 
+ 		if(len != SHA_DIGEST_LENGTH
+ 		   || memcmp(source_p->localClient->chal_resp, b_response, SHA_DIGEST_LENGTH))
+-- 
+2.7.4
+

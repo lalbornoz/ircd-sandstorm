@@ -1,0 +1,22 @@
+From 508db106460862880b6ffd646bf5b875f8cad899 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Mon, 16 Jan 2012 22:05:21 +0000
+Subject: [PATCH 23/89] test
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27348 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ CREDITS | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/CREDITS b/CREDITS
+index f31bade..c1e8078 100644
+--- a/CREDITS
++++ b/CREDITS
+@@ -17,3 +17,4 @@ Of course our work is based on the work of many, many others over the past
+ 10 or so years since irc has existed, including the work done by the Hybrid
+ team, our thanks goes to them.
+  
++
+-- 
+2.7.4
+

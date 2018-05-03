@@ -1,0 +1,1183 @@
+From bc00c435648444c79604e6559f75116ed9d9affb Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Fri, 2 Oct 2015 20:57:42 +0000
+Subject: [PATCH 47/89] backport trunk monitor changes
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@28697 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ Makefile.in               |   1 +
+ bandb/Makefile.in         |   1 +
+ bandb/sqlite3/Makefile.in |   1 +
+ contrib/Makefile.in       |   1 +
+ help/Makefile.in          |   1 +
+ include/monitor.h         |  29 ++++
+ include/s_conf.h          |   1 +
+ include/send.h            |   3 +
+ include/struct.h          |   3 +
+ libltdl/config/ylwrap     |   1 +
+ modules/Makefile.am       |   5 +
+ modules/Makefile.in       |  76 ++++++----
+ modules/m_monitor.c       | 363 ++++++++++++++++++++++++++++++++++++++++++++++
+ resolver/Makefile.in      |   1 +
+ src/Makefile.am           |   1 +
+ src/Makefile.in           |  13 +-
+ src/client.c              |   3 +
+ src/monitor.c             | 163 +++++++++++++++++++++
+ src/newconf.c             |   1 +
+ src/s_conf.c              |   1 +
+ src/s_user.c              |   2 +
+ src/send.c                |  35 +++++
+ src/supported.c           |   3 +-
+ ssld/Makefile.in          |   1 +
+ tools/Makefile.in         |   1 +
+ 25 files changed, 676 insertions(+), 35 deletions(-)
+ create mode 100644 include/monitor.h
+ create mode 120000 libltdl/config/ylwrap
+ create mode 100644 modules/m_monitor.c
+ create mode 100644 src/monitor.c
+
+diff --git a/Makefile.in b/Makefile.in
+index 91b4c91..c0a2688 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -322,6 +322,7 @@ pdfdir = @pdfdir@
+ prefix = @prefix@
+ program_transform_name = @program_transform_name@
+ psdir = @psdir@
++runstatedir = @runstatedir@
+ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ srcdir = @srcdir@
+diff --git a/bandb/Makefile.in b/bandb/Makefile.in
+index fb69c6c..85087e6 100644
+--- a/bandb/Makefile.in
++++ b/bandb/Makefile.in
+@@ -287,6 +287,7 @@ pdfdir = @pdfdir@
+ prefix = @prefix@
+ program_transform_name = @program_transform_name@
+ psdir = @psdir@
++runstatedir = @runstatedir@
+ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ srcdir = @srcdir@
+diff --git a/bandb/sqlite3/Makefile.in b/bandb/sqlite3/Makefile.in
+index 4850609..b74da34 100644
+--- a/bandb/sqlite3/Makefile.in
++++ b/bandb/sqlite3/Makefile.in
+@@ -242,6 +242,7 @@ pdfdir = @pdfdir@
+ prefix = @prefix@
+ program_transform_name = @program_transform_name@
+ psdir = @psdir@
++runstatedir = @runstatedir@
+ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ srcdir = @srcdir@
+diff --git a/contrib/Makefile.in b/contrib/Makefile.in
+index 6f89a9e..25fd507 100644
+--- a/contrib/Makefile.in
++++ b/contrib/Makefile.in
+@@ -221,6 +221,7 @@ pdfdir = @pdfdir@
+ prefix = @prefix@
+ program_transform_name = @program_transform_name@
+ psdir = @psdir@
++runstatedir = @runstatedir@
+ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ srcdir = @srcdir@
+diff --git a/help/Makefile.in b/help/Makefile.in
+index 632e1ec..babd690 100644
+--- a/help/Makefile.in
++++ b/help/Makefile.in
+@@ -223,6 +223,7 @@ pdfdir = @pdfdir@
+ prefix = @prefix@
+ program_transform_name = @program_transform_name@
+ psdir = @psdir@
++runstatedir = @runstatedir@
+ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ srcdir = @srcdir@
+diff --git a/include/monitor.h b/include/monitor.h
+new file mode 100644
+index 0000000..d73802d
+--- /dev/null
++++ b/include/monitor.h
+@@ -0,0 +1,29 @@
++/* 
++ * ircd-ratbox: an advanced Internet Relay Chat Daemon(ircd).
++ * monitor.h: Code for server-side notify lists.
++ *
++ * Copyright (C) 2005 Lee Hardy <lee -at- leeh.co.uk>
++ * Copyright (C) 2005-2012 ircd-ratbox development team
++ *
++ * $Id$
++ */
++#ifndef INCLUDED_monitor_h
++#define INCLUDED_monitor_h
++
++struct monitor
++{
++	rb_dlink_node node;
++	rb_dlink_list users;
++	uint32_t hashv;
++	char *name;
++};
++
++struct monitor *find_monitor(const char *name, int add);
++void free_monitor(struct monitor *);
++
++void clear_monitor(struct Client *);
++
++void monitor_signon(struct Client *);
++void monitor_signoff(struct Client *);
++
++#endif
+diff --git a/include/s_conf.h b/include/s_conf.h
+index 483a16b..124dde9 100644
+--- a/include/s_conf.h
++++ b/include/s_conf.h
+@@ -150,6 +150,7 @@ struct config_file_entry
+ 	int anti_nick_flood;
+ 	int anti_spam_exit_message_time;
+ 	int max_accept;
++	int max_monitor;
+ 	int max_nick_time;
+ 	int max_nick_changes;
+ 	int ts_max_delta;
+diff --git a/include/send.h b/include/send.h
+index 6a0b393..60a9158 100644
+--- a/include/send.h
++++ b/include/send.h
+@@ -30,6 +30,7 @@
+ struct Client;
+ struct Channel;
+ struct rb_dlink_list;
++struct monitor;
+ 
+ void send_pop_queue(struct Client *);
+ void
+@@ -57,6 +58,8 @@ AFP(2, 3);
+      void sendto_match_servs(struct Client *source_p, const char *mask,
+ 			     int capab, int, const char *, ...) AFP(5, 6);
+ 
++     void sendto_monitor(struct monitor *monptr, const char *, ...) AFP(2, 3);
++
+      void sendto_anywhere(struct Client *, struct Client *, const char *,
+ 			  const char *, ...) AFP(4, 5);
+ 
+diff --git a/include/struct.h b/include/struct.h
+index a73d52c..a095a93 100644
+--- a/include/struct.h
++++ b/include/struct.h
+@@ -176,6 +176,9 @@ struct LocalUser
+ 	/* clients allowed to talk through +g */
+ 	rb_dlink_list allow_list;
+ 
++	/* nicknames theyre monitoring */
++	rb_dlink_list monitor_list;
++
+ 	rb_dlink_list invited;	/* chain of invite pointer blocks */
+ 
+ 	/*
+diff --git a/libltdl/config/ylwrap b/libltdl/config/ylwrap
+new file mode 120000
+index 0000000..70c4bb6
+--- /dev/null
++++ b/libltdl/config/ylwrap
+@@ -0,0 +1 @@
++/usr/share/automake-1.11/ylwrap
+\ No newline at end of file
+diff --git a/modules/Makefile.am b/modules/Makefile.am
+index e284ed9..a044695 100644
+--- a/modules/Makefile.am
++++ b/modules/Makefile.am
+@@ -53,6 +53,7 @@ m_list_la_LDFLAGS =  -module $(MODULE_FLAGS)
+ m_locops_la_LDFLAGS =  -module $(MODULE_FLAGS)  
+ m_lusers_la_LDFLAGS =  -module $(MODULE_FLAGS)  
+ m_map_la_LDFLAGS =  -module $(MODULE_FLAGS)  
++m_monitor_la_LDFLAGS =  -module $(MODULE_FLAGS)  
+ m_motd_la_LDFLAGS =  -module $(MODULE_FLAGS)  
+ m_names_la_LDFLAGS =  -module $(MODULE_FLAGS)  
+ m_oper_la_LDFLAGS =  -module $(MODULE_FLAGS) @SSL_LIBS@
+@@ -107,6 +108,7 @@ m_list_la_SOURCES =	m_list.c
+ m_locops_la_SOURCES =	m_locops.c
+ m_lusers_la_SOURCES =	m_lusers.c
+ m_map_la_SOURCES =	m_map.c
++m_monitor_la_SOURCES =	m_monitor.c
+ m_motd_la_SOURCES =	m_motd.c
+ m_names_la_SOURCES =	m_names.c
+ m_oper_la_SOURCES =	m_oper.c
+@@ -162,6 +164,7 @@ m_list_la_LIBADD = $(MODULE_LIBS)
+ m_locops_la_LIBADD = $(MODULE_LIBS)     
+ m_lusers_la_LIBADD = $(MODULE_LIBS)     
+ m_map_la_LIBADD = $(MODULE_LIBS)     
++m_monitor_la_LIBADD = $(MODULE_LIBS)     
+ m_motd_la_LIBADD = $(MODULE_LIBS)     
+ m_names_la_LIBADD = $(MODULE_LIBS)     
+ m_oper_la_LIBADD = $(MODULE_LIBS)     
+@@ -245,6 +248,7 @@ m_list.la	\
+ m_locops.la	\
+ m_lusers.la	\
+ m_map.la	\
++m_monitor.la	\
+ m_motd.la	\
+ m_names.la	\
+ m_oper.la	\
+@@ -366,6 +370,7 @@ m_list.c	\
+ m_locops.c	\
+ m_lusers.c	\
+ m_map.c	\
++m_monitor.c	\
+ m_motd.c	\
+ m_names.c	\
+ m_oper.c	\
+diff --git a/modules/Makefile.in b/modules/Makefile.in
+index f53229c..04575f4 100644
+--- a/modules/Makefile.in
++++ b/modules/Makefile.in
+@@ -210,10 +210,10 @@ am__libmodules_la_SOURCES_DIST = m_accept.c m_admin.c m_adminwall.c \
+ 	m_away.c m_capab.c m_cap.c m_close.c m_cmessage.c m_connect.c \
+ 	m_dline.c m_encap.c m_gline.c m_gungline.c m_help.c m_info.c \
+ 	m_invite.c m_ison.c m_kline.c m_knock.c m_links.c m_list.c \
+-	m_locops.c m_lusers.c m_map.c m_motd.c m_names.c m_oper.c \
+-	m_operspy.c m_pass.c m_ping.c m_pong.c m_post.c m_rehash.c \
+-	m_restart.c m_resv.c m_set.c m_stats.c m_svinfo.c m_tb.c \
+-	m_testline.c m_testmask.c m_time.c m_topic.c m_trace.c \
++	m_locops.c m_lusers.c m_map.c m_monitor.c m_motd.c m_names.c \
++	m_oper.c m_operspy.c m_pass.c m_ping.c m_pong.c m_post.c \
++	m_rehash.c m_restart.c m_resv.c m_set.c m_stats.c m_svinfo.c \
++	m_tb.c m_testline.c m_testmask.c m_time.c m_topic.c m_trace.c \
+ 	m_unreject.c m_user.c m_userhost.c m_version.c m_wallops.c \
+ 	m_who.c m_whois.c m_whowas.c m_xline.c core/m_die.c \
+ 	core/m_error.c core/m_join.c core/m_kick.c core/m_kill.c \
+@@ -227,11 +227,11 @@ am__libmodules_la_SOURCES_DIST = m_accept.c m_admin.c m_adminwall.c \
+ @STATIC_MODULES_TRUE@	m_info.lo m_invite.lo m_ison.lo \
+ @STATIC_MODULES_TRUE@	m_kline.lo m_knock.lo m_links.lo \
+ @STATIC_MODULES_TRUE@	m_list.lo m_locops.lo m_lusers.lo \
+-@STATIC_MODULES_TRUE@	m_map.lo m_motd.lo m_names.lo m_oper.lo \
+-@STATIC_MODULES_TRUE@	m_operspy.lo m_pass.lo m_ping.lo \
+-@STATIC_MODULES_TRUE@	m_pong.lo m_post.lo m_rehash.lo \
+-@STATIC_MODULES_TRUE@	m_restart.lo m_resv.lo m_set.lo \
+-@STATIC_MODULES_TRUE@	m_stats.lo m_svinfo.lo m_tb.lo \
++@STATIC_MODULES_TRUE@	m_map.lo m_monitor.lo m_motd.lo \
++@STATIC_MODULES_TRUE@	m_names.lo m_oper.lo m_operspy.lo \
++@STATIC_MODULES_TRUE@	m_pass.lo m_ping.lo m_pong.lo m_post.lo \
++@STATIC_MODULES_TRUE@	m_rehash.lo m_restart.lo m_resv.lo \
++@STATIC_MODULES_TRUE@	m_set.lo m_stats.lo m_svinfo.lo m_tb.lo \
+ @STATIC_MODULES_TRUE@	m_testline.lo m_testmask.lo m_time.lo \
+ @STATIC_MODULES_TRUE@	m_topic.lo m_trace.lo m_unreject.lo \
+ @STATIC_MODULES_TRUE@	m_user.lo m_userhost.lo m_version.lo \
+@@ -449,6 +449,15 @@ m_map_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+ 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(m_map_la_LDFLAGS) \
+ 	$(LDFLAGS) -o $@
+ @STATIC_MODULES_FALSE@am_m_map_la_rpath = -rpath $(modulesdir)
++@STATIC_MODULES_FALSE@m_monitor_la_DEPENDENCIES =  \
++@STATIC_MODULES_FALSE@	$(am__DEPENDENCIES_1)
++am__m_monitor_la_SOURCES_DIST = m_monitor.c
++@STATIC_MODULES_FALSE@am_m_monitor_la_OBJECTS = m_monitor.lo
++m_monitor_la_OBJECTS = $(am_m_monitor_la_OBJECTS)
++m_monitor_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
++	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
++	$(m_monitor_la_LDFLAGS) $(LDFLAGS) -o $@
++@STATIC_MODULES_FALSE@am_m_monitor_la_rpath = -rpath $(modulesdir)
+ @STATIC_MODULES_FALSE@m_motd_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
+ am__m_motd_la_SOURCES_DIST = m_motd.c
+ @STATIC_MODULES_FALSE@am_m_motd_la_OBJECTS = m_motd.lo
+@@ -734,21 +743,21 @@ SOURCES = $(core_m_die_la_SOURCES) $(core_m_error_la_SOURCES) \
+ 	$(m_knock_la_SOURCES) $(m_links_la_SOURCES) \
+ 	$(m_list_la_SOURCES) $(m_locops_la_SOURCES) \
+ 	$(m_lusers_la_SOURCES) $(m_map_la_SOURCES) \
+-	$(m_motd_la_SOURCES) $(m_names_la_SOURCES) \
+-	$(m_oper_la_SOURCES) $(m_operspy_la_SOURCES) \
+-	$(m_pass_la_SOURCES) $(m_ping_la_SOURCES) $(m_pong_la_SOURCES) \
+-	$(m_post_la_SOURCES) $(m_rehash_la_SOURCES) \
+-	$(m_restart_la_SOURCES) $(m_resv_la_SOURCES) \
+-	$(m_services_la_SOURCES) $(m_set_la_SOURCES) \
+-	$(m_stats_la_SOURCES) $(m_svinfo_la_SOURCES) \
+-	$(m_tb_la_SOURCES) $(m_testline_la_SOURCES) \
+-	$(m_testmask_la_SOURCES) $(m_time_la_SOURCES) \
+-	$(m_topic_la_SOURCES) $(m_trace_la_SOURCES) \
+-	$(m_unreject_la_SOURCES) $(m_user_la_SOURCES) \
+-	$(m_userhost_la_SOURCES) $(m_version_la_SOURCES) \
+-	$(m_wallops_la_SOURCES) $(m_who_la_SOURCES) \
+-	$(m_whois_la_SOURCES) $(m_whowas_la_SOURCES) \
+-	$(m_xline_la_SOURCES)
++	$(m_monitor_la_SOURCES) $(m_motd_la_SOURCES) \
++	$(m_names_la_SOURCES) $(m_oper_la_SOURCES) \
++	$(m_operspy_la_SOURCES) $(m_pass_la_SOURCES) \
++	$(m_ping_la_SOURCES) $(m_pong_la_SOURCES) $(m_post_la_SOURCES) \
++	$(m_rehash_la_SOURCES) $(m_restart_la_SOURCES) \
++	$(m_resv_la_SOURCES) $(m_services_la_SOURCES) \
++	$(m_set_la_SOURCES) $(m_stats_la_SOURCES) \
++	$(m_svinfo_la_SOURCES) $(m_tb_la_SOURCES) \
++	$(m_testline_la_SOURCES) $(m_testmask_la_SOURCES) \
++	$(m_time_la_SOURCES) $(m_topic_la_SOURCES) \
++	$(m_trace_la_SOURCES) $(m_unreject_la_SOURCES) \
++	$(m_user_la_SOURCES) $(m_userhost_la_SOURCES) \
++	$(m_version_la_SOURCES) $(m_wallops_la_SOURCES) \
++	$(m_who_la_SOURCES) $(m_whois_la_SOURCES) \
++	$(m_whowas_la_SOURCES) $(m_xline_la_SOURCES)
+ DIST_SOURCES = $(am__core_m_die_la_SOURCES_DIST) \
+ 	$(am__core_m_error_la_SOURCES_DIST) \
+ 	$(am__core_m_join_la_SOURCES_DIST) \
+@@ -777,11 +786,11 @@ DIST_SOURCES = $(am__core_m_die_la_SOURCES_DIST) \
+ 	$(am__m_links_la_SOURCES_DIST) $(am__m_list_la_SOURCES_DIST) \
+ 	$(am__m_locops_la_SOURCES_DIST) \
+ 	$(am__m_lusers_la_SOURCES_DIST) $(am__m_map_la_SOURCES_DIST) \
+-	$(am__m_motd_la_SOURCES_DIST) $(am__m_names_la_SOURCES_DIST) \
+-	$(am__m_oper_la_SOURCES_DIST) $(am__m_operspy_la_SOURCES_DIST) \
+-	$(am__m_pass_la_SOURCES_DIST) $(am__m_ping_la_SOURCES_DIST) \
+-	$(am__m_pong_la_SOURCES_DIST) $(am__m_post_la_SOURCES_DIST) \
+-	$(am__m_rehash_la_SOURCES_DIST) \
++	$(am__m_monitor_la_SOURCES_DIST) $(am__m_motd_la_SOURCES_DIST) \
++	$(am__m_names_la_SOURCES_DIST) $(am__m_oper_la_SOURCES_DIST) \
++	$(am__m_operspy_la_SOURCES_DIST) $(am__m_pass_la_SOURCES_DIST) \
++	$(am__m_ping_la_SOURCES_DIST) $(am__m_pong_la_SOURCES_DIST) \
++	$(am__m_post_la_SOURCES_DIST) $(am__m_rehash_la_SOURCES_DIST) \
+ 	$(am__m_restart_la_SOURCES_DIST) $(am__m_resv_la_SOURCES_DIST) \
+ 	$(am__m_services_la_SOURCES_DIST) $(am__m_set_la_SOURCES_DIST) \
+ 	$(am__m_stats_la_SOURCES_DIST) $(am__m_svinfo_la_SOURCES_DIST) \
+@@ -956,6 +965,7 @@ pdfdir = @pdfdir@
+ prefix = @prefix@
+ program_transform_name = @program_transform_name@
+ psdir = @psdir@
++runstatedir = @runstatedir@
+ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ srcdir = @srcdir@
+@@ -1001,6 +1011,7 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
+ @STATIC_MODULES_FALSE@m_locops_la_LDFLAGS = -module $(MODULE_FLAGS)  
+ @STATIC_MODULES_FALSE@m_lusers_la_LDFLAGS = -module $(MODULE_FLAGS)  
+ @STATIC_MODULES_FALSE@m_map_la_LDFLAGS = -module $(MODULE_FLAGS)  
++@STATIC_MODULES_FALSE@m_monitor_la_LDFLAGS = -module $(MODULE_FLAGS)  
+ @STATIC_MODULES_FALSE@m_motd_la_LDFLAGS = -module $(MODULE_FLAGS)  
+ @STATIC_MODULES_FALSE@m_names_la_LDFLAGS = -module $(MODULE_FLAGS)  
+ @STATIC_MODULES_FALSE@m_oper_la_LDFLAGS = -module $(MODULE_FLAGS) @SSL_LIBS@
+@@ -1054,6 +1065,7 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
+ @STATIC_MODULES_FALSE@m_locops_la_SOURCES = m_locops.c
+ @STATIC_MODULES_FALSE@m_lusers_la_SOURCES = m_lusers.c
+ @STATIC_MODULES_FALSE@m_map_la_SOURCES = m_map.c
++@STATIC_MODULES_FALSE@m_monitor_la_SOURCES = m_monitor.c
+ @STATIC_MODULES_FALSE@m_motd_la_SOURCES = m_motd.c
+ @STATIC_MODULES_FALSE@m_names_la_SOURCES = m_names.c
+ @STATIC_MODULES_FALSE@m_oper_la_SOURCES = m_oper.c
+@@ -1107,6 +1119,7 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
+ @STATIC_MODULES_FALSE@m_locops_la_LIBADD = $(MODULE_LIBS)     
+ @STATIC_MODULES_FALSE@m_lusers_la_LIBADD = $(MODULE_LIBS)     
+ @STATIC_MODULES_FALSE@m_map_la_LIBADD = $(MODULE_LIBS)     
++@STATIC_MODULES_FALSE@m_monitor_la_LIBADD = $(MODULE_LIBS)     
+ @STATIC_MODULES_FALSE@m_motd_la_LIBADD = $(MODULE_LIBS)     
+ @STATIC_MODULES_FALSE@m_names_la_LIBADD = $(MODULE_LIBS)     
+ @STATIC_MODULES_FALSE@m_oper_la_LIBADD = $(MODULE_LIBS)     
+@@ -1185,6 +1198,7 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
+ @STATIC_MODULES_FALSE@m_locops.la	\
+ @STATIC_MODULES_FALSE@m_lusers.la	\
+ @STATIC_MODULES_FALSE@m_map.la	\
++@STATIC_MODULES_FALSE@m_monitor.la	\
+ @STATIC_MODULES_FALSE@m_motd.la	\
+ @STATIC_MODULES_FALSE@m_names.la	\
+ @STATIC_MODULES_FALSE@m_oper.la	\
+@@ -1270,6 +1284,7 @@ MODULE_FLAGS = $(EXTRA_FLAGS) -avoid-version
+ @STATIC_MODULES_TRUE@m_locops.c	\
+ @STATIC_MODULES_TRUE@m_lusers.c	\
+ @STATIC_MODULES_TRUE@m_map.c	\
++@STATIC_MODULES_TRUE@m_monitor.c	\
+ @STATIC_MODULES_TRUE@m_motd.c	\
+ @STATIC_MODULES_TRUE@m_names.c	\
+ @STATIC_MODULES_TRUE@m_oper.c	\
+@@ -1572,6 +1587,8 @@ m_lusers.la: $(m_lusers_la_OBJECTS) $(m_lusers_la_DEPENDENCIES) $(EXTRA_m_lusers
+ 	$(m_lusers_la_LINK) $(am_m_lusers_la_rpath) $(m_lusers_la_OBJECTS) $(m_lusers_la_LIBADD) $(LIBS)
+ m_map.la: $(m_map_la_OBJECTS) $(m_map_la_DEPENDENCIES) $(EXTRA_m_map_la_DEPENDENCIES) 
+ 	$(m_map_la_LINK) $(am_m_map_la_rpath) $(m_map_la_OBJECTS) $(m_map_la_LIBADD) $(LIBS)
++m_monitor.la: $(m_monitor_la_OBJECTS) $(m_monitor_la_DEPENDENCIES) $(EXTRA_m_monitor_la_DEPENDENCIES) 
++	$(m_monitor_la_LINK) $(am_m_monitor_la_rpath) $(m_monitor_la_OBJECTS) $(m_monitor_la_LIBADD) $(LIBS)
+ m_motd.la: $(m_motd_la_OBJECTS) $(m_motd_la_DEPENDENCIES) $(EXTRA_m_motd_la_DEPENDENCIES) 
+ 	$(m_motd_la_LINK) $(am_m_motd_la_rpath) $(m_motd_la_OBJECTS) $(m_motd_la_LIBADD) $(LIBS)
+ m_names.la: $(m_names_la_OBJECTS) $(m_names_la_DEPENDENCIES) $(EXTRA_m_names_la_DEPENDENCIES) 
+@@ -1687,6 +1704,7 @@ distclean-compile:
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_locops.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_lusers.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_map.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_monitor.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_motd.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_names.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m_oper.Plo@am__quote@
+diff --git a/modules/m_monitor.c b/modules/m_monitor.c
+new file mode 100644
+index 0000000..3456120
+--- /dev/null
++++ b/modules/m_monitor.c
+@@ -0,0 +1,363 @@
++/* modules/m_monitor.c
++ * 
++ *  Copyright (C) 2005 Lee Hardy <lee@leeh.co.uk>
++ *  Copyright (C) 2005-2012 ircd-ratbox development team
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are
++ * met:
++ *
++ * 1.Redistributions of source code must retain the above copyright notice,
++ *   this list of conditions and the following disclaimer.
++ * 2.Redistributions in binary form must reproduce the above copyright
++ *   notice, this list of conditions and the following disclaimer in the
++ *   documentation and/or other materials provided with the distribution.
++ * 3.The name of the author may not be used to endorse or promote products
++ *   derived from this software without specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
++ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
++ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++ * DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
++ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
++ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
++ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
++ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
++ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ *
++ * $Id$
++ */
++
++#include "stdinc.h"
++#include "struct.h"
++#include "client.h"
++#include "parse.h"
++#include "modules.h"
++#include "monitor.h"
++#include "numeric.h"
++#include "s_conf.h"
++#include "ircd.h"
++#include "match.h"
++#include "send.h"
++
++static int m_monitor(struct Client *, struct Client *, int, const char **);
++
++static int modinit(void);
++static void moddeinit(void);
++
++struct Message monitor_msgtab = {
++	"MONITOR", 0, 0, 0, MFLG_SLOW,
++	{mg_unreg, {m_monitor, 2}, mg_ignore, mg_ignore, mg_ignore, {m_monitor, 2}}
++};
++
++
++
++mapi_clist_av1 monitor_clist[] = { &monitor_msgtab, NULL };
++
++DECLARE_MODULE_AV1(monitor, modinit, moddeinit, monitor_clist, NULL, NULL, "$Revision$");
++
++static int
++modinit(void)
++{
++	return 0;
++
++}
++
++static void
++moddeinit(void)
++{
++}
++
++static void
++add_monitor(struct Client *client_p, const char *nicks)
++{
++	char onbuf[BUFSIZE], offbuf[BUFSIZE];
++	struct Client *target_p;
++	struct monitor *monptr;
++	const char *name;
++	char *tmp;
++	char *p;
++	char *onptr, *offptr;
++	int mlen, arglen;
++	int cur_onlen, cur_offlen;
++
++	/* these two are same length, just diff numeric */
++	cur_offlen = cur_onlen = mlen = rb_sprintf(onbuf, form_str(RPL_MONONLINE),
++						   me.name, client_p->name, "");
++	rb_sprintf(offbuf, form_str(RPL_MONOFFLINE), me.name, client_p->name, "");
++
++	onptr = onbuf + mlen;
++	offptr = offbuf + mlen;
++
++	tmp = LOCAL_COPY(nicks);
++
++	for(name = rb_strtok_r(tmp, ",", &p); name; name = rb_strtok_r(NULL, ",", &p))
++	{
++		if(EmptyString(name) || strlen(name) > NICKLEN - 1)
++			continue;
++
++		if((int)rb_dlink_list_length(&client_p->localClient->monitor_list) >=
++		   ConfigFileEntry.max_monitor)
++		{
++			char buf[100];
++
++			if(cur_onlen != mlen)
++				sendto_one_buffer(client_p, onbuf);
++			if(cur_offlen != mlen)
++				sendto_one_buffer(client_p, offbuf);
++
++			if(p)
++				rb_snprintf(buf, sizeof(buf), "%s,%s", name, p);
++			else
++				rb_snprintf(buf, sizeof(buf), "%s", name);
++
++			sendto_one(client_p, form_str(ERR_MONLISTFULL),
++				   me.name, client_p->name, ConfigFileEntry.max_monitor, buf);
++			return;
++		}
++
++		monptr = find_monitor(name, 1);
++
++		/* already monitoring this nick */
++		if(rb_dlinkFind(client_p, &monptr->users))
++			continue;
++
++		rb_dlinkAddAlloc(client_p, &monptr->users);
++		rb_dlinkAddAlloc(monptr, &client_p->localClient->monitor_list);
++
++		if((target_p = find_named_person(name)) != NULL)
++		{
++			if(cur_onlen + strlen(target_p->name) +
++			   strlen(target_p->username) + strlen(target_p->host) + 3 >= BUFSIZE - 3)
++			{
++				sendto_one_buffer(client_p, onbuf);
++				cur_onlen = mlen;
++				onptr = onbuf + mlen;
++			}
++
++			if(cur_onlen != mlen)
++			{
++				*onptr++ = ',';
++				cur_onlen++;
++			}
++			arglen = rb_sprintf(onptr, "%s!%s@%s",
++					    target_p->name, target_p->username, target_p->host);
++			onptr += arglen;
++			cur_onlen += arglen;
++		}
++		else
++		{
++			if(cur_offlen + strlen(name) + 1 >= BUFSIZE - 3)
++			{
++				sendto_one_buffer(client_p, offbuf);
++				cur_offlen = mlen;
++				offptr = offbuf + mlen;
++			}
++
++			if(cur_offlen != mlen)
++			{
++				*offptr++ = ',';
++				cur_offlen++;
++			}
++			arglen = rb_sprintf(offptr, "%s", name);
++			offptr += arglen;
++			cur_offlen += arglen;
++		}
++	}
++
++	if(cur_onlen != mlen)
++		sendto_one_buffer(client_p, onbuf);
++	if(cur_offlen != mlen)
++		sendto_one_buffer(client_p, offbuf);
++}
++
++static void
++del_monitor(struct Client *client_p, const char *nicks)
++{
++	struct monitor *monptr;
++	const char *name;
++	char *tmp;
++	char *p;
++
++	if(!rb_dlink_list_length(&client_p->localClient->monitor_list))
++		return;
++
++	tmp = LOCAL_COPY(nicks);
++
++	for(name = rb_strtok_r(tmp, ",", &p); name; name = rb_strtok_r(NULL, ",", &p))
++	{
++		if(EmptyString(name))
++			continue;
++
++		/* not monitored */
++		if((monptr = find_monitor(name, 0)) == NULL)
++			continue;
++
++		rb_dlinkFindDestroy(client_p, &monptr->users);
++		rb_dlinkFindDestroy(monptr, &client_p->localClient->monitor_list);
++	}
++}
++
++static void
++list_monitor(struct Client *client_p)
++{
++	char buf[BUFSIZE];
++	struct monitor *monptr;
++	char *nbuf;
++	rb_dlink_node *ptr;
++	int mlen, arglen, cur_len;
++
++	if(!rb_dlink_list_length(&client_p->localClient->monitor_list))
++	{
++		sendto_one(client_p, form_str(RPL_ENDOFMONLIST), me.name, client_p->name);
++		return;
++	}
++
++	cur_len = mlen = rb_sprintf(buf, form_str(RPL_MONLIST), me.name, client_p->name, "");
++	nbuf = buf + mlen;
++	SetCork(client_p);
++	RB_DLINK_FOREACH(ptr, client_p->localClient->monitor_list.head)
++	{
++		monptr = ptr->data;
++
++		if(cur_len + strlen(monptr->name) + 1 >= BUFSIZE - 3)
++		{
++			sendto_one_buffer(client_p, buf);
++			nbuf = buf + mlen;
++			cur_len = mlen;
++		}
++
++		if(cur_len != mlen)
++		{
++			*nbuf++ = ',';
++			cur_len++;
++		}
++		arglen = rb_sprintf(nbuf, "%s", monptr->name);
++		cur_len += arglen;
++		nbuf += arglen;
++	}
++
++	sendto_one_buffer(client_p, buf);
++	ClearCork(client_p);
++	sendto_one(client_p, form_str(RPL_ENDOFMONLIST), me.name, client_p->name);
++}
++
++static void
++show_monitor_status(struct Client *client_p)
++{
++	char onbuf[BUFSIZE], offbuf[BUFSIZE];
++	struct Client *target_p;
++	struct monitor *monptr;
++	char *onptr, *offptr;
++	int cur_onlen, cur_offlen;
++	int mlen, arglen;
++	rb_dlink_node *ptr;
++
++	mlen = cur_onlen = rb_sprintf(onbuf, form_str(RPL_MONONLINE), me.name, client_p->name, "");
++	cur_offlen = rb_sprintf(offbuf, form_str(RPL_MONOFFLINE), me.name, client_p->name, "");
++
++	onptr = onbuf + mlen;
++	offptr = offbuf + mlen;
++	SetCork(client_p);
++	RB_DLINK_FOREACH(ptr, client_p->localClient->monitor_list.head)
++	{
++		monptr = ptr->data;
++
++		if((target_p = find_named_person(monptr->name)) != NULL)
++		{
++			if(cur_onlen + strlen(target_p->name) +
++			   strlen(target_p->username) + strlen(target_p->host) + 3 >= BUFSIZE - 3)
++			{
++				sendto_one_buffer(client_p, onbuf);
++				cur_onlen = mlen;
++				onptr = onbuf + mlen;
++			}
++
++			if(cur_onlen != mlen)
++			{
++				*onptr++ = ',';
++				cur_onlen++;
++			}
++			arglen = rb_sprintf(onptr, "%s!%s@%s",
++					    target_p->name, target_p->username, target_p->host);
++			onptr += arglen;
++			cur_onlen += arglen;
++		}
++		else
++		{
++			if(cur_offlen + strlen(monptr->name) + 1 >= BUFSIZE - 3)
++			{
++				sendto_one_buffer(client_p, offbuf);
++				cur_offlen = mlen;
++				offptr = offbuf + mlen;
++			}
++
++			if(cur_offlen != mlen)
++			{
++				*offptr++ = ',';
++				cur_offlen++;
++			}
++
++			arglen = rb_sprintf(offptr, "%s", monptr->name);
++			offptr += arglen;
++			cur_offlen += arglen;
++		}
++	}
++
++	ClearCork(client_p);
++	if(cur_onlen != mlen)
++		sendto_one_buffer(client_p, onbuf);
++	if(cur_offlen != mlen)
++		sendto_one_buffer(client_p, offbuf);
++}
++
++
++static int
++m_monitor(struct Client *client_p, struct Client *source_p, int parc, const char *parv[])
++{
++	switch (parv[1][0])
++	{
++	case '+':
++		if(parc < 3 || EmptyString(parv[2]))
++		{
++			sendto_one(client_p, form_str(ERR_NEEDMOREPARAMS),
++				   me.name, source_p->name, "MONITOR");
++			return 0;
++		}
++
++		add_monitor(source_p, parv[2]);
++		break;
++	case '-':
++		if(parc < 3 || EmptyString(parv[2]))
++		{
++			sendto_one(client_p, form_str(ERR_NEEDMOREPARAMS),
++				   me.name, source_p->name, "MONITOR");
++			return 0;
++		}
++
++		del_monitor(source_p, parv[2]);
++		break;
++
++	case 'C':
++	case 'c':
++		clear_monitor(source_p);
++		break;
++
++	case 'L':
++	case 'l':
++		list_monitor(source_p);
++		break;
++
++	case 'S':
++	case 's':
++		show_monitor_status(source_p);
++		break;
++
++	default:
++		break;
++	}
++
++	return 0;
++}
+diff --git a/resolver/Makefile.in b/resolver/Makefile.in
+index 8630536..74a9d7b 100644
+--- a/resolver/Makefile.in
++++ b/resolver/Makefile.in
+@@ -249,6 +249,7 @@ pdfdir = @pdfdir@
+ prefix = @prefix@
+ program_transform_name = @program_transform_name@
+ psdir = @psdir@
++runstatedir = @runstatedir@
+ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ srcdir = @srcdir@
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 0458786..2649b26 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -36,6 +36,7 @@ libcore_la_SOURCES =			\
+ 	listener.c			\
+ 	match.c				\
+ 	modules.c			\
++	monitor.c			\
+ 	newconf.c			\
+ 	numeric.c			\
+ 	operhash.c			\
+diff --git a/src/Makefile.in b/src/Makefile.in
+index 899a934..f0a2996 100644
+--- a/src/Makefile.in
++++ b/src/Makefile.in
+@@ -95,11 +95,11 @@ LTLIBRARIES = $(libcore_LTLIBRARIES)
+ am__DEPENDENCIES_1 =
+ am_libcore_la_OBJECTS = dns.lo bandbi.lo cache.lo channel.lo class.lo \
+ 	client.lo getopt.lo hash.lo hook.lo hostmask.lo ircd.lo \
+-	ircd_signal.lo listener.lo match.lo modules.lo newconf.lo \
+-	numeric.lo operhash.lo packet.lo parse.lo reject.lo restart.lo \
+-	s_auth.lo s_conf.lo s_newconf.lo s_log.lo s_serv.lo s_user.lo \
+-	scache.lo send.lo sslproc.lo supported.lo whowas.lo version.lo \
+-	ircd_parser.lo ircd_lexer.lo
++	ircd_signal.lo listener.lo match.lo modules.lo monitor.lo \
++	newconf.lo numeric.lo operhash.lo packet.lo parse.lo reject.lo \
++	restart.lo s_auth.lo s_conf.lo s_newconf.lo s_log.lo s_serv.lo \
++	s_user.lo scache.lo send.lo sslproc.lo supported.lo whowas.lo \
++	version.lo ircd_parser.lo ircd_lexer.lo
+ libcore_la_OBJECTS = $(am_libcore_la_OBJECTS)
+ libcore_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+@@ -288,6 +288,7 @@ pdfdir = @pdfdir@
+ prefix = @prefix@
+ program_transform_name = @program_transform_name@
+ psdir = @psdir@
++runstatedir = @runstatedir@
+ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ srcdir = @srcdir@
+@@ -321,6 +322,7 @@ libcore_la_SOURCES = \
+ 	listener.c			\
+ 	match.c				\
+ 	modules.c			\
++	monitor.c			\
+ 	newconf.c			\
+ 	numeric.c			\
+ 	operhash.c			\
+@@ -445,6 +447,7 @@ distclean-compile:
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/listener.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/match.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/modules.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/monitor.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/newconf.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/numeric.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/operhash.Plo@am__quote@
+diff --git a/src/client.c b/src/client.c
+index f52be5b..0e09e41 100644
+--- a/src/client.c
++++ b/src/client.c
+@@ -49,6 +49,7 @@
+ #include "listener.h"
+ #include "reject.h"
+ #include "hook.h"
++#include "monitor.h"
+ #include "parse.h"
+ #include "sslproc.h"
+ 
+@@ -1115,6 +1116,7 @@ exit_generic_client(struct Client *source_p, const char *comment)
+ 	add_history(source_p, 0);
+ 	off_history(source_p);
+ 
++	monitor_signoff(source_p);
+ 	dec_global_cidr_count(source_p);
+ 	if(has_id(source_p))
+ 		del_from_hash(HASH_ID, source_p->id, source_p);
+@@ -1346,6 +1348,7 @@ exit_local_client(struct Client *client_p, struct Client *source_p, struct Clien
+ 	char tbuf[26];
+ 
+ 	exit_generic_client(source_p, comment);
++	clear_monitor(source_p);
+ 
+ 	s_assert(IsClient(source_p));
+ 	rb_dlinkDelete(&source_p->localClient->tnode, &lclient_list);
+diff --git a/src/monitor.c b/src/monitor.c
+new file mode 100644
+index 0000000..52afb64
+--- /dev/null
++++ b/src/monitor.c
+@@ -0,0 +1,163 @@
++/*
++ * ircd-ratbox: an advanced Internet Relay Chat Daemon(ircd).
++ * monitor.c - Code for server-side notify lists
++ *
++ * Copyright (C) 2005 Lee Hardy <lee -at- leeh.co.uk>
++ * Copyright (C) 2005-2012 ircd-ratbox development team
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are
++ * met:
++ *
++ * 1.Redistributions of source code must retain the above copyright notice,
++ *   this list of conditions and the following disclaimer.
++ * 2.Redistributions in binary form must reproduce the above copyright
++ *   notice, this list of conditions and the following disclaimer in the
++ *   documentation and/or other materials provided with the distribution.
++ * 3.The name of the author may not be used to endorse or promote products
++ *   derived from this software without specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
++ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
++ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++ * DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
++ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
++ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
++ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
++ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
++ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ *
++ * $Id$
++ */
++#include <stdinc.h>
++#include <struct.h>
++#include <monitor.h>
++#include <hash.h>
++#include <numeric.h>
++#include <ircd.h>
++#include <match.h>
++#include <send.h>
++
++#define MONITOR_HASH_BITS 16
++#define MONITOR_HASH_SIZE (1<<MONITOR_HASH_BITS)
++
++static rb_dlink_list monitorTable[MONITOR_HASH_SIZE];
++
++static inline unsigned int
++hash_monitor_nick(const char *name)
++{
++	return fnv_hash_upper((const unsigned char *)name, MONITOR_HASH_BITS, 0);
++}
++
++struct monitor *
++find_monitor(const char *name, int add)
++{
++	struct monitor *monptr;
++	rb_dlink_node *ptr;
++
++	uint32_t hashv = hash_monitor_nick(name);
++
++	RB_DLINK_FOREACH(ptr, monitorTable[hashv].head)
++	{
++		monptr = ptr->data;
++		if(!irccmp(monptr->name, name))
++			return monptr;
++	
++	}
++
++	if(add != 0)
++	{
++		monptr = rb_malloc(sizeof(struct monitor));
++		monptr->name = rb_strdup(name);
++		monptr->hashv = hashv;
++		rb_dlinkAdd(monptr, &monptr->node, &monitorTable[hashv]);
++		return monptr;
++	}
++
++	return NULL;
++}
++
++void
++free_monitor(struct monitor *monptr)
++{
++	/* don't free if there are users attached */
++	if(rb_dlink_list_length(&monptr->users) > 0)
++		return;
++
++	rb_dlinkDelete(&monptr->node, &monitorTable[monptr->hashv]);	
++	rb_free(monptr->name);
++	rb_free(monptr);
++}
++
++
++/* monitor_signon()
++ *
++ * inputs	- client who has just connected
++ * outputs	-
++ * side effects	- notifies any clients monitoring this nickname that it has
++ *		  connected to the network
++ */
++void
++monitor_signon(struct Client *client_p)
++{
++	char buf[USERHOST_REPLYLEN];
++	struct monitor *monptr;
++	
++	monptr = find_monitor(client_p->name, 0);
++
++	/* no watchers watching this nick */
++	if(monptr == NULL)
++		return;
++
++	snprintf(buf, sizeof(buf), "%s!%s@%s", client_p->name, client_p->username, client_p->host);
++
++	sendto_monitor(monptr, form_str(RPL_MONONLINE), me.name, "*", buf);
++}
++
++/* monitor_signoff()
++ *
++ * inputs	- client who is exiting
++ * outputs	-
++ * side effects	- notifies any clients monitoring this nickname that it has
++ *		  left the network
++ */
++void
++monitor_signoff(struct Client *client_p)
++{
++	struct monitor *monptr;
++
++	monptr  = find_monitor(client_p->name, 0);
++
++	/* noones watching this nick */
++	if(monptr == NULL)
++		return;
++
++	sendto_monitor(monptr, form_str(RPL_MONOFFLINE), me.name, "*", client_p->name);
++}
++
++
++void
++clear_monitor(struct Client *client_p)
++{
++	struct monitor *monptr;
++	rb_dlink_node *ptr, *next_ptr;
++
++	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, client_p->localClient->monitor_list.head)
++	{
++		monptr = ptr->data;
++		rb_dlinkFindDestroy(client_p, &monptr->users);
++
++		/* free the rb_dlink_node allocated in add_monitor -
++		 * we don't use rb_dlinkDestory here as we are clearing the list anyways.. */
++		rb_free_rb_dlink_node(ptr); 
++
++		free_monitor(monptr); /* this checks if monptr is still in use */
++	}
++
++	client_p->localClient->monitor_list.head = client_p->localClient->monitor_list.tail = NULL;
++	client_p->localClient->monitor_list.length = 0;
++}
++
++
+diff --git a/src/newconf.c b/src/newconf.c
+index 346e93d..682ffd9 100644
+--- a/src/newconf.c
++++ b/src/newconf.c
+@@ -2372,6 +2372,7 @@ static struct conf_items conf_general_table[] =
+ 	{ "kline_with_reason",	CF_YESNO, NULL, 0, &ConfigFileEntry.kline_with_reason	},
+ 	{ "map_oper_only",	CF_YESNO, NULL, 0, &ConfigFileEntry.map_oper_only	},
+ 	{ "max_accept",		CF_INT,   NULL, 0, &ConfigFileEntry.max_accept		},
++	{ "max_monitor",	CF_INT,   NULL, 0, &ConfigFileEntry.max_monitor		},
+ 	{ "max_nick_time",	CF_TIME,  NULL, 0, &ConfigFileEntry.max_nick_time	},
+ 	{ "max_nick_changes",	CF_INT,   NULL, 0, &ConfigFileEntry.max_nick_changes	},
+ 	{ "max_targets",	CF_INT,   NULL, 0, &ConfigFileEntry.max_targets		},
+diff --git a/src/s_conf.c b/src/s_conf.c
+index 3fc8c44..cdf325f 100644
+--- a/src/s_conf.c
++++ b/src/s_conf.c
+@@ -747,6 +747,7 @@ set_default_conf(void)
+ 	ConfigFileEntry.max_nick_time = 20;
+ 	ConfigFileEntry.max_nick_changes = 5;
+ 	ConfigFileEntry.max_accept = 20;
++	ConfigFileEntry.max_monitor = 60;
+ 	ConfigFileEntry.nick_delay = 900;	/* 15 minutes */
+ 	ConfigFileEntry.target_change = YES;
+ 	ConfigFileEntry.collision_fnc = NO;
+diff --git a/src/s_user.c b/src/s_user.c
+index 8599696..1e0fd3d 100644
+--- a/src/s_user.c
++++ b/src/s_user.c
+@@ -49,6 +49,7 @@
+ #include "reject.h"
+ #include "cache.h"
+ #include "hook.h"
++#include "monitor.h"
+ 
+ static void report_and_set_user_flags(struct Client *, struct ConfItem *);
+ void user_welcome(struct Client *source_p);
+@@ -521,6 +522,7 @@ register_local_user(struct Client *client_p, struct Client *source_p, const char
+ 		USED_TARGETS(source_p) = 6;
+ 
+ 	inc_global_cidr_count(client_p);
++	monitor_signon(source_p);
+ 	user_welcome(source_p);
+ 	introduce_client(client_p, source_p);
+ 	return 0;
+diff --git a/src/send.c b/src/send.c
+index e81e185..f67d455 100644
+--- a/src/send.c
++++ b/src/send.c
+@@ -39,6 +39,7 @@
+ #include "s_newconf.h"
+ #include "s_log.h"
+ #include "hook.h"
++#include "monitor.h"
+ 
+ #define LOG_BUFSIZE 2048
+ 
+@@ -811,6 +812,40 @@ sendto_match_servs(struct Client *source_p, const char *mask, int cap,
+ 	rb_linebuf_donebuf(&rb_linebuf_name);
+ }
+ 
++/* sendto_monitor()
++ *
++ * inputs	- monitor nick to send to, format, va_args
++ * outputs	- message to local users monitoring the given nick
++ * side effects -
++ */
++void
++sendto_monitor(struct monitor *monptr, const char *pattern, ...)
++{
++	va_list args;
++	buf_head_t linebuf;
++	struct Client *target_p;
++	rb_dlink_node *ptr;
++	rb_dlink_node *next_ptr;
++
++	rb_linebuf_newbuf(&linebuf);
++
++	va_start(args, pattern);
++	rb_linebuf_putmsg(&linebuf, pattern, &args, NULL);
++	va_end(args);
++
++	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, monptr->users.head)
++	{
++		target_p = ptr->data;
++
++		if(IsIOError(target_p))
++			continue;
++
++		send_linebuf(target_p, &linebuf);
++	}
++
++	rb_linebuf_donebuf(&linebuf);
++}
++
+ /* sendto_anywhere()
+  *
+  * inputs	- target, source, va_args
+diff --git a/src/supported.c b/src/supported.c
+index 1e41f05..607377e 100644
+--- a/src/supported.c
++++ b/src/supported.c
+@@ -253,7 +253,7 @@ isupport_targmax(const void *ptr)
+ 	static char result[200];
+ 
+ 	rb_snprintf(result, sizeof result,
+-		    "NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:%d,NOTICE:%d,ACCEPT:",
++		    "NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:%d,NOTICE:%d,ACCEPT:,MONITOR:",
+ 		    ConfigFileEntry.max_targets, ConfigFileEntry.max_targets);
+ 	return result;
+ }
+@@ -288,6 +288,7 @@ init_isupport(void)
+ 	add_isupport("CPRIVMSG", isupport_string, "");
+ 	add_isupport("CNOTICE", isupport_string, "");
+ 	add_isupport("DEAF", isupport_string, "D");
++	add_isupport("MONITOR", isupport_intptr, &ConfigFileEntry.max_monitor);
+ 	add_isupport("FNC", isupport_string, "");
+ 	add_isupport("TARGMAX", isupport_targmax, NULL);
+ }
+diff --git a/ssld/Makefile.in b/ssld/Makefile.in
+index 8f4c7b8..39a378e 100644
+--- a/ssld/Makefile.in
++++ b/ssld/Makefile.in
+@@ -243,6 +243,7 @@ pdfdir = @pdfdir@
+ prefix = @prefix@
+ program_transform_name = @program_transform_name@
+ psdir = @psdir@
++runstatedir = @runstatedir@
+ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ srcdir = @srcdir@
+diff --git a/tools/Makefile.in b/tools/Makefile.in
+index 351eeba..84444a1 100644
+--- a/tools/Makefile.in
++++ b/tools/Makefile.in
+@@ -245,6 +245,7 @@ pdfdir = @pdfdir@
+ prefix = @prefix@
+ program_transform_name = @program_transform_name@
+ psdir = @psdir@
++runstatedir = @runstatedir@
+ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ srcdir = @srcdir@
+-- 
+2.7.4
+

@@ -1,0 +1,70 @@
+From e2cbc3fd73437faad8a191888b23aa00581866c3 Mon Sep 17 00:00:00 2001
+From: "Daniel Reidy (dubkat)" <dubkat@gmail.com>
+Date: Fri, 21 Oct 2011 00:06:19 +0000
+Subject: [PATCH 10/89] backport r27247 from trunk. make genssl.sh a little
+ more useful
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27249 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ doc/genssl.sh | 30 +++++++++++++++++++++++++-----
+ 1 file changed, 25 insertions(+), 5 deletions(-)
+
+diff --git a/doc/genssl.sh b/doc/genssl.sh
+index 79fd848..451e563 100755
+--- a/doc/genssl.sh
++++ b/doc/genssl.sh
+@@ -1,17 +1,27 @@
+ #!/bin/sh
+ # Simple and straight forward openssl cert generator for ircd-ratbox
+-# Copyright (C) 2008 Daniel J Reidy <dubkat@gmail.com>
++# Copyright (C) 2008-2011 ircd-ratbox development team
+ # $Id$
+ 
+ if [ $# -eq 0 ]; then
+-	echo "please supply your server name"
++	echo
++	echo "usage: $0 <IRC_SERVER_NAME> [<LENGTH_IN_DAYS_KEYS_ARE_VALID>]"
++	echo "       default lenth of time keys are valid is 365 days."
++	echo
+ 	exit 1;
+ fi
+ 
+ SERVER="$1"
++DAYS_VALID="$2"
+ 
++SSL_DAYS_VALID="365"
++if [ "$DAYS_VALID" -gt "365" ]; then
++	SSL_DAYS_VALID="$DAYS_VALID"
++fi
++
++echo
+ echo "Generating 1024-bit self-signed RSA key for ${SERVER}... "
+-openssl req -new -newkey rsa:1024 -days 365 -nodes -x509 -keyout ${SERVER}.pem  -out ${SERVER}.pem
++openssl req -new -newkey rsa:1024 -days ${SSL_DAYS_VALID} -nodes -x509 -keyout ${SERVER}.pem  -out ${SERVER}.pem
+ echo "Done creating self-signed cert"
+ 
+ echo -n "Generating DH parameters file... "
+@@ -19,8 +29,18 @@ openssl dhparam -out dh.pem 1024
+ echo "Done."
+ 
+ echo
+-echo "Move ${SERVER}.pem and dh.pem to your ircd config directory"
+-echo "and adjust ircd.conf to reflect any changes."
++echo "Your SSL keys for ${SERVER} are valid for ${SSL_DAYS_VALID} days."
++echo "If you wish to increase the number of days, run:"
++echo "    $0 ${SERVER} <NUMBER_OF_DAYS>"
++echo
++echo "Move ${SERVER}.pem and dh.pem to your ircd config directory if necessary."
++echo "Adjust ircd.conf to reflect any changes."
++echo "Your serverinfo {} block should contain the following (adjust paths accordingly)"
++echo
++echo "ssl_private_key = \"`pwd`/${SERVER}.pem\";"
++echo "ssl_cert = \"`pwd`/${SERVER}.pem\";"
++echo "ssl_dh_params = \"`pwd`/dh.pem\";"
++
+ echo
+ exit 0
+ 
+-- 
+2.7.4
+

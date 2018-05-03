@@ -1,0 +1,36 @@
+From 1640ab6f8febe6e00c2f07cabee21812189c91f4 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Mon, 31 Dec 2012 21:34:15 +0000
+Subject: [PATCH 33/89] update release version
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27414 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ INSTALL              | 1 +
+ include/patchlevel.h | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/INSTALL b/INSTALL
+index b360ffe..020cba8 100644
+--- a/INSTALL
++++ b/INSTALL
+@@ -214,3 +214,4 @@
+        than a backtrace provides.
+ 
+ 
++
+diff --git a/include/patchlevel.h b/include/patchlevel.h
+index fb4cc24..042ac9d 100644
+--- a/include/patchlevel.h
++++ b/include/patchlevel.h
+@@ -25,7 +25,7 @@
+  */
+ 
+ #ifndef PATCHLEVEL
+-#define PATCHLEVEL   "ircd-ratbox-3.0.7"
++#define PATCHLEVEL   "ircd-ratbox-3.0.8"
+ #define PATCHLEVEL_NUM	0300060500
+ 
+ /* patchlevel numbers:
+-- 
+2.7.4
+

@@ -1,0 +1,32 @@
+From 266687a81c14780bcf7b53b18048a56324cae6e4 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Tue, 13 Oct 2015 15:05:40 +0000
+Subject: [PATCH 61/89] update RELNOTES
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@28763 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ RELNOTES | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/RELNOTES b/RELNOTES
+index e651f3b..c71cb38 100644
+--- a/RELNOTES
++++ b/RELNOTES
+@@ -10,11 +10,11 @@ If you are upgrading from 2.0, you must also read doc/whats-new-2.1.txt
+ If you are upgrading from 1.x, you must also read doc/whats-new-2.0.txt
+ 
+ -- ircd-ratbox-3.0.9
+-- Fix 64bit time_t on 32bit OpenBSD
+-- Fix MODRESTART crash on newer versions of glib
++- Fix minor memory leak in MONITOR (fixes CVE 2015-5290)
++- Fix MODRESTART crash on newer versions of glibc
+ - Ignore non-sense CIDR masks
++- Fix 64bit time_t on 32 bit operating systems(OpenBSD in particular)
+ - Disable kevent timer support, this seems to be the cause of a few crashes
+-
+  
+ -- ircd-ratbox-3.0.8
+ - fix embarrassing CAPAB crash - All admins should upgrade immediately
+-- 
+2.7.4
+

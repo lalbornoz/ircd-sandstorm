@@ -1,0 +1,45 @@
+From 432db4096cf1b0460b4a6da7b18045101cc2b27a Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Mon, 28 Jan 2013 23:38:59 +0000
+Subject: [PATCH 34/89] Reject cidr masks that are too large to make sense,
+ assume they are nonsense and skip cidr checking for these
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27433 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ src/match.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/match.c b/src/match.c
+index 5becdcf..e4e4ed3 100644
+--- a/src/match.c
++++ b/src/match.c
+@@ -368,12 +368,15 @@ match_cidr(const char *s1, const char *s2)
+ 	*len++ = '\0';
+ 
+ 	cidrlen = atoi(len);
+-	if(cidrlen == 0)
++	if(cidrlen <= 0)
+ 		return 0;
+ 
+ #ifdef RB_IPV6
+ 	if(strchr(ip, ':') && strchr(ipmask, ':'))
+ 	{
++		if(cidrlen > 128)
++			return 0;
++	
+ 		aftype = AF_INET6;
+ 		ipptr = &((struct sockaddr_in6 *)&ipaddr)->sin6_addr;
+ 		maskptr = &((struct sockaddr_in6 *)&maskaddr)->sin6_addr;
+@@ -382,6 +385,9 @@ match_cidr(const char *s1, const char *s2)
+ #endif
+ 	if(!strchr(ip, ':') && !strchr(ipmask, ':'))
+ 	{
++		if(cidrlen > 32)
++			return 0;
++			
+ 		aftype = AF_INET;
+ 		ipptr = &((struct sockaddr_in *)&ipaddr)->sin_addr;
+ 		maskptr = &((struct sockaddr_in *)&maskaddr)->sin_addr;
+-- 
+2.7.4
+

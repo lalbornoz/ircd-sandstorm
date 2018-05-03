@@ -1,0 +1,32 @@
+From 902e3c9cc0f7d893a4d0db4c0045dab4f95f623a Mon Sep 17 00:00:00 2001
+From: "Jilles Tjoelker (jilles)" <jilles@stack.nl>
+Date: Sun, 3 Mar 2013 15:52:13 +0000
+Subject: [PATCH 37/89] Merge r27440 from trunk: whois: Fix UID leak.
+
+The second parameter of WHOIS is always a nick.
+
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27442 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ modules/m_whois.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/modules/m_whois.c b/modules/m_whois.c
+index cf32671..be228f5 100644
+--- a/modules/m_whois.c
++++ b/modules/m_whois.c
+@@ -187,10 +187,7 @@ do_whois(struct Client *client_p, struct Client *source_p, int parc, const char
+ 		nick++;
+ 	}
+ 
+-	if(MyClient(source_p))
+-		target_p = find_named_person(nick);
+-	else
+-		target_p = find_person(nick);
++	target_p = find_named_person(nick);
+ 	SetCork(source_p);
+ 	if(target_p != NULL)
+ 	{
+-- 
+2.7.4
+

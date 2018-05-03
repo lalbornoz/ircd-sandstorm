@@ -1,0 +1,33 @@
+From 53304a9f95a5225febe37e9c1e54a56b447db80c Mon Sep 17 00:00:00 2001
+From: "Daniel Reidy (dubkat)" <dubkat@gmail.com>
+Date: Sat, 16 Mar 2013 08:57:07 +0000
+Subject: [PATCH 38/89] Update README.FIRST to reflect newer distro version
+ numbers, lest we look stuck in the dark ages, plus add listed support for
+ openSUSE
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27449 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ README.FIRST | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/README.FIRST b/README.FIRST
+index bf3e513..af2a235 100644
+--- a/README.FIRST
++++ b/README.FIRST
+@@ -97,9 +97,10 @@ Feature Specific Requirements:
+   flags for cc(1) prior to that point to produce shared modules.
+ 
+ - SUPPORTED PLATFORMS: this code should compile without any warnings on:
+-    FreeBSD 6.x/7.x,
+-    Gentoo & Gentoo Hardened ~x86/~amd64/~fbsd
+-    Fedora 8/9 / CentOS 4/5 / Redhat Enterprise 5
++    FreeBSD 6.x/7.x/8.x/9.x
++    Gentoo & Gentoo Hardened (stable archs)
++    CentOS / Redhat Enterprise 5/6
++    openSUSE (stable/tumbleweed/evergreen)
+     Debian Etch, 
+     OpenSolaris 2008.x?
+     Solaris 10 sparc.
+-- 
+2.7.4
+

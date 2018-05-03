@@ -1,0 +1,648 @@
+From e5dc32ffb2044a6920111d9e83764600e0ff0ad3 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Wed, 13 Jan 2016 18:34:48 +0000
+Subject: [PATCH 79/89] rerun libtoolize etc
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@29299 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ libltdl/Makefile.in |   5 +-
+ libltdl/aclocal.m4  |   1 -
+ libltdl/configure   | 492 ++++++++++++++++++++++++++++++++++++++++++----------
+ 3 files changed, 409 insertions(+), 89 deletions(-)
+
+diff --git a/libltdl/Makefile.in b/libltdl/Makefile.in
+index 2efcdb7..a8aafa7 100644
+--- a/libltdl/Makefile.in
++++ b/libltdl/Makefile.in
+@@ -100,7 +100,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/argz.m4 \
+ 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltdl.m4 \
+ 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+ 	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+-	$(top_srcdir)/acinclude.m4 $(top_srcdir)/configure.ac
++	$(top_srcdir)/configure.ac
+ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
+ 	$(ACLOCAL_M4)
+ DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
+@@ -343,6 +343,7 @@ LIBADD_SHL_LOAD = @LIBADD_SHL_LOAD@
+ LIBOBJS = @LIBOBJS@
+ LIBS = @LIBS@
+ LIBTOOL = @LIBTOOL@
++LIPO = @LIPO@
+ LN_S = @LN_S@
+ LTDLOPEN = @LTDLOPEN@
+ LTLIBOBJS = @LTLIBOBJS@
+@@ -356,6 +357,8 @@ NM = @NM@
+ NMEDIT = @NMEDIT@
+ OBJDUMP = @OBJDUMP@
+ OBJEXT = @OBJEXT@
++OTOOL = @OTOOL@
++OTOOL64 = @OTOOL64@
+ PACKAGE = @PACKAGE@
+ PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
+ PACKAGE_NAME = @PACKAGE_NAME@
+diff --git a/libltdl/aclocal.m4 b/libltdl/aclocal.m4
+index e7e6c30..f8ae406 100644
+--- a/libltdl/aclocal.m4
++++ b/libltdl/aclocal.m4
+@@ -1157,4 +1157,3 @@ m4_include([m4/ltoptions.m4])
+ m4_include([m4/ltsugar.m4])
+ m4_include([m4/ltversion.m4])
+ m4_include([m4/lt~obsolete.m4])
+-m4_include([acinclude.m4])
+diff --git a/libltdl/configure b/libltdl/configure
+index 26d2b90..3d4b6e2 100755
+--- a/libltdl/configure
++++ b/libltdl/configure
+@@ -651,6 +651,9 @@ LIBADD_SHL_LOAD
+ LIBADD_DLOPEN
+ LT_DLLOADERS
+ CPP
++OTOOL64
++OTOOL
++LIPO
+ NMEDIT
+ DSYMUTIL
+ MANIFEST_TOOL
+@@ -6246,65 +6249,6 @@ $as_echo "${lt_sysroot:-no}" >&6; }
+ 
+ 
+ 
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for a sed that does not truncate output" >&5
+-$as_echo_n "checking for a sed that does not truncate output... " >&6; }
+-if ${lt_cv_path_SED+:} false; then :
+-  $as_echo_n "(cached) " >&6
+-else
+-  # Loop through the user's path and test for sed and gsed.
+-# Then use that list of sed's as ones to test for truncation.
+-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+-for as_dir in $PATH
+-do
+-  IFS=$as_save_IFS
+-  test -z "$as_dir" && as_dir=.
+-  for lt_ac_prog in sed gsed; do
+-    for ac_exec_ext in '' $ac_executable_extensions; do
+-      if as_fn_executable_p "$as_dir/$lt_ac_prog$ac_exec_ext"; then
+-        lt_ac_sed_list="$lt_ac_sed_list $as_dir/$lt_ac_prog$ac_exec_ext"
+-      fi
+-    done
+-  done
+-done
+-IFS=$as_save_IFS
+-lt_ac_max=0
+-lt_ac_count=0
+-# Add /usr/xpg4/bin/sed as it is typically found on Solaris
+-# along with /bin/sed that truncates output.
+-for lt_ac_sed in $lt_ac_sed_list /usr/xpg4/bin/sed; do
+-  test ! -f $lt_ac_sed && continue
+-  cat /dev/null > conftest.in
+-  lt_ac_count=0
+-  echo $ECHO_N "0123456789$ECHO_C" >conftest.in
+-  # Check for GNU sed and select it if it is found.
+-  if "$lt_ac_sed" --version 2>&1 < /dev/null | grep 'GNU' > /dev/null; then
+-    lt_cv_path_SED=$lt_ac_sed
+-    break
+-  fi
+-  while true; do
+-    cat conftest.in conftest.in >conftest.tmp
+-    mv conftest.tmp conftest.in
+-    cp conftest.in conftest.nl
+-    echo >>conftest.nl
+-    $lt_ac_sed -e 's/a$//' < conftest.nl >conftest.out || break
+-    cmp -s conftest.out conftest.nl || break
+-    # 10000 chars as input seems more than enough
+-    test $lt_ac_count -gt 10 && break
+-    lt_ac_count=`expr $lt_ac_count + 1`
+-    if test $lt_ac_count -gt $lt_ac_max; then
+-      lt_ac_max=$lt_ac_count
+-      lt_cv_path_SED=$lt_ac_sed
+-    fi
+-  done
+-done
+-
+-fi
+-
+-SED=$lt_cv_path_SED
+-
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $SED" >&5
+-$as_echo "$SED" >&6; }
+-
+ # Check whether --enable-libtool-lock was given.
+ if test "${enable_libtool_lock+set}" = set; then :
+   enableval=$enable_libtool_lock;
+@@ -6828,6 +6772,307 @@ else
+   NMEDIT="$ac_cv_prog_NMEDIT"
+ fi
+ 
++    if test -n "$ac_tool_prefix"; then
++  # Extract the first word of "${ac_tool_prefix}lipo", so it can be a program name with args.
++set dummy ${ac_tool_prefix}lipo; ac_word=$2
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
++$as_echo_n "checking for $ac_word... " >&6; }
++if ${ac_cv_prog_LIPO+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  if test -n "$LIPO"; then
++  ac_cv_prog_LIPO="$LIPO" # Let the user override the test.
++else
++as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
++for as_dir in $PATH
++do
++  IFS=$as_save_IFS
++  test -z "$as_dir" && as_dir=.
++    for ac_exec_ext in '' $ac_executable_extensions; do
++  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
++    ac_cv_prog_LIPO="${ac_tool_prefix}lipo"
++    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
++    break 2
++  fi
++done
++  done
++IFS=$as_save_IFS
++
++fi
++fi
++LIPO=$ac_cv_prog_LIPO
++if test -n "$LIPO"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LIPO" >&5
++$as_echo "$LIPO" >&6; }
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++fi
++
++
++fi
++if test -z "$ac_cv_prog_LIPO"; then
++  ac_ct_LIPO=$LIPO
++  # Extract the first word of "lipo", so it can be a program name with args.
++set dummy lipo; ac_word=$2
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
++$as_echo_n "checking for $ac_word... " >&6; }
++if ${ac_cv_prog_ac_ct_LIPO+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  if test -n "$ac_ct_LIPO"; then
++  ac_cv_prog_ac_ct_LIPO="$ac_ct_LIPO" # Let the user override the test.
++else
++as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
++for as_dir in $PATH
++do
++  IFS=$as_save_IFS
++  test -z "$as_dir" && as_dir=.
++    for ac_exec_ext in '' $ac_executable_extensions; do
++  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
++    ac_cv_prog_ac_ct_LIPO="lipo"
++    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
++    break 2
++  fi
++done
++  done
++IFS=$as_save_IFS
++
++fi
++fi
++ac_ct_LIPO=$ac_cv_prog_ac_ct_LIPO
++if test -n "$ac_ct_LIPO"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_LIPO" >&5
++$as_echo "$ac_ct_LIPO" >&6; }
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++fi
++
++  if test "x$ac_ct_LIPO" = x; then
++    LIPO=":"
++  else
++    case $cross_compiling:$ac_tool_warned in
++yes:)
++{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
++$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
++ac_tool_warned=yes ;;
++esac
++    LIPO=$ac_ct_LIPO
++  fi
++else
++  LIPO="$ac_cv_prog_LIPO"
++fi
++
++    if test -n "$ac_tool_prefix"; then
++  # Extract the first word of "${ac_tool_prefix}otool", so it can be a program name with args.
++set dummy ${ac_tool_prefix}otool; ac_word=$2
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
++$as_echo_n "checking for $ac_word... " >&6; }
++if ${ac_cv_prog_OTOOL+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  if test -n "$OTOOL"; then
++  ac_cv_prog_OTOOL="$OTOOL" # Let the user override the test.
++else
++as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
++for as_dir in $PATH
++do
++  IFS=$as_save_IFS
++  test -z "$as_dir" && as_dir=.
++    for ac_exec_ext in '' $ac_executable_extensions; do
++  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
++    ac_cv_prog_OTOOL="${ac_tool_prefix}otool"
++    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
++    break 2
++  fi
++done
++  done
++IFS=$as_save_IFS
++
++fi
++fi
++OTOOL=$ac_cv_prog_OTOOL
++if test -n "$OTOOL"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $OTOOL" >&5
++$as_echo "$OTOOL" >&6; }
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++fi
++
++
++fi
++if test -z "$ac_cv_prog_OTOOL"; then
++  ac_ct_OTOOL=$OTOOL
++  # Extract the first word of "otool", so it can be a program name with args.
++set dummy otool; ac_word=$2
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
++$as_echo_n "checking for $ac_word... " >&6; }
++if ${ac_cv_prog_ac_ct_OTOOL+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  if test -n "$ac_ct_OTOOL"; then
++  ac_cv_prog_ac_ct_OTOOL="$ac_ct_OTOOL" # Let the user override the test.
++else
++as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
++for as_dir in $PATH
++do
++  IFS=$as_save_IFS
++  test -z "$as_dir" && as_dir=.
++    for ac_exec_ext in '' $ac_executable_extensions; do
++  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
++    ac_cv_prog_ac_ct_OTOOL="otool"
++    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
++    break 2
++  fi
++done
++  done
++IFS=$as_save_IFS
++
++fi
++fi
++ac_ct_OTOOL=$ac_cv_prog_ac_ct_OTOOL
++if test -n "$ac_ct_OTOOL"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_OTOOL" >&5
++$as_echo "$ac_ct_OTOOL" >&6; }
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++fi
++
++  if test "x$ac_ct_OTOOL" = x; then
++    OTOOL=":"
++  else
++    case $cross_compiling:$ac_tool_warned in
++yes:)
++{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
++$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
++ac_tool_warned=yes ;;
++esac
++    OTOOL=$ac_ct_OTOOL
++  fi
++else
++  OTOOL="$ac_cv_prog_OTOOL"
++fi
++
++    if test -n "$ac_tool_prefix"; then
++  # Extract the first word of "${ac_tool_prefix}otool64", so it can be a program name with args.
++set dummy ${ac_tool_prefix}otool64; ac_word=$2
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
++$as_echo_n "checking for $ac_word... " >&6; }
++if ${ac_cv_prog_OTOOL64+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  if test -n "$OTOOL64"; then
++  ac_cv_prog_OTOOL64="$OTOOL64" # Let the user override the test.
++else
++as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
++for as_dir in $PATH
++do
++  IFS=$as_save_IFS
++  test -z "$as_dir" && as_dir=.
++    for ac_exec_ext in '' $ac_executable_extensions; do
++  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
++    ac_cv_prog_OTOOL64="${ac_tool_prefix}otool64"
++    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
++    break 2
++  fi
++done
++  done
++IFS=$as_save_IFS
++
++fi
++fi
++OTOOL64=$ac_cv_prog_OTOOL64
++if test -n "$OTOOL64"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $OTOOL64" >&5
++$as_echo "$OTOOL64" >&6; }
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++fi
++
++
++fi
++if test -z "$ac_cv_prog_OTOOL64"; then
++  ac_ct_OTOOL64=$OTOOL64
++  # Extract the first word of "otool64", so it can be a program name with args.
++set dummy otool64; ac_word=$2
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
++$as_echo_n "checking for $ac_word... " >&6; }
++if ${ac_cv_prog_ac_ct_OTOOL64+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  if test -n "$ac_ct_OTOOL64"; then
++  ac_cv_prog_ac_ct_OTOOL64="$ac_ct_OTOOL64" # Let the user override the test.
++else
++as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
++for as_dir in $PATH
++do
++  IFS=$as_save_IFS
++  test -z "$as_dir" && as_dir=.
++    for ac_exec_ext in '' $ac_executable_extensions; do
++  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
++    ac_cv_prog_ac_ct_OTOOL64="otool64"
++    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
++    break 2
++  fi
++done
++  done
++IFS=$as_save_IFS
++
++fi
++fi
++ac_ct_OTOOL64=$ac_cv_prog_ac_ct_OTOOL64
++if test -n "$ac_ct_OTOOL64"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_OTOOL64" >&5
++$as_echo "$ac_ct_OTOOL64" >&6; }
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++fi
++
++  if test "x$ac_ct_OTOOL64" = x; then
++    OTOOL64=":"
++  else
++    case $cross_compiling:$ac_tool_warned in
++yes:)
++{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
++$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
++ac_tool_warned=yes ;;
++esac
++    OTOOL64=$ac_ct_OTOOL64
++  fi
++else
++  OTOOL64="$ac_cv_prog_OTOOL64"
++fi
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
+ 
+     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for -single_module linker flag" >&5
+ $as_echo_n "checking for -single_module linker flag... " >&6; }
+@@ -6836,22 +7081,35 @@ if ${lt_cv_apple_cc_single_mod+:} false; then :
+ else
+   lt_cv_apple_cc_single_mod=no
+       if test -z "${LT_MULTI_MODULE}"; then
+-   # By default we will add the -single_module flag. You can override
+-   # by either setting the environment variable LT_MULTI_MODULE
+-   # non-empty at configure time, or by adding -multi_module to the
+-   # link flags.
+-   echo "int foo(void){return 1;}" > conftest.c
+-   $LTCC $LTCFLAGS $LDFLAGS -o libconftest.dylib \
+-     -dynamiclib ${wl}-single_module conftest.c
+-   if test -f libconftest.dylib; then
+-     lt_cv_apple_cc_single_mod=yes
+-     rm -rf libconftest.dylib*
+-   fi
+-   rm conftest.c
++	# By default we will add the -single_module flag. You can override
++	# by either setting the environment variable LT_MULTI_MODULE
++	# non-empty at configure time, or by adding -multi_module to the
++	# link flags.
++	rm -rf libconftest.dylib*
++	echo "int foo(void){return 1;}" > conftest.c
++	echo "$LTCC $LTCFLAGS $LDFLAGS -o libconftest.dylib \
++-dynamiclib -Wl,-single_module conftest.c" >&5
++	$LTCC $LTCFLAGS $LDFLAGS -o libconftest.dylib \
++	  -dynamiclib -Wl,-single_module conftest.c 2>conftest.err
++        _lt_result=$?
++	# If there is a non-empty error log, and "single_module"
++	# appears in it, assume the flag caused a linker warning
++        if test -s conftest.err && $GREP single_module conftest.err; then
++	  cat conftest.err >&5
++	# Otherwise, if the output was created with a 0 exit code from
++	# the compiler, it worked.
++	elif test -f libconftest.dylib && test $_lt_result -eq 0; then
++	  lt_cv_apple_cc_single_mod=yes
++	else
++	  cat conftest.err >&5
++	fi
++	rm -rf libconftest.dylib*
++	rm -f conftest.*
+       fi
+ fi
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: $lt_cv_apple_cc_single_mod" >&5
+ $as_echo "$lt_cv_apple_cc_single_mod" >&6; }
++
+     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for -exported_symbols_list linker flag" >&5
+ $as_echo_n "checking for -exported_symbols_list linker flag... " >&6; }
+ if ${lt_cv_ld_exported_symbols_list+:} false; then :
+@@ -6879,27 +7137,62 @@ else
+ fi
+ rm -f core conftest.err conftest.$ac_objext \
+     conftest$ac_exeext conftest.$ac_ext
+-   LDFLAGS="$save_LDFLAGS"
++	LDFLAGS="$save_LDFLAGS"
+ 
+ fi
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: $lt_cv_ld_exported_symbols_list" >&5
+ $as_echo "$lt_cv_ld_exported_symbols_list" >&6; }
++
++    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for -force_load linker flag" >&5
++$as_echo_n "checking for -force_load linker flag... " >&6; }
++if ${lt_cv_ld_force_load+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  lt_cv_ld_force_load=no
++      cat > conftest.c << _LT_EOF
++int forced_loaded() { return 2;}
++_LT_EOF
++      echo "$LTCC $LTCFLAGS -c -o conftest.o conftest.c" >&5
++      $LTCC $LTCFLAGS -c -o conftest.o conftest.c 2>&5
++      echo "$AR cru libconftest.a conftest.o" >&5
++      $AR cru libconftest.a conftest.o 2>&5
++      echo "$RANLIB libconftest.a" >&5
++      $RANLIB libconftest.a 2>&5
++      cat > conftest.c << _LT_EOF
++int main() { return 0;}
++_LT_EOF
++      echo "$LTCC $LTCFLAGS $LDFLAGS -o conftest conftest.c -Wl,-force_load,./libconftest.a" >&5
++      $LTCC $LTCFLAGS $LDFLAGS -o conftest conftest.c -Wl,-force_load,./libconftest.a 2>conftest.err
++      _lt_result=$?
++      if test -s conftest.err && $GREP force_load conftest.err; then
++	cat conftest.err >&5
++      elif test -f conftest && test $_lt_result -eq 0 && $GREP forced_load conftest >/dev/null 2>&1 ; then
++	lt_cv_ld_force_load=yes
++      else
++	cat conftest.err >&5
++      fi
++        rm -f conftest.err libconftest.a conftest conftest.c
++        rm -rf conftest.dSYM
++
++fi
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $lt_cv_ld_force_load" >&5
++$as_echo "$lt_cv_ld_force_load" >&6; }
+     case $host_os in
+-    rhapsody* | darwin1.[0123])
++    rhapsody* | darwin1.[012])
+       _lt_dar_allow_undefined='${wl}-undefined ${wl}suppress' ;;
+     darwin1.*)
+-     _lt_dar_allow_undefined='${wl}-flat_namespace ${wl}-undefined ${wl}suppress' ;;
+-    darwin*)
++      _lt_dar_allow_undefined='${wl}-flat_namespace ${wl}-undefined ${wl}suppress' ;;
++    darwin*) # darwin 5.x on
+       # if running on 10.5 or later, the deployment target defaults
+       # to the OS version, if on x86, and 10.4, the deployment
+       # target defaults to 10.4. Don't you love it?
+       case ${MACOSX_DEPLOYMENT_TARGET-10.0},$host in
+-   10.0,*86*-darwin8*|10.0,*-darwin[91]*)
+-     _lt_dar_allow_undefined='${wl}-undefined ${wl}dynamic_lookup' ;;
+-   10.[012]*)
+-     _lt_dar_allow_undefined='${wl}-flat_namespace ${wl}-undefined ${wl}suppress' ;;
+-   10.*)
+-     _lt_dar_allow_undefined='${wl}-undefined ${wl}dynamic_lookup' ;;
++	10.0,*86*-darwin8*|10.0,*-darwin[91]*)
++	  _lt_dar_allow_undefined='${wl}-undefined ${wl}dynamic_lookup' ;;
++	10.[012]*)
++	  _lt_dar_allow_undefined='${wl}-flat_namespace ${wl}-undefined ${wl}suppress' ;;
++	10.*)
++	  _lt_dar_allow_undefined='${wl}-undefined ${wl}dynamic_lookup' ;;
+       esac
+     ;;
+   esac
+@@ -6909,10 +7202,10 @@ $as_echo "$lt_cv_ld_exported_symbols_list" >&6; }
+     if test "$lt_cv_ld_exported_symbols_list" = "yes"; then
+       _lt_dar_export_syms=' ${wl}-exported_symbols_list,$output_objdir/${libname}-symbols.expsym'
+     else
+-      _lt_dar_export_syms="~$NMEDIT -s \$output_objdir/\${libname}-symbols.expsym \${lib}"
++      _lt_dar_export_syms='~$NMEDIT -s $output_objdir/${libname}-symbols.expsym ${lib}'
+     fi
+-    if test "$DSYMUTIL" != ":"; then
+-      _lt_dsymutil="~$DSYMUTIL \$lib || :"
++    if test "$DSYMUTIL" != ":" && test "$lt_cv_ld_force_load" = "no"; then
++      _lt_dsymutil='~$DSYMUTIL $lib || :'
+     else
+       _lt_dsymutil=
+     fi
+@@ -7761,7 +8054,7 @@ for cc_temp in $compiler""; do
+     *) break;;
+   esac
+ done
+-cc_basename=`$echo "X$cc_temp" | $Xsed -e 's%.*/%%' -e "s%^$host_alias-%%"`
++cc_basename=`$ECHO "$cc_temp" | $SED "s%.*/%%; s%^$host_alias-%%"`
+ 
+ 
+ # Only perform the check for file, if the check method requires it
+@@ -7952,13 +8245,13 @@ ac_outfile=conftest.$ac_objext
+ echo "$lt_simple_compile_test_code" >conftest.$ac_ext
+ eval "$ac_compile" 2>&1 >/dev/null | $SED '/^$/d; /^ *+/d' >conftest.err
+ _lt_compiler_boilerplate=`cat conftest.err`
+-$rm conftest*
++$RM conftest*
+ 
+ ac_outfile=conftest.$ac_objext
+ echo "$lt_simple_link_test_code" >conftest.$ac_ext
+ eval "$ac_link" 2>&1 >/dev/null | $SED '/^$/d; /^ *+/d' >conftest.err
+ _lt_linker_boilerplate=`cat conftest.err`
+-$rm -r conftest*
++$RM -r conftest*
+ 
+ 
+ ## CAVEAT EMPTOR:
+@@ -13221,6 +13514,11 @@ lt_prog_compiler_static='`$ECHO "$lt_prog_compiler_static" | $SED "$delay_single
+ lt_cv_prog_compiler_c_o='`$ECHO "$lt_cv_prog_compiler_c_o" | $SED "$delay_single_quote_subst"`'
+ need_locks='`$ECHO "$need_locks" | $SED "$delay_single_quote_subst"`'
+ MANIFEST_TOOL='`$ECHO "$MANIFEST_TOOL" | $SED "$delay_single_quote_subst"`'
++DSYMUTIL='`$ECHO "$DSYMUTIL" | $SED "$delay_single_quote_subst"`'
++NMEDIT='`$ECHO "$NMEDIT" | $SED "$delay_single_quote_subst"`'
++LIPO='`$ECHO "$LIPO" | $SED "$delay_single_quote_subst"`'
++OTOOL='`$ECHO "$OTOOL" | $SED "$delay_single_quote_subst"`'
++OTOOL64='`$ECHO "$OTOOL64" | $SED "$delay_single_quote_subst"`'
+ libext='`$ECHO "$libext" | $SED "$delay_single_quote_subst"`'
+ shrext_cmds='`$ECHO "$shrext_cmds" | $SED "$delay_single_quote_subst"`'
+ extract_expsyms_cmds='`$ECHO "$extract_expsyms_cmds" | $SED "$delay_single_quote_subst"`'
+@@ -13333,6 +13631,11 @@ lt_prog_compiler_static \
+ lt_cv_prog_compiler_c_o \
+ need_locks \
+ MANIFEST_TOOL \
++DSYMUTIL \
++NMEDIT \
++LIPO \
++OTOOL \
++OTOOL64 \
+ shrext_cmds \
+ export_dynamic_flag_spec \
+ whole_archive_flag_spec \
+@@ -14327,6 +14630,21 @@ need_locks=$lt_need_locks
+ # Manifest tool.
+ MANIFEST_TOOL=$lt_MANIFEST_TOOL
+ 
++# Tool to manipulate archived DWARF debug symbol files on Mac OS X.
++DSYMUTIL=$lt_DSYMUTIL
++
++# Tool to change global to local symbols on Mac OS X.
++NMEDIT=$lt_NMEDIT
++
++# Tool to manipulate fat objects and archives on Mac OS X.
++LIPO=$lt_LIPO
++
++# ldd/readelf like tool for Mach-O binaries on Mac OS X.
++OTOOL=$lt_OTOOL
++
++# ldd/readelf like tool for 64 bit Mach-O binaries on Mac OS X 10.4.
++OTOOL64=$lt_OTOOL64
++
+ # Old archive suffix (normally "a").
+ libext=$libext
+ 
+-- 
+2.7.4
+

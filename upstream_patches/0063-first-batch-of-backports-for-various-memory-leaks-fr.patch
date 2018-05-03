@@ -1,0 +1,218 @@
+From e4dbb2bc7ff38777f036b57ecba57653081d1465 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Thu, 10 Dec 2015 13:48:53 +0000
+Subject: [PATCH 63/89] first batch of backports for various memory leaks from
+ trunk
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@29213 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ include/patchlevel.h |  2 +-
+ modules/m_stats.c    |  2 +-
+ src/ircd.c           | 10 +++++-----
+ src/ircd_parser.y    | 11 +++++++----
+ src/newconf.c        | 23 ++++++++++++++++++-----
+ 5 files changed, 32 insertions(+), 16 deletions(-)
+
+diff --git a/include/patchlevel.h b/include/patchlevel.h
+index d9e53e4..b3f698c 100644
+--- a/include/patchlevel.h
++++ b/include/patchlevel.h
+@@ -4,7 +4,7 @@
+  *
+  *  Copyright (C) 1990 Jarkko Oikarinen and University of Oulu, Co Center
+  *  Copyright (C) 1996-2002 Hybrid Development Team
+- *  Copyright (C) 2002-2012 ircd-ratbox development team
++ *  Copyright (C) 2002-2015 ircd-ratbox development team
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+diff --git a/modules/m_stats.c b/modules/m_stats.c
+index 4bc7bf8..86ea4cd 100644
+--- a/modules/m_stats.c
++++ b/modules/m_stats.c
+@@ -773,7 +773,7 @@ stats_operedup(struct Client *source_p)
+ static void
+ stats_ports(struct Client *source_p)
+ {
+-	if(!IsOper(source_p) && ConfigFileEntry.stats_P_oper_only)
++	if(!IsAdmin(source_p) && ConfigFileEntry.stats_P_oper_only)
+ 		sendto_one_numeric(source_p, ERR_NOPRIVILEGES, form_str(ERR_NOPRIVILEGES));
+ 	else
+ 		show_ports(source_p);
+diff --git a/src/ircd.c b/src/ircd.c
+index c988128..8cca4f7 100644
+--- a/src/ircd.c
++++ b/src/ircd.c
+@@ -560,6 +560,11 @@ ratbox_main(int argc, char *argv[])
+ 		exit(EXIT_FAILURE);
+ 	}
+ 
++	memset(&Count, 0, sizeof(Count));
++	memset(&ServerInfo, 0, sizeof(ServerInfo));
++	memset(&AdminInfo, 0, sizeof(AdminInfo));
++	memset(&ServerStats, 0, sizeof(struct ServerStatistics));
++
+ 	add_all_conf_settings();
+ 
+ 	r = read_config_file(configfile);
+@@ -624,11 +629,6 @@ ratbox_main(int argc, char *argv[])
+ 
+ 	rb_dlinkAddTail(&me, &me.node, &global_client_list);
+ 
+-	memset(&Count, 0, sizeof(Count));
+-	memset(&ServerInfo, 0, sizeof(ServerInfo));
+-	memset(&AdminInfo, 0, sizeof(AdminInfo));
+-	memset(&ServerStats, 0, sizeof(struct ServerStatistics));
+-
+ 
+ 	/* Initialise the channel capability usage counts... */
+ 	init_chcap_usage_counts();
+diff --git a/src/ircd_parser.y b/src/ircd_parser.y
+index 2242fd9..2fe4164 100644
+--- a/src/ircd_parser.y
++++ b/src/ircd_parser.y
+@@ -87,6 +87,7 @@ conf_get_yesno_value(char *str)
+ static void
+ free_cur_list(conf_parm_t* list)
+ {
++        conf_parm_t *next;
+ 	switch (list->type & CF_MTYPE)
+ 	{
+ 		case CF_STRING:
+@@ -96,11 +97,13 @@ free_cur_list(conf_parm_t* list)
+ 		case CF_LIST:
+ 			free_cur_list(list->v.list);
+ 			break;
+-		default: break;
++		default: 
++		        break;
+ 	}
+-
+-	if (list->next)
+-		free_cur_list(list->next);
++	next = list->next;
++	rb_free(list);
++	if (next != NULL)
++		free_cur_list(next);
+ }
+ 
+ 		
+diff --git a/src/newconf.c b/src/newconf.c
+index 94aa7eb..114f018 100644
+--- a/src/newconf.c
++++ b/src/newconf.c
+@@ -396,7 +396,10 @@ del_entry(conf_t * conf, confentry_t * entry)
+ 			default:
+ 				break;
+ 			}
++			rb_free(xentry->entryname);
++			rb_free(xentry->filename);
+ 			rb_dlinkDelete(&xentry->node, &entry->flist);
++			rb_free(xentry);
+ 		}
+ 	}
+ 	else
+@@ -414,6 +417,7 @@ del_entry(conf_t * conf, confentry_t * entry)
+ 	default:
+ 		break;
+ 	}
++	rb_free(entry->entryname);
+ 	rb_free(entry->filename);
+ 	rb_dlinkDelete(&entry->node, &conf->entries);
+ 
+@@ -432,6 +436,7 @@ del_conf(conf_t * conf)
+ 	}
+ 	rb_free(conf->confname);
+ 	rb_free(conf->filename);
++	rb_free(conf->subname);
+ 	rb_dlinkDelete(&conf->node, &conflist);
+ 	rb_free(conf);
+ }
+@@ -577,10 +582,11 @@ conf_end_block(void)
+ // add_entry(conf_t *conf, const char *name, void *value, int type)
+ 
+ static void
+-add_entry_flist(conf_t * conf, const char *name, conf_parm_t * cp)
++add_entry_flist(conf_t * conf, const char *name, conf_parm_t * parm)
+ {
+ 	confentry_t *entry = rb_malloc(sizeof(confentry_t));
+ 	confentry_t *sub;
++	conf_parm_t *next, *cp;
+ 	if(name == NULL)
+ 	{
+ 		return;
+@@ -588,8 +594,8 @@ add_entry_flist(conf_t * conf, const char *name, conf_parm_t * cp)
+ 	entry->entryname = rb_strdup(name);
+ 	entry->line = lineno;
+ 	entry->filename = rb_strdup(current_file);
+-	entry->type = cp->type | CF_FLIST;
+-	for(; cp != NULL; cp = cp->next)
++	entry->type = parm->type | CF_FLIST;
++	RB_DLINK_FOREACH_SAFE(cp, next, parm)
+ 	{
+ 		sub = rb_malloc(sizeof(confentry_t));
+ 		sub->entryname = rb_strdup(name);
+@@ -611,6 +617,7 @@ add_entry_flist(conf_t * conf, const char *name, conf_parm_t * cp)
+ 		case CF_STRING:
+ 		case CF_QSTRING:
+ 			sub->string = rb_strdup(cp->v.string);
++			rb_free(cp->v.string);
+ 			sub->type = cp->type;
+ 			break;
+ 		default:
+@@ -618,6 +625,7 @@ add_entry_flist(conf_t * conf, const char *name, conf_parm_t * cp)
+ 			return;
+ 		}
+ 		rb_dlinkAddTail(sub, &sub->node, &entry->flist);
++		rb_free(cp);
+ 	}
+ 
+ 	rb_dlinkAddTail(entry, &entry->node, &conf->entries);
+@@ -626,7 +634,7 @@ add_entry_flist(conf_t * conf, const char *name, conf_parm_t * cp)
+ int
+ conf_call_set(char *item, conf_parm_t * value, int type)
+ {
+-	conf_parm_t *cp;
++	conf_parm_t *cp, *next;
+ 	cp = value->v.list;
+ 
+ 	if(value->type & CF_FLIST)
+@@ -635,13 +643,14 @@ conf_call_set(char *item, conf_parm_t * value, int type)
+ 		return 0;
+ 	}
+ 
+-	for(; cp != NULL; cp = cp->next)
++	RB_DLINK_FOREACH_SAFE(cp, next, value->v.list)
+ 	{
+ 		switch (CF_TYPE(cp->type))
+ 		{
+ 		case CF_STRING:
+ 		case CF_QSTRING:
+ 			add_entry(curconf, item, (void *)cp->v.string, cp->type);
++			rb_free(cp->v.string);
+ 			break;
+ 		case CF_TIME:
+ 		case CF_INT:
+@@ -654,8 +663,10 @@ conf_call_set(char *item, conf_parm_t * value, int type)
+ 			break;
+ 
+ 		}
++		rb_free(cp);
+ 	}
+ 
++
+ 	return 0;
+ }
+ 
+@@ -910,6 +921,8 @@ conf_set_generic_value_cb(confentry_t * entry, conf_t * conf, struct conf_items
+ 		break;
+ 	case CF_STRING:
+ 	case CF_QSTRING:
++		if(*location != NULL)
++			rb_free(*location);
+ 		if(item->len)
+ 			*location = rb_strndup(entry->string, item->len);
+ 		else
+-- 
+2.7.4
+

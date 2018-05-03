@@ -1,0 +1,503 @@
+From ae395b95a981617325971c5760604188f5b46e79 Mon Sep 17 00:00:00 2001
+From: "Jilles Tjoelker (jilles)" <jilles@stack.nl>
+Date: Tue, 11 Oct 2011 22:46:35 +0000
+Subject: [PATCH 02/89] Backport rr27209 from trunk: Disable Id keyword on the
+ sqlite3 amalgamation.
+
+The file contains many $Id: tags for the various source files comprising the
+amalgamation; overwriting them all with our own has no point and causes
+problems with patches.
+
+The original $Id: tags from sqlite3 are still lost but patch should work
+normally now and a new version can have proper sqlite3 $Id:.
+
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27211 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ bandb/sqlite3/sqlite3.c | 106 ++++++++++++++++++++++++------------------------
+ 1 file changed, 53 insertions(+), 53 deletions(-)
+
+diff --git a/bandb/sqlite3/sqlite3.c b/bandb/sqlite3/sqlite3.c
+index e23b0f9..dcb2828 100644
+--- a/bandb/sqlite3/sqlite3.c
++++ b/bandb/sqlite3/sqlite3.c
+@@ -41,7 +41,7 @@
+ *************************************************************************
+ ** Internal interface definitions for SQLite.
+ **
+-** @(#) $Id$
++** @(#) $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ #ifndef _SQLITEINT_H_
+ #define _SQLITEINT_H_
+@@ -70,7 +70,7 @@
+ ** 
+ ** This file defines various limits of what SQLite can process.
+ **
+-** @(#) $Id$
++** @(#) $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -436,7 +436,7 @@ SQLITE_PRIVATE void sqlite3Coverage(int);
+ ** the version number) and changes its name to "sqlite3.h" as
+ ** part of the build process.
+ **
+-** @(#) $Id$
++** @(#) $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ #ifndef _SQLITE3_H_
+ #define _SQLITE3_H_
+@@ -6044,7 +6044,7 @@ extern "C"
+ ** This is the header file for the generic hash-table implemenation
+ ** used in SQLite.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ #ifndef _SQLITE_HASH_H_
+ #define _SQLITE_HASH_H_
+@@ -6566,7 +6566,7 @@ typedef struct WhereLevel WhereLevel;
+ ** subsystem.  See comments in the source code for a detailed description
+ ** of what each interface routine does.
+ **
+-** @(#) $Id$
++** @(#) $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ #ifndef _BTREE_H_
+ #define _BTREE_H_
+@@ -6778,7 +6778,7 @@ SQLITE_PRIVATE void sqlite3BtreeMutexArrayInsert(BtreeMutexArray *, Btree *);
+ ** or VDBE.  The VDBE implements an abstract machine that runs a
+ ** simple program to access and modify the underlying database.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ #ifndef _SQLITE_VDBE_H_
+ #define _SQLITE_VDBE_H_
+@@ -7164,7 +7164,7 @@ SQLITE_PRIVATE void sqlite3VdbeComment(Vdbe *, const char *, ...);
+ ** subsystem.  The page cache subsystem reads and writes a file a page
+ ** at a time and provides a journal for rollback.
+ **
+-** @(#) $Id$
++** @(#) $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ #ifndef _PAGER_H_
+@@ -7587,7 +7587,7 @@ SQLITE_PRIVATE sqlite3_vfs *sqlite3OsDefaultVfs(void);
+ ** Source files should #include the sqliteInt.h file and let that file
+ ** include this one indirectly.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ 
+@@ -9505,7 +9505,7 @@ SQLITE_PRIVATE void (*sqlite3IoTrace) (const char *, ...);
+ ** sqlite3RegisterDateTimeFunctions() found at the bottom of the file.
+ ** All other code has file scope.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ **
+ ** SQLite processes all times and dates as Julian Day numbers.  The
+ ** dates and times are stored as the number of days since noon
+@@ -11276,7 +11276,7 @@ sqlite3FaultStep(int id)
+ ** This file contains the C functions that implement a memory
+ ** allocation subsystem for use by SQLite.  
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -11551,7 +11551,7 @@ sqlite3_realloc(void *pPrior, int nBytes)
+ ** This file contains the C functions that implement a memory
+ ** allocation subsystem for use by SQLite.  
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -12121,7 +12121,7 @@ sqlite3MemdebugMallocCount()
+ ** This version of the memory allocation subsystem is used if
+ ** and only if SQLITE_MEMORY_SIZE is defined.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -12891,7 +12891,7 @@ sqlite3MemdebugDump(const char *zFilename)
+ ** This version of the memory allocation subsystem is used if
+ ** and only if SQLITE_POW2_MEMORY_SIZE is defined.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -13485,7 +13485,7 @@ sqlite3MemdebugDump(const char *zFilename)
+ ** implementation is suitable for testing.
+ ** debugging purposes
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ #ifdef SQLITE_MUTEX_NOOP_DEBUG
+@@ -13624,7 +13624,7 @@ sqlite3_mutex_notheld(sqlite3_mutex * p)
+ *************************************************************************
+ ** This file contains the C functions that implement mutexes for OS/2
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -13915,7 +13915,7 @@ sqlite3_mutex_notheld(sqlite3_mutex * p)
+ *************************************************************************
+ ** This file contains the C functions that implement mutexes for pthreads
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -14257,7 +14257,7 @@ sqlite3_mutex_notheld(sqlite3_mutex * p)
+ *************************************************************************
+ ** This file contains the C functions that implement mutexes for win32
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -14509,7 +14509,7 @@ sqlite3_mutex_notheld(sqlite3_mutex * p)
+ ** Memory allocation functions used throughout sqlite.
+ **
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -15956,7 +15956,7 @@ sqlite3DebugPrintf(const char *zFormat, ...)
+ ** Random numbers are used by some of the database backends in order
+ ** to generate random integer keys for tables or random filenames.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ 
+@@ -16094,7 +16094,7 @@ sqlite3PrngResetState(void)
+ ** This file contains routines used to translate between UTF-8, 
+ ** UTF-16, UTF-16BE, and UTF-16LE.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ **
+ ** Notes on UTF-8:
+ **
+@@ -17148,7 +17148,7 @@ sqlite3UtfSelfTest()
+ ** This file contains functions for allocating memory, comparing
+ ** strings, and stuff like that.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ 
+@@ -18294,7 +18294,7 @@ sqlite3SafetyCheckSickOrOk(sqlite3 * db)
+ ** This is the implementation of generic hash-tables
+ ** used in SQLite.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /* Turn bulk memory into a hash table object by initializing the
+@@ -25483,7 +25483,7 @@ sqlite3OsDefaultVfs(void)
+ ** start of a transaction, and is thus usually less than a few thousand,
+ ** but can be as large as 2 billion for a really big database.
+ **
+-** @(#) $Id$
++** @(#) $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ #define BITVEC_SZ        512
+@@ -25854,7 +25854,7 @@ sqlite3BitvecBuiltinTest(int sz, int *aOp)
+ ** file simultaneously, or one process from reading the database while
+ ** another is writing.
+ **
+-** @(#) $Id$
++** @(#) $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ #ifndef SQLITE_OMIT_DISKIO
+ 
+@@ -31890,7 +31890,7 @@ sqlite3PagerRefdump(Pager * pPager)
+ **
+ *************************************************************************
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ **
+ ** This file contains code used to implement mutexes on Btree objects.
+ ** This code really belongs in btree.c.  But btree.c is getting too
+@@ -31910,7 +31910,7 @@ sqlite3PagerRefdump(Pager * pPager)
+ **    May you share freely, never taking more than you give.
+ **
+ *************************************************************************
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ **
+ ** This file implements a external (disk-based) database using BTrees.
+ ** For a detailed discussion of BTrees, refer to
+@@ -32913,7 +32913,7 @@ sqlite3BtreeMutexArrayLeave(BtreeMutexArray * pArray)
+ **    May you share freely, never taking more than you give.
+ **
+ *************************************************************************
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ **
+ ** This file implements a external (disk-based) database using BTrees.
+ ** See the header comment on "btreeInt.h" for additional information.
+@@ -42590,7 +42590,7 @@ sqlite3ValueBytes(sqlite3_value * pVal, u8 enc)
+ ** to version 2.8.7, all this code was combined into the vdbe.c source file.
+ ** But that file was getting too big so this subroutines were split out.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ 
+@@ -47006,7 +47006,7 @@ sqlite3_db_handle(sqlite3_stmt * pStmt)
+ ** in this file for details.  If in doubt, do not deviate from existing
+ ** commenting and indentation practices when changing or adding code.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -52637,7 +52637,7 @@ sqlite3VdbeExec(Vdbe * p	/* The VDBE */
+ **
+ ** This file contains code used to implement incremental BLOB I/O.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ 
+@@ -53021,7 +53021,7 @@ sqlite3_blob_bytes(sqlite3_blob * pBlob)
+ **
+ *************************************************************************
+ **
+-** @(#) $Id$
++** @(#) $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ #ifdef SQLITE_ENABLE_ATOMIC_WRITE
+@@ -53309,7 +53309,7 @@ sqlite3JournalSize(sqlite3_vfs * pVfs)
+ ** This file contains routines used for analyzing expressions and
+ ** for generating VDBE code that evaluates expressions in SQLite.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -57403,7 +57403,7 @@ sqlite3ReleaseTempRange(Parse * pParse, int iReg, int nReg)
+ ** This file contains C code routines that used to generate VDBE code
+ ** that implements the ALTER TABLE command.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -58098,7 +58098,7 @@ sqlite3AlterBeginAddColumn(Parse * pParse, SrcList * pSrc)
+ *************************************************************************
+ ** This file contains code associated with the ANALYZE command.
+ **
+-** @(#) $Id$
++** @(#) $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ #ifndef SQLITE_OMIT_ANALYZE
+ 
+@@ -58575,7 +58575,7 @@ sqlite3AnalysisLoad(sqlite3 * db, int iDb)
+ *************************************************************************
+ ** This file contains code used to implement the ATTACH and DETACH commands.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ #ifndef SQLITE_OMIT_ATTACH
+@@ -59183,7 +59183,7 @@ sqlite3FixTriggerStep(DbFixer * pFix,	/* Context of the fixation */
+ ** systems that do not need this facility may omit it by recompiling
+ ** the library with -DSQLITE_OMIT_AUTHORIZATION=1
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -59454,7 +59454,7 @@ sqlite3AuthContextPop(AuthContext * pContext)
+ **     COMMIT
+ **     ROLLBACK
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -63492,7 +63492,7 @@ sqlite3IndexKeyinfo(Parse * pParse, Index * pIdx)
+ ** This file contains functions used to access the internal hash tables
+ ** of user defined functions and collation sequences.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ 
+@@ -63911,7 +63911,7 @@ sqlite3SchemaGet(sqlite3 * db, Btree * pBt)
+ ** This file contains C code routines that are called by the parser
+ ** in order to generate code for DELETE FROM statements.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -64522,7 +64522,7 @@ sqlite3GenerateIndexKey(Parse * pParse,	/* Parsing context */
+ ** sqliteRegisterBuildinFunctions() found at the bottom of the file.
+ ** All other code has file scope.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ 
+@@ -66210,7 +66210,7 @@ sqlite3IsLikeFunction(sqlite3 * db, Expr * pExpr, int *pIsNocase, char *aWc)
+ ** This file contains C code routines that are called by the parser
+ ** to handle INSERT statements in SQLite.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -68135,7 +68135,7 @@ xferOptimization(Parse * pParse,	/* Parser context */
+ ** other files are for internal use by SQLite and should not be
+ ** accessed by users of the library.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ 
+@@ -68330,7 +68330,7 @@ sqlite3_exec(sqlite3 * db,	/* The database on which the SQL executes */
+ ** as extensions by SQLite should #include this file instead of 
+ ** sqlite3.h.
+ **
+-** @(#) $Id$
++** @(#) $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ #ifndef _SQLITE3EXT_H_
+ #define _SQLITE3EXT_H_
+@@ -69281,7 +69281,7 @@ sqlite3AutoLoadExtensions(sqlite3 * db)
+ *************************************************************************
+ ** This file contains code used to implement the PRAGMA command.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /* Ignore this whole file if pragmas are disabled
+@@ -70825,7 +70825,7 @@ sqlite3Pragma(Parse * pParse, Token * pId1,	/* First part of [database.]id field
+ ** interface, and routines that contribute to loading the database schema
+ ** from disk.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -71754,7 +71754,7 @@ sqlite3_prepare16_v2(sqlite3 * db,	/* Database handle. */
+ ** This file contains C code routines that are called by the parser
+ ** to handle SELECT statements in SQLite.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ 
+@@ -77304,7 +77304,7 @@ sqlite3CodeRowTrigger(Parse * pParse,	/* Parse context */
+ ** This file contains C code routines that are called by the parser
+ ** to handle UPDATE statements.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ #ifndef SQLITE_OMIT_VIRTUALTABLE
+@@ -78081,7 +78081,7 @@ updateVirtualTable(Parse * pParse,	/* The parsing context */
+ ** Most of the code in this file may be omitted by defining the
+ ** SQLITE_OMIT_VACUUM macro.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ #if !defined(SQLITE_OMIT_VACUUM) && !defined(SQLITE_OMIT_ATTACH)
+@@ -78381,7 +78381,7 @@ sqlite3RunVacuum(char **pzErrMsg, sqlite3 * db)
+ *************************************************************************
+ ** This file contains code used to help implement virtual tables.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ #ifndef SQLITE_OMIT_VIRTUALTABLE
+ 
+@@ -79337,7 +79337,7 @@ sqlite3VtabMakeWritable(Parse * pParse, Table * pTab)
+ ** so is applicable.  Because this module is responsible for selecting
+ ** indices, you might also think of this module as the "query optimizer".
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -86717,7 +86717,7 @@ sqlite3Parser(void *yyp,	/* The parser */
+ ** individual tokens and sends those tokens one-by-one over to the
+ ** parser for analysis.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ 
+ /*
+@@ -87486,7 +87486,7 @@ sqlite3RunParser(Parse * pParse, const char *zSql, char **pzErrMsg)
+ ** separating it out, the code will be automatically omitted from
+ ** static links that do not use it.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ #ifndef SQLITE_OMIT_COMPLETE
+ 
+@@ -87830,7 +87830,7 @@ sqlite3_complete16(const void *zSql)
+ ** other files are for internal use by SQLite and should not be
+ ** accessed by users of the library.
+ **
+-** $Id$
++** $Id: sqlite3.c 26106 2008-09-20 03:24:47Z androsyn $
+ */
+ #ifdef SQLITE_ENABLE_FTS3
+ /************** Include fts3.h in the middle of main.c ***********************/
+-- 
+2.7.4
+

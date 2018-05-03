@@ -1,0 +1,117 @@
+From 73080c87f8798eed716ac8a458e400f180f43f27 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Tue, 29 Dec 2015 02:38:25 +0000
+Subject: [PATCH 73/89] sigh...make monitor, you know, work
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@29271 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ modules/core/m_nick.c | 9 +++++++++
+ modules/m_info.c      | 6 ++++++
+ modules/m_services.c  | 5 +++++
+ 3 files changed, 20 insertions(+)
+
+diff --git a/modules/core/m_nick.c b/modules/core/m_nick.c
+index 2e4ae9e..c2df7e8 100644
+--- a/modules/core/m_nick.c
++++ b/modules/core/m_nick.c
+@@ -44,6 +44,7 @@
+ #include "modules.h"
+ #include "scache.h"
+ #include "s_newconf.h"
++#include "monitor.h"
+ #include "reject.h"
+ 
+ /* Give all UID nicks the same TS. This ensures nick TS is always the same on
+@@ -672,6 +673,7 @@ change_local_nick(struct Client *client_p, struct Client *source_p, char *nick,
+ 			source_p->tsinfo++;
+ 		else
+ 			source_p->tsinfo = rb_current_time();
++		monitor_signoff(source_p);
+ 		/* we only do bancache for local users -- jilles */
+ 		if(source_p->user)
+ 			invalidate_bancache_user(source_p);
+@@ -704,6 +706,8 @@ change_local_nick(struct Client *client_p, struct Client *source_p, char *nick,
+ 	strcpy(source_p->user->name, nick);
+ 	add_to_hash(HASH_CLIENT, nick, source_p);
+ 
++	if(!samenick)
++		monitor_signon(source_p);
+ 
+ 	/* we used to call del_all_accepts() here, but theres no real reason
+ 	 * to clear a clients own list of accepted clients.  So just remove
+@@ -737,6 +741,7 @@ change_remote_nick(struct Client *client_p, struct Client *source_p,
+ 	if(!samenick)
+ 	{
+ 		source_p->tsinfo = newts ? newts : rb_current_time();
++		monitor_signoff(source_p);
+ 	}
+ 
+ 	sendto_common_channels_local(source_p, ":%s!%s@%s NICK :%s",
+@@ -763,6 +768,9 @@ change_remote_nick(struct Client *client_p, struct Client *source_p,
+ 	strcpy(source_p->user->name, nick);
+ 	add_to_hash(HASH_CLIENT, nick, source_p);
+ 
++	if(!samenick)
++		monitor_signon(source_p);
++
+ 	/* remove all accepts pointing to the client */
+ 	del_all_accepts(source_p);
+ 
+@@ -1084,6 +1092,7 @@ register_client(struct Client *client_p, struct Client *server,
+ 	add_to_hash(HASH_CLIENT, nick, source_p);
+ 	add_to_hash(HASH_HOSTNAME, source_p->host, source_p);
+ 	inc_global_cidr_count(source_p);
++	monitor_signon(source_p);
+ 
+ 	m = &parv[4][1];
+ 	while(*m)
+diff --git a/modules/m_info.c b/modules/m_info.c
+index df6e1d5..f7279f6 100644
+--- a/modules/m_info.c
++++ b/modules/m_info.c
+@@ -534,6 +534,12 @@ static struct InfoStruct info_table[] = {
+ 		{ &ConfigFileEntry.max_accept }, 
+ 		"Maximum nicknames on accept list",
+ 	},
++ 	{
++		"max_monitor",
++		OUTPUT_DECIMAL,
++		{ &ConfigFileEntry.max_monitor },
++		"Maximum nicknames on monitor list"
++	},	
+ 	{
+ 		"max_nick_changes",
+ 		OUTPUT_DECIMAL,
+diff --git a/modules/m_services.c b/modules/m_services.c
+index 73b6625..7fa6580 100644
+--- a/modules/m_services.c
++++ b/modules/m_services.c
+@@ -45,6 +45,7 @@
+ #include "modules.h"
+ #include "match.h"
+ #include "whowas.h"
++#include "monitor.h"
+ #include "s_serv.h"
+ 
+ static int me_su(struct Client *, struct Client *, int, const char **);
+@@ -193,6 +194,8 @@ me_rsfnc(struct Client *client_p, struct Client *source_p, int parc, const char
+ 
+ 	target_p->tsinfo = newts;
+ 
++	monitor_signoff(target_p);
++
+ 	invalidate_bancache_user(target_p);
+ 
+ 	sendto_realops_flags(UMODE_NCHANGE, L_ALL,
+@@ -212,6 +215,8 @@ me_rsfnc(struct Client *client_p, struct Client *source_p, int parc, const char
+ 	strcpy(target_p->user->name, parv[2]);
+ 	add_to_hash(HASH_CLIENT, target_p->name, target_p);
+ 
++	monitor_signon(target_p);
++
+ 	del_all_accepts(target_p);
+ 	rb_snprintf(note, sizeof(note), "Nick: %s", target_p->name);
+ 	rb_note(target_p->localClient->F, note);
+-- 
+2.7.4
+

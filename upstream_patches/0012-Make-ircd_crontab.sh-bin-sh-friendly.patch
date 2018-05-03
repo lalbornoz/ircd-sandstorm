@@ -1,0 +1,44 @@
+From bd9aac70846d7495b5f4e736594ad5927b1eac15 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Fri, 21 Oct 2011 13:22:32 +0000
+Subject: [PATCH 12/89] - Make ircd_crontab.sh /bin/sh friendly. - Use kill -0
+ instead of kill -CHLD to check the process id
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27255 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ doc/ircd_crontab.sh | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/doc/ircd_crontab.sh b/doc/ircd_crontab.sh
+index f716868..1dc6fb2 100644
+--- a/doc/ircd_crontab.sh
++++ b/doc/ircd_crontab.sh
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/bin/sh
+ #
+ # IRCD-RATBOX Crontab Script
+ # Copyright (C) 2009-2011 ircd-ratbox development team
+@@ -24,13 +24,15 @@ PID_FILE="etc/ircd.pid"
+ 
+ # Leave the rest alone.
+ 
++test -x "${IRCD_PATH}/bin/ircd" || exit 1
++
+ if [ -f "${IRCD_PATH}/${PID_FILE}" ] ; then
+-	PID="$(<${IRCD_PATH}/${PID_FILE})"
+-	if `kill -CHLD $PID >/dev/null 2>&1`; then
++	PID=`cat "${IRCD_PATH}/${PID_FILE}"`
++	if kill -0 $PID >/dev/null 2>&1 ; then
+ 		exit 0;
+ 	fi
+-	rm -f ${IRCD_PATH}/${PID_FILE}
++	rm -f "${IRCD_PATH}/${PID_FILE}"
+ fi
+ 
+-test -x ${IRCD_PATH}/bin/ircd && ${IRCD_PATH}/bin/ircd -conftest &>/dev/null && ${IRCD_PATH}/bin/ircd
++${IRCD_PATH}/bin/ircd -conftest &>/dev/null && ${IRCD_PATH}/bin/ircd
+ exit $?;
+-- 
+2.7.4
+

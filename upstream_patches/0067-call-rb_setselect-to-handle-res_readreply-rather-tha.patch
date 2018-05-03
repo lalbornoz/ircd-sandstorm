@@ -1,0 +1,27 @@
+From 13d342a3f23037fbf480c8cb246bb439cbab1cfd Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Thu, 10 Dec 2015 19:54:15 +0000
+Subject: [PATCH 67/89] call rb_setselect to handle res_readreply rather than
+ calling it directly to avoid a minor race condition, backported from trunk
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@29221 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ resolver/res.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/resolver/res.c b/resolver/res.c
+index 0b5f918..9b0b8d1 100644
+--- a/resolver/res.c
++++ b/resolver/res.c
+@@ -437,7 +437,7 @@ send_res_msg(void *msg, int len, struct reslist *request)
+ 			  (struct sockaddr *)&(irc_nsaddr_list[i]),
+ 			  GET_SS_LEN(&irc_nsaddr_list[i])) == len)
+ 			++sent;
+-		res_readreply(F, NULL);
++		rb_setselect(F, RB_SELECT_READ, res_readreply, NULL);
+ 	}
+ 
+ 	return (sent);
+-- 
+2.7.4
+

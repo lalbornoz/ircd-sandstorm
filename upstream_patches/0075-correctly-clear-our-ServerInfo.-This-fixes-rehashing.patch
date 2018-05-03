@@ -1,0 +1,128 @@
+From 5b9ab84b59dbd16db107a41bc31b87cb9f8c49c3 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Wed, 13 Jan 2016 18:07:13 +0000
+Subject: [PATCH 75/89] correctly clear our ServerInfo.  This fixes rehashing
+ for ssl related parameters
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@29289 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ src/s_conf.c | 83 ++++++++++++++++++++++++++++++------------------------------
+ 1 file changed, 41 insertions(+), 42 deletions(-)
+
+diff --git a/src/s_conf.c b/src/s_conf.c
+index 669f872..1d5590e 100644
+--- a/src/s_conf.c
++++ b/src/s_conf.c
+@@ -1141,6 +1141,9 @@ get_printable_kline(struct Client *source_p, struct ConfItem *aconf,
+ 		*oper_reason = aconf->spasswd;
+ }
+ 
++#define free_null(x) { rb_free(x); x = NULL; };
++
++
+ /*
+  * clear_out_old_conf
+  *
+@@ -1179,52 +1182,49 @@ clear_out_old_conf(void)
+ #endif
+ 
+ 	/* clean out ServerInfo */
+-	rb_free(ServerInfo.description);
+-	ServerInfo.description = NULL;
+-	rb_free(ServerInfo.network_name);
+-	ServerInfo.network_name = NULL;
+-	rb_free(ServerInfo.network_desc);
+-	ServerInfo.network_desc = NULL;
++	free_null(ServerInfo.description);
++	free_null(ServerInfo.network_name);
++	free_null(ServerInfo.network_desc);
++	ServerInfo.hub = 0;
++	ServerInfo.default_max_clients = 0;
++	
++	memset(&ServerInfo.ip, 0, sizeof(ServerInfo.ip));
++#ifdef IPV6
++	memset(&ServerInfo.ip6, 0, sizeof(ServerInfo.ip6));
++	ServerInfo.specific_ipv6_vhost = 0;
++#endif
+ 
+-	rb_free(ServerInfo.bandb_path);
+-	ServerInfo.bandb_path = NULL;
++	ServerInfo.specific_ipv4_vhost = 0;
++	
++	free_null(ServerInfo.ssl_private_key);
++	free_null(ServerInfo.ssl_ca_cert);
++	free_null(ServerInfo.ssl_cert);
++	free_null(ServerInfo.ssl_dh_params);
++	ServerInfo.ssld_count = 0;
++	
++	free_null(ServerInfo.vhost_dns);
++#ifdef IPV6
++	free_null(ServerInfo.vhost6_dns);
++#endif
++	free_null(ServerInfo.bandb_path);
+ 	
+ 	/* clean out AdminInfo */
+-	rb_free(AdminInfo.name);
+-	AdminInfo.name = NULL;
+-	rb_free(AdminInfo.email);
+-	AdminInfo.email = NULL;
+-	rb_free(AdminInfo.description);
+-	AdminInfo.description = NULL;
++	free_null(AdminInfo.name);
++	free_null(AdminInfo.email);
++	free_null(AdminInfo.description);
+ 
+ 	/* clean out log file names  */
+-	rb_free(ConfigFileEntry.fname_userlog);
+-	ConfigFileEntry.fname_userlog = NULL;
+-	rb_free(ConfigFileEntry.fname_fuserlog);
+-	ConfigFileEntry.fname_fuserlog = NULL;
+-	rb_free(ConfigFileEntry.fname_operlog);
+-	ConfigFileEntry.fname_operlog = NULL;
+-	rb_free(ConfigFileEntry.fname_foperlog);
+-	ConfigFileEntry.fname_foperlog = NULL;
+-	rb_free(ConfigFileEntry.fname_serverlog);
+-	ConfigFileEntry.fname_serverlog = NULL;
+-	rb_free(ConfigFileEntry.fname_killlog);
+-	ConfigFileEntry.fname_killlog = NULL;
+-	rb_free(ConfigFileEntry.fname_glinelog);
+-	ConfigFileEntry.fname_glinelog = NULL;
+-	rb_free(ConfigFileEntry.fname_klinelog);
+-	ConfigFileEntry.fname_klinelog = NULL;
+-	rb_free(ConfigFileEntry.fname_operspylog);
+-	ConfigFileEntry.fname_operspylog = NULL;
+-	rb_free(ConfigFileEntry.fname_ioerrorlog);
+-	ConfigFileEntry.fname_ioerrorlog = NULL;
++	free_null(ConfigFileEntry.fname_userlog);
++	free_null(ConfigFileEntry.fname_fuserlog);
++	free_null(ConfigFileEntry.fname_operlog);
++	free_null(ConfigFileEntry.fname_foperlog);
++	free_null(ConfigFileEntry.fname_serverlog);
++	free_null(ConfigFileEntry.fname_killlog);
++	free_null(ConfigFileEntry.fname_glinelog);
++	free_null(ConfigFileEntry.fname_klinelog);
++	free_null(ConfigFileEntry.fname_operspylog);
++	free_null(ConfigFileEntry.fname_ioerrorlog);
+ 
+-	rb_free(ServerInfo.vhost_dns);
+-	ServerInfo.vhost_dns = NULL;
+-#ifdef IPV6
+-	rb_free(ServerInfo.vhost6_dns);
+-	ServerInfo.vhost6_dns = NULL;
+-#endif
+ 	/* operator{} and class{} blocks are freed above */
+ 	/* clean out listeners */
+ 	close_listeners();
+@@ -1234,8 +1234,7 @@ clear_out_old_conf(void)
+ 	 */
+ 
+ 	/* clean out general */
+-	rb_free(ConfigFileEntry.kline_reason);
+-	ConfigFileEntry.kline_reason = NULL;
++	free_null(ConfigFileEntry.kline_reason);
+ 
+ #ifdef ENABLE_SERVICES
+ 	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, service_list.head)
+-- 
+2.7.4
+

@@ -1,0 +1,25 @@
+From 3bcb1971039d86e78ef79512ca4c4a2aed8df1ad Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Mon, 12 Oct 2015 14:09:49 +0000
+Subject: [PATCH 52/89] add ACCEPT/MAP supported strings
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@28737 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ src/supported.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/supported.c b/src/supported.c
+index 607377e..e241462 100644
+--- a/src/supported.c
++++ b/src/supported.c
+@@ -290,5 +290,7 @@ init_isupport(void)
+ 	add_isupport("DEAF", isupport_string, "D");
+ 	add_isupport("MONITOR", isupport_intptr, &ConfigFileEntry.max_monitor);
+ 	add_isupport("FNC", isupport_string, "");
++	add_isupport("ACCEPT", isupport_intptr, &ConfigFileEntry.max_accept);
++	add_isupport("MAP", isupport_boolean, &ConfigFileEntry.map_oper_only);
+ 	add_isupport("TARGMAX", isupport_targmax, NULL);
+ }
+-- 
+2.7.4
+

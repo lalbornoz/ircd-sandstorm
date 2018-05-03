@@ -1,0 +1,44 @@
+From b0215f032156298c7fa231f3792eb82ea57b2f57 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Wed, 13 Jan 2016 18:07:49 +0000
+Subject: [PATCH 76/89] change the ordering of the ssl_cert setup, this allows
+ the server to work without dhparam amongst other things
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@29291 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ src/newconf.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/newconf.c b/src/newconf.c
+index 0359421..dd48525 100644
+--- a/src/newconf.c
++++ b/src/newconf.c
+@@ -2235,13 +2235,10 @@ load_conf_settings(void)
+ 	{
+ 		ilog(L_MAIN, "WARNING: Unable to setup SSL.");
+ 		ircd_ssl_ok = 0;
+-	}
+-	else
+-	{
++	} else {
+ 		ircd_ssl_ok = 1;
+-		send_new_ssl_certs(ServerInfo.ssl_cert, ServerInfo.ssl_private_key,
+-				   ServerInfo.ssl_dh_params);
+ 	}
++
+ 	if(ServerInfo.ssld_count > get_ssld_count())
+ 	{
+ 		int start = ServerInfo.ssld_count - get_ssld_count();
+@@ -2250,6 +2247,9 @@ load_conf_settings(void)
+ 				ServerInfo.ssl_dh_params);
+ 
+ 	}
++	send_new_ssl_certs(ServerInfo.ssl_cert, ServerInfo.ssl_private_key,
++				ServerInfo.ssl_dh_params);
++
+ 	if(!split_users || !split_servers
+ 	   || (!ConfigChannel.no_create_on_split && !ConfigChannel.no_join_on_split))
+ 	{
+-- 
+2.7.4
+

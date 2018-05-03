@@ -1,0 +1,43 @@
+From b1778e2814042f3801f5dd6a234af3d54bf862c4 Mon Sep 17 00:00:00 2001
+From: "Daniel Reidy (dubkat)" <dubkat@gmail.com>
+Date: Fri, 14 Oct 2011 03:58:24 +0000
+Subject: [PATCH 08/89] update SVN-Access with the corrected links
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27235 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ SVN-Access | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/SVN-Access b/SVN-Access
+index 8d86a12..beac89b 100644
+--- a/SVN-Access
++++ b/SVN-Access
+@@ -4,13 +4,13 @@ So, we've gone and switched to subversion.
+ 
+ The ircd-ratbox subversion repository is available for anonymous access.
+ 
+-One can checkout the stable tree(currently 2.0.x) as follows:
++One can checkout the stable tree(currently 2.2.x) as follows:
+ 
+-svn co http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_2_0
++svn co http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_2_2
+ 
+-Or the testing tree(2.1.x):
++Or the testing tree(3.0.x):
+ 
+-svn co http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_2_1
++svn co http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0
+ 
+ Or if you prefer the bleeding edge stuff:
+ 
+@@ -22,6 +22,7 @@ list, you can subscribe at:
+ 
+ http://lists.ratbox.org/cgi-bin/mailman/listinfo/ircd-ratbox
+ 
++Direct bug reports to: http://bugs.ratbox.org
+ 
+ 
+ 
+-- 
+2.7.4
+

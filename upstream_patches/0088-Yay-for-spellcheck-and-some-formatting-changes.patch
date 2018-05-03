@@ -1,0 +1,43 @@
+From 282c960d51c5f7e5576b05f4a34e78c3696da4ef Mon Sep 17 00:00:00 2001
+From: "Daniel Reidy (dubkat)" <dubkat@gmail.com>
+Date: Wed, 6 Apr 2016 18:00:33 +0000
+Subject: [PATCH 88/89] Yay for spellcheck & and some formatting changes.
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@29432 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ README.md | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/README.md b/README.md
+index a2881b0..e957c30 100644
+--- a/README.md
++++ b/README.md
+@@ -3,7 +3,7 @@
+ ![logo](http://www.ratbox.org/logo.jpg)
+ 
+ ## Important ##
+-Notes for those among you, who dont bother reading docs:
++Notes for those among you, who don't bother reading docs:
+  * Your install is likely to fail unless you read this document. Completely.
+  * Reading INSTALL is now a must, as the old DPATH is now specified
+    when configure is run.
+@@ -17,13 +17,13 @@ Notes for those among you, who dont bother reading docs:
+    in your current source tree before running `./configure`
+ 
+ 
+-## About this document ##
+-![markdown logo](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png)
++## ![markdown logo](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png) About this document ##
++
+ This document is written in **MARKDOWN**. You may, as you likely are now, read
+ it as-is, or you can view it formatted in a viewer such as the ATOM IDE,
+ Google Chrome with the Markdown Plus extension, or in ReText.
+ There are other viewers, such as for the console, but this will be left as an
+-excersize for the reader.
++exercise for the reader.
+ 
+ ## Features & Requirements ##
+ ### A short introduction ###
+-- 
+2.7.4
+

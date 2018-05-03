@@ -1,0 +1,46 @@
+From 1d9e8c8493a76dfd36f42259bc9509a06539b9a5 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Tue, 19 Jan 2016 16:49:34 +0000
+Subject: [PATCH 86/89] blah..fix stupid bug that was stopping dh parameters
+ from being unset
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@29329 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ src/sslproc.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/src/sslproc.c b/src/sslproc.c
+index edb0c29..07bb576 100644
+--- a/src/sslproc.c
++++ b/src/sslproc.c
+@@ -36,6 +36,7 @@
+ #include "client.h"
+ #include "send.h"
+ #include "packet.h"
++#include "match.h"
+ 
+ #define ZIPSTATS_TIME           60
+ 
+@@ -630,15 +631,17 @@ void
+ send_new_ssl_certs(const char *ssl_cert, const char *ssl_private_key, const char *ssl_dh_params)
+ {
+ 	rb_dlink_node *ptr;
+-	if(ssl_cert == NULL || ssl_private_key == NULL || ssl_dh_params == NULL)
++
++	if(ssl_cert == NULL || ssl_private_key == NULL)
+ 	{
+ 		ircd_ssl_ok = 0;
+ 		return;
+ 	}
++	
+ 	RB_DLINK_FOREACH(ptr, ssl_daemons.head)
+ 	{
+ 		ssl_ctl_t *ctl = ptr->data;
+-		send_new_ssl_certs_one(ctl, ssl_cert, ssl_private_key, ssl_dh_params);
++		send_new_ssl_certs_one(ctl, ssl_cert, ssl_private_key, EmptyString(ssl_dh_params) ? "" : ssl_dh_params);
+ 	}
+ }
+ 
+-- 
+2.7.4
+

@@ -1,0 +1,41 @@
+From dec445acb5a8c2013b67f9327a672b73e2497033 Mon Sep 17 00:00:00 2001
+From: "Jilles Tjoelker (jilles)" <jilles@stack.nl>
+Date: Tue, 11 Oct 2011 22:50:44 +0000
+Subject: [PATCH 03/89] Backport r27213 from trunk: Disable keyword expansion
+ for two more files from sqlite3.
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27215 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ bandb/sqlite3/shell.c   | 2 +-
+ bandb/sqlite3/sqlite3.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/bandb/sqlite3/shell.c b/bandb/sqlite3/shell.c
+index 281e69e..3eb8ef0 100644
+--- a/bandb/sqlite3/shell.c
++++ b/bandb/sqlite3/shell.c
+@@ -12,7 +12,7 @@
+ ** This file contains code to implement the "sqlite" command line
+ ** utility for accessing SQLite databases.
+ **
+-** $Id$
++** $Id: shell.c 25424 2008-05-20 23:25:54Z androsyn $
+ */
+ #include <stdlib.h>
+ #include <string.h>
+diff --git a/bandb/sqlite3/sqlite3.h b/bandb/sqlite3/sqlite3.h
+index 7498b24..855eb2e 100644
+--- a/bandb/sqlite3/sqlite3.h
++++ b/bandb/sqlite3/sqlite3.h
+@@ -30,7 +30,7 @@
+ ** the version number) and changes its name to "sqlite3.h" as
+ ** part of the build process.
+ **
+-** @(#) $Id$
++** @(#) $Id: sqlite3.h 25424 2008-05-20 23:25:54Z androsyn $
+ */
+ #ifndef _SQLITE3_H_
+ #define _SQLITE3_H_
+-- 
+2.7.4
+

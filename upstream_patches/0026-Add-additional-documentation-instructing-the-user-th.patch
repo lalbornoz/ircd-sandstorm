@@ -1,0 +1,40 @@
+From f6e5d76c17db4266b98ef6bf15c90f06da5968f8 Mon Sep 17 00:00:00 2001
+From: "Daniel Reidy (dubkat)" <dubkat@gmail.com>
+Date: Fri, 16 Mar 2012 03:49:19 +0000
+Subject: [PATCH 26/89] Add additional documentation instructing the user that
+ issuing a --prefix to configure is highly advised.
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27369 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ INSTALL | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/INSTALL b/INSTALL
+index 356cc28..b360ffe 100644
+--- a/INSTALL
++++ b/INSTALL
+@@ -3,7 +3,7 @@
+    $Id$
+ 
+    Copyright (c) 2001 by ircd-hybrid team
+-   Copyright (c) 2002-2011 ircd-ratbox development team
++   Copyright (c) 2002-2012 ircd-ratbox development team
+ 
+      ----------------------------------------------------------------------
+ 
+@@ -31,6 +31,12 @@
+   > QUICK START
+ 
+    1. Configure (see below under CONFIGURE OPTIONS for more details):
++     
++     * IMPORTANT:
++     * At a minimum, you really ought to use the --prefix=/some/place option.
++     * By default, configure will select /usr/local/ircd -- YOU DO *NOT* WANT THAT!
++     * You may *NOT* run the ircd as root, and the ircd user needs to be able to write to
++     * it's own directories. You have been warned.
+ 
+      I.   Large networks (with thousands of users):
+           ./configure --prefix=/home/user/ircd
+-- 
+2.7.4
+

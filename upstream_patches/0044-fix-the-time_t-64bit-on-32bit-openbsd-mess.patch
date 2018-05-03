@@ -1,0 +1,672 @@
+From badcb98bc45987bf54073933a6fcd5b90dc09643 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Tue, 29 Sep 2015 17:51:20 +0000
+Subject: [PATCH 44/89] fix the time_t 64bit on 32bit openbsd mess
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@28677 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ modules/core/m_join.c   | 52 +++++++++++++++++++--------------------
+ modules/core/m_mode.c   |  4 +--
+ modules/core/m_nick.c   | 40 +++++++++++++++---------------
+ modules/core/m_server.c | 32 ++++++++++++------------
+ modules/m_services.c    |  8 +++---
+ modules/m_stats.c       | 65 ++++++++++++++++++++++++-------------------------
+ modules/m_svinfo.c      | 10 ++++----
+ modules/m_tb.c          |  8 +++---
+ src/bandbi.c            |  4 +--
+ src/channel.c           |  4 +--
+ src/client.c            | 14 +++++------
+ src/s_conf.c            |  4 +--
+ src/s_user.c            |  6 ++---
+ 13 files changed, 125 insertions(+), 126 deletions(-)
+
+diff --git a/modules/core/m_join.c b/modules/core/m_join.c
+index 4845123..7dac936 100644
+--- a/modules/core/m_join.c
++++ b/modules/core/m_join.c
+@@ -261,23 +261,23 @@ m_join(struct Client *client_p, struct Client *source_p, int parc, const char *p
+ 			if(*chptr->chname == '#')
+ 			{
+ 				sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
+-					      ":%s SJOIN %ld %s +nt :@%s",
+-					      me.id, (long)chptr->channelts,
++					      ":%s SJOIN %" RBTT_FMT " %s +nt :@%s",
++					      me.id, chptr->channelts,
+ 					      chptr->chname, source_p->id);
+ 				sendto_server(client_p, chptr, NOCAPS, CAP_TS6,
+-					      ":%s SJOIN %ld %s +nt :@%s",
+-					      me.name, (long)chptr->channelts,
++					      ":%s SJOIN %" RBTT_FMT " %s +nt :@%s",
++					      me.name, chptr->channelts,
+ 					      chptr->chname, source_p->name);
+ 			}
+ 		}
+ 		else
+ 		{
+ 			sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
+-				      ":%s JOIN %ld %s +",
++				      ":%s JOIN %" RBTT_FMT " %s +",
+ 				      use_id(source_p), (long)chptr->channelts, chptr->chname);
+ 
+ 			sendto_server(client_p, chptr, NOCAPS, CAP_TS6,
+-				      ":%s SJOIN %ld %s + :%s",
++				      ":%s SJOIN %" RBTT_FMT " %s + :%s",	
+ 				      me.name, (long)chptr->channelts,
+ 				      chptr->chname, source_p->name);
+ 		}
+@@ -355,11 +355,11 @@ ms_join(struct Client *client_p, struct Client *source_p, int parc, const char *
+ 	if(!isnew && !newts && oldts)
+ 	{
+ 		sendto_channel_local(ALL_MEMBERS, chptr,
+-				     ":%s NOTICE %s :*** Notice -- TS for %s changed from %ld to 0",
+-				     me.name, chptr->chname, chptr->chname, (long)oldts);
++				     ":%s NOTICE %s :*** Notice -- TS for %s changed from %" RBTT_FMT " to 0",
++				     me.name, chptr->chname, chptr->chname, oldts);
+ 		sendto_realops_flags(UMODE_ALL, L_ALL,
+-				     "Server %s changing TS on %s from %ld to 0",
+-				     source_p->name, chptr->chname, (long)oldts);
++				     "Server %s changing TS on %s from %" RBTT_FMT " to 0",
++				     source_p->name, chptr->chname, oldts);
+ 	}
+ 
+ 	if(isnew)
+@@ -381,9 +381,9 @@ ms_join(struct Client *client_p, struct Client *source_p, int parc, const char *
+ 	{
+ 		remove_our_modes(chptr);
+ 		sendto_channel_local(ALL_MEMBERS, chptr,
+-				     ":%s NOTICE %s :*** Notice -- TS for %s changed from %ld to %ld",
+-				     me.name, chptr->chname, chptr->chname, (long)oldts,
+-				     (long)newts);
++				     ":%s NOTICE %s :*** Notice -- TS for %s changed from %" RBTT_FMT " to %" RBTT_FMT,
++				     me.name, chptr->chname, chptr->chname, oldts,
++				     newts);
+ 		set_final_mode(source_p->servptr, chptr, &mode, &chptr->mode);
+ 		chptr->mode = mode;
+ 	}
+@@ -397,10 +397,10 @@ ms_join(struct Client *client_p, struct Client *source_p, int parc, const char *
+ 	}
+ 
+ 	sendto_server(client_p, chptr, CAP_TS6, NOCAPS,
+-		      ":%s JOIN %ld %s +", source_p->id, (long)chptr->channelts, chptr->chname);
++		      ":%s JOIN %" RBTT_FMT " %s +", source_p->id, chptr->channelts, chptr->chname);
+ 	sendto_server(client_p, chptr, NOCAPS, CAP_TS6,
+-		      ":%s SJOIN %ld %s %s :%s",
+-		      source_p->servptr->name, (long)chptr->channelts,
++		      ":%s SJOIN %" RBTT_FMT " %s %s :%s",
++		      source_p->servptr->name, chptr->channelts,
+ 		      chptr->chname, keep_new_modes ? "+" : "0", source_p->name);
+ 	return 0;
+ }
+@@ -534,11 +534,11 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char
+ 	{
+ 		sendto_channel_local(ALL_MEMBERS, chptr,
+ 				     ":%s NOTICE %s :*** Notice -- TS for %s "
+-				     "changed from %ld to 0",
+-				     me.name, chptr->chname, chptr->chname, (long)oldts);
++				     "changed from %" RBTT_FMT " to 0",
++				     me.name, chptr->chname, chptr->chname, oldts);
+ 		sendto_realops_flags(UMODE_ALL, L_ALL,
+-				     "Server %s changing TS on %s from %ld to 0",
+-				     source_p->name, chptr->chname, (long)oldts);
++				     "Server %s changing TS on %s from %" RBTT_FMT " to 0",
++				     source_p->name, chptr->chname, oldts);
+ 	}
+ 
+ 	if(isnew)
+@@ -571,9 +571,9 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char
+ 	{
+ 		remove_our_modes(chptr);
+ 		sendto_channel_local(ALL_MEMBERS, chptr,
+-				     ":%s NOTICE %s :*** Notice -- TS for %s changed from %ld to %ld",
++				     ":%s NOTICE %s :*** Notice -- TS for %s changed from %" RBTT_FMT " to %" RBTT_FMT,
+ 				     me.name, chptr->chname, chptr->chname,
+-				     (long)oldts, (long)newts);
++				     oldts, newts);
+ 	}
+ 
+ 	set_final_mode(source_p, chptr, &mode, oldmode);
+@@ -586,15 +586,15 @@ ms_sjoin(struct Client *client_p, struct Client *source_p, int parc, const char
+ 	else
+ 		modes = empty_modes;
+ 
+-	mlen_nick = rb_sprintf(buf_nick, ":%s SJOIN %ld %s %s :",
+-			       source_p->name, (long)chptr->channelts, parv[2], modes);
++	mlen_nick = rb_sprintf(buf_nick, ":%s SJOIN %" RBTT_FMT " %s %s :",
++			       source_p->name, chptr->channelts, parv[2], modes);
+ 	ptr_nick = buf_nick + mlen_nick;
+ 
+ 	/* working on the presumption eventually itll be more efficient to
+ 	 * build a TS6 buffer without checking its needed..
+ 	 */
+-	mlen_uid = rb_sprintf(buf_uid, ":%s SJOIN %ld %s %s :",
+-			      use_id(source_p), (long)chptr->channelts, parv[2], modes);
++	mlen_uid = rb_sprintf(buf_uid, ":%s SJOIN %" RBTT_FMT " %s %s :",
++			      use_id(source_p), chptr->channelts, parv[2], modes);
+ 	ptr_uid = buf_uid + mlen_uid;
+ 
+ 	mbuf = modebuf;
+diff --git a/modules/core/m_mode.c b/modules/core/m_mode.c
+index a4dff3e..eff635f 100644
+--- a/modules/core/m_mode.c
++++ b/modules/core/m_mode.c
+@@ -372,8 +372,8 @@ ms_bmask(struct Client *client_p, struct Client *source_p, int parc, const char
+ 		sendto_server(client_p, chptr, needcap, CAP_TS6, "%s %s", modebuf, parabuf);
+ 	}
+ 
+-	sendto_server(client_p, chptr, CAP_TS6 | needcap, NOCAPS, ":%s BMASK %ld %s %s :%s",
+-		      source_p->id, (long)chptr->channelts, chptr->chname, parv[3], parv[4]);
++	sendto_server(client_p, chptr, CAP_TS6 | needcap, NOCAPS, ":%s BMASK %" RBTT_FMT " %s %s :%s",
++		      source_p->id, chptr->channelts, chptr->chname, parv[3], parv[4]);
+ 	return 0;
+ }
+ 
+diff --git a/modules/core/m_nick.c b/modules/core/m_nick.c
+index 0d9b56a..2e4ae9e 100644
+--- a/modules/core/m_nick.c
++++ b/modules/core/m_nick.c
+@@ -692,10 +692,10 @@ change_local_nick(struct Client *client_p, struct Client *source_p, char *nick,
+ 
+ 		if(dosend)
+ 		{
+-			sendto_server(client_p, NULL, CAP_TS6, NOCAPS, ":%s NICK %s :%ld",
+-				      use_id(source_p), nick, (long)source_p->tsinfo);
+-			sendto_server(client_p, NULL, NOCAPS, CAP_TS6, ":%s NICK %s :%ld",
+-				      source_p->name, nick, (long)source_p->tsinfo);
++			sendto_server(client_p, NULL, CAP_TS6, NOCAPS, ":%s NICK %s :%" RBTT_FMT,
++				      use_id(source_p), nick, source_p->tsinfo);
++			sendto_server(client_p, NULL, NOCAPS, CAP_TS6, ":%s NICK %s :%" RBTT_FMT,
++				      source_p->name, nick, source_p->tsinfo);
+ 		}
+ 	}
+ 
+@@ -747,10 +747,10 @@ change_remote_nick(struct Client *client_p, struct Client *source_p,
+ 		add_history(source_p, 1);
+ 		if(dosend)
+ 		{
+-			sendto_server(client_p, NULL, CAP_TS6, NOCAPS, ":%s NICK %s :%ld",
+-				      use_id(source_p), nick, (long)source_p->tsinfo);
+-			sendto_server(client_p, NULL, NOCAPS, CAP_TS6, ":%s NICK %s :%ld",
+-				      source_p->name, nick, (long)source_p->tsinfo);
++			sendto_server(client_p, NULL, CAP_TS6, NOCAPS, ":%s NICK %s :%" RBTT_FMT,
++				      use_id(source_p), nick, source_p->tsinfo);
++			sendto_server(client_p, NULL, NOCAPS, CAP_TS6, ":%s NICK %s :%" RBTT_FMT,
++				      source_p->name, nick, source_p->tsinfo);
+ 		}
+ 	}
+ 
+@@ -793,7 +793,7 @@ perform_nick_collides(struct Client *source_p, struct Client *client_p,
+ 		{
+ 			save_user(&me, &me, target_p);
+ 			ServerStats.is_save++;
+-			sendto_one(client_p, ":%s SAVE %s %ld", me.id, uid, (long)newts);
++			sendto_one(client_p, ":%s SAVE %s %" RBTT_FMT, me.id, uid, newts);
+ 			register_client(client_p, source_p, uid, SAVE_NICKTS, parc, parv);
+ 		}
+ 		else
+@@ -833,7 +833,7 @@ perform_nick_collides(struct Client *source_p, struct Client *client_p,
+ 			 */
+ 			if(use_save)
+ 			{
+-				sendto_one(client_p, ":%s SAVE %s %ld", me.id, uid, (long)newts);
++				sendto_one(client_p, ":%s SAVE %s %" RBTT_FMT, me.id, uid, newts);
+ 				register_client(client_p, source_p, uid, SAVE_NICKTS, parc, parv);
+ 			}
+ 			else if(uid)
+@@ -906,7 +906,7 @@ perform_nickchange_collides(struct Client *source_p, struct Client *client_p,
+ 		{
+ 			ServerStats.is_save += 2;
+ 			save_user(&me, &me, target_p);
+-			sendto_one(client_p, ":%s SAVE %s %ld", me.id, source_p->id, (long)newts);
++			sendto_one(client_p, ":%s SAVE %s %" RBTT_FMT, me.id, source_p->id, newts);
+ 			/* don't send a redundant nick change */
+ 			if(!IsDigit(source_p->name[0]))
+ 				change_remote_nick(client_p, source_p, SAVE_NICKTS, source_p->id,
+@@ -958,8 +958,8 @@ perform_nickchange_collides(struct Client *source_p, struct Client *client_p,
+ 				/* can't broadcast a SAVE because the
+ 				 * nickchange has happened at client_p
+ 				 * but not in other directions -- jilles */
+-				sendto_one(client_p, ":%s SAVE %s %ld", me.id,
+-					   source_p->id, (long)newts);
++				sendto_one(client_p, ":%s SAVE %s %" RBTT_FMT, me.id,
++					   source_p->id, newts);
+ 				/* send a :<id> NICK <id> <ts> (!) */
+ 				if(!IsDigit(source_p->name[0]))
+ 					change_remote_nick(client_p, source_p, SAVE_NICKTS,
+@@ -1188,15 +1188,15 @@ save_user(struct Client *client_p, struct Client *source_p, struct Client *targe
+ 		ServerStats.is_kill++;
+ 
+ 		target_p->flags |= FLAGS_KILLED;
+-		(void)exit_client(NULL, target_p, &me, "Nick collision (no SAVE support)");
++		exit_client(NULL, target_p, &me, "Nick collision (no SAVE support)");
+ 		return;
+ 	}
+-	sendto_server(client_p, NULL, CAP_SAVE | CAP_TS6, NOCAPS, ":%s SAVE %s %ld",
+-		      source_p->id, target_p->id, (long)target_p->tsinfo);
+-	sendto_server(client_p, NULL, CAP_TS6, CAP_SAVE, ":%s NICK %s :%ld",
+-		      target_p->id, target_p->id, (long)SAVE_NICKTS);
+-	sendto_server(client_p, NULL, NOCAPS, CAP_TS6, ":%s NICK %s :%ld",
+-		      target_p->name, target_p->id, (long)SAVE_NICKTS);
++	sendto_server(client_p, NULL, CAP_SAVE | CAP_TS6, NOCAPS, ":%s SAVE %s %" RBTT_FMT,
++		      source_p->id, target_p->id, target_p->tsinfo);
++	sendto_server(client_p, NULL, CAP_TS6, CAP_SAVE, ":%s NICK %s :%" RBTT_FMT,
++		      target_p->id, target_p->id, (time_t)SAVE_NICKTS);
++	sendto_server(client_p, NULL, NOCAPS, CAP_TS6, ":%s NICK %s :%" RBTT_FMT,
++		      target_p->name, target_p->id, (time_t)SAVE_NICKTS);
+ 	if(!IsMe(client_p))
+ 		sendto_realops_flags(UMODE_SKILL, L_ALL,
+ 				     "Received SAVE message for %s from %s",
+diff --git a/modules/core/m_server.c b/modules/core/m_server.c
+index e3dd33d..d288af1 100644
+--- a/modules/core/m_server.c
++++ b/modules/core/m_server.c
+@@ -830,8 +830,8 @@ burst_modes_TS6(struct Client *client_p, struct Channel *chptr, rb_dlink_list *l
+ 	int mlen;
+ 	int cur_len;
+ 
+-	cur_len = mlen = rb_sprintf(buf, ":%s BMASK %ld %s %c :",
+-				    me.id, (long)chptr->channelts, chptr->chname, flag);
++	cur_len = mlen = rb_sprintf(buf, ":%s BMASK %" RBTT_FMT " %s %c :",
++				    me.id, chptr->channelts, chptr->chname, flag);
+ 	t = buf + mlen;
+ 
+ 	RB_DLINK_FOREACH(ptr, list->head)
+@@ -909,9 +909,9 @@ burst_TS5(struct Client *client_p)
+ 			ubuf[1] = '\0';
+ 		}
+ 
+-		sendto_one(client_p, "NICK %s %d %ld %s %s %s %s :%s",
++		sendto_one(client_p, "NICK %s %d  %" RBTT_FMT " %s %s %s %s :%s",
+ 			   target_p->name, target_p->hopcount + 1,
+-			   (long)target_p->tsinfo, ubuf,
++			   target_p->tsinfo, ubuf,
+ 			   target_p->username, target_p->host,
+ 			   target_p->servptr->name, target_p->info);
+ 
+@@ -933,8 +933,8 @@ burst_TS5(struct Client *client_p)
+ 		if(*chptr->chname != '#')
+ 			continue;
+ 
+-		cur_len = mlen = rb_sprintf(buf, ":%s SJOIN %ld %s %s :", me.name,
+-					    (long)chptr->channelts, chptr->chname,
++		cur_len = mlen = rb_sprintf(buf, ":%s SJOIN %" RBTT_FMT " %s %s :", me.name,
++					    chptr->channelts, chptr->chname,
+ 					    channel_modes(chptr, client_p));
+ 
+ 		t = buf + mlen;
+@@ -979,8 +979,8 @@ burst_TS5(struct Client *client_p)
+ 			burst_modes_TS5(client_p, chptr->chname, &chptr->invexlist, 'I');
+ 
+ 		if(IsCapable(client_p, CAP_TB) && chptr->topic != NULL)
+-			sendto_one(client_p, ":%s TB %s %ld %s%s:%s",
+-				   me.name, chptr->chname, (long)chptr->topic->topic_time,
++			sendto_one(client_p, ":%s TB %s  %" RBTT_FMT " %s%s:%s",
++				   me.name, chptr->chname, chptr->topic->topic_time,
+ 				   ConfigChannel.burst_topicwho ? chptr->topic->topic_info : "",
+ 				   ConfigChannel.burst_topicwho ? " " : "", chptr->topic->topic);
+ 
+@@ -1033,18 +1033,18 @@ burst_TS6(struct Client *client_p)
+ 		}
+ 
+ 		if(has_id(target_p))
+-			sendto_one(client_p, ":%s UID %s %d %ld %s %s %s %s %s :%s",
++			sendto_one(client_p, ":%s UID %s %d %" RBTT_FMT " %s %s %s %s %s :%s",
+ 				   target_p->servptr->id, target_p->name,
+ 				   target_p->hopcount + 1,
+-				   (long)target_p->tsinfo, ubuf,
++				   target_p->tsinfo, ubuf,
+ 				   target_p->username, target_p->host,
+ 				   IsIPSpoof(target_p) ? "0" : target_p->sockhost,
+ 				   target_p->id, target_p->info);
+ 		else
+-			sendto_one(client_p, "NICK %s %d %ld %s %s %s %s :%s",
++			sendto_one(client_p, "NICK %s %d %" RBTT_FMT " %s %s %s %s :%s",
+ 				   target_p->name,
+ 				   target_p->hopcount + 1,
+-				   (long)target_p->tsinfo,
++				   target_p->tsinfo,
+ 				   ubuf,
+ 				   target_p->username, target_p->host,
+ 				   target_p->servptr->name, target_p->info);
+@@ -1068,8 +1068,8 @@ burst_TS6(struct Client *client_p)
+ 		if(*chptr->chname != '#')
+ 			continue;
+ 
+-		cur_len = mlen = rb_sprintf(buf, ":%s SJOIN %ld %s %s :", me.id,
+-					    (long)chptr->channelts, chptr->chname,
++		cur_len = mlen = rb_sprintf(buf, ":%s SJOIN %" RBTT_FMT " %s %s :", me.id,
++					    chptr->channelts, chptr->chname,
+ 					    channel_modes(chptr, client_p));
+ 
+ 		t = buf + mlen;
+@@ -1113,8 +1113,8 @@ burst_TS6(struct Client *client_p)
+ 			burst_modes_TS6(client_p, chptr, &chptr->invexlist, 'I');
+ 
+ 		if(IsCapable(client_p, CAP_TB) && chptr->topic != NULL)
+-			sendto_one(client_p, ":%s TB %s %ld %s%s:%s",
+-				   me.id, chptr->chname, (long)chptr->topic->topic_time,
++			sendto_one(client_p, ":%s TB %s %" RBTT_FMT " %s%s:%s",
++				   me.id, chptr->chname, chptr->topic->topic_time,
+ 				   ConfigChannel.burst_topicwho ? chptr->topic->topic_info : "",
+ 				   ConfigChannel.burst_topicwho ? " " : "", chptr->topic->topic);
+ 
+diff --git a/modules/m_services.c b/modules/m_services.c
+index d74aa21..73b6625 100644
+--- a/modules/m_services.c
++++ b/modules/m_services.c
+@@ -203,10 +203,10 @@ me_rsfnc(struct Client *client_p, struct Client *source_p, int parc, const char
+ 				     target_p->name, target_p->username, target_p->host, parv[2]);
+ 
+ 	add_history(target_p, 1);
+-	sendto_server(NULL, NULL, CAP_TS6, NOCAPS, ":%s NICK %s :%ld",
+-		      use_id(target_p), parv[2], (long)target_p->tsinfo);
+-	sendto_server(NULL, NULL, NOCAPS, CAP_TS6, ":%s NICK %s :%ld",
+-		      target_p->name, parv[2], (long)target_p->tsinfo);
++	sendto_server(NULL, NULL, CAP_TS6, NOCAPS, ":%s NICK %s :%" RBTT_FMT,
++		      use_id(target_p), parv[2], target_p->tsinfo);
++	sendto_server(NULL, NULL, NOCAPS, CAP_TS6, ":%s NICK %s :%" RBTT_FMT,
++		      target_p->name, parv[2], target_p->tsinfo);
+ 
+ 	del_from_hash(HASH_CLIENT, target_p->name, target_p);
+ 	strcpy(target_p->user->name, parv[2]);
+diff --git a/modules/m_stats.c b/modules/m_stats.c
+index c872c75..4bc7bf8 100644
+--- a/modules/m_stats.c
++++ b/modules/m_stats.c
+@@ -263,7 +263,7 @@ stats_delay(struct Client *source_p)
+ 	HASH_WALK(i, U_MAX, ptr, ndTable)
+ 	{
+ 		nd = ptr->data;
+-		sendto_one_notice(source_p, "Delaying: %s for %ld", nd->name, (long)nd->expire);
++		sendto_one_notice(source_p, "Delaying: %s for %" RBTT_FMT, nd->name, nd->expire);
+ 	}
+ HASH_WALK_END}
+ 
+@@ -749,7 +749,7 @@ stats_operedup(struct Client *source_p)
+ 		if(MyClient(source_p) && IsOper(source_p))
+ 		{
+ 			sendto_one_numeric(source_p, RPL_STATSDEBUG,
+-					   "p :[%c][%s] %s (%s@%s) Idle: %ld",
++					   "p :[%c][%s] %s (%s@%s) Idle: %" RBTT_FMT,
+ 					   IsAdmin(target_p) ? 'A' : 'O',
+ 					   get_oper_privs(target_p->operflags),
+ 					   target_p->name, target_p->username, target_p->host,
+@@ -758,7 +758,7 @@ stats_operedup(struct Client *source_p)
+ 		else
+ 		{
+ 			sendto_one_numeric(source_p, RPL_STATSDEBUG,
+-					   "p :[%c] %s (%s@%s) Idle: %ld",
++					   "p :[%c] %s (%s@%s) Idle: %" RBTT_FMT,
+ 					   IsAdmin(target_p) ? 'A' : 'O',
+ 					   target_p->name, target_p->username, target_p->host,
+ 					   (long)(rb_current_time() - target_p->localClient->last));
+@@ -862,26 +862,23 @@ stats_usage(struct Client *source_p)
+ 	if(0 == rup)
+ 		rup = 1;
+ 
+-	sendto_one_numeric(source_p, RPL_STATSDEBUG,
+-			   "R :CPU Secs %ld:%ld User %ld:%ld System %ld:%ld",
+-			   (long)(secs / 60), (long)(secs % 60),
+-			   (long)(rus.ru_utime.tv_sec / 60),
+-			   (long)(rus.ru_utime.tv_sec % 60),
+-			   (long)(rus.ru_stime.tv_sec / 60), (long)(rus.ru_stime.tv_sec % 60));
+-	sendto_one_numeric(source_p, RPL_STATSDEBUG,
+-			   "R :RSS %ld ShMem %ld Data %ld Stack %ld",
+-			   rus.ru_maxrss, (rus.ru_ixrss / rup),
+-			   (rus.ru_idrss / rup), (rus.ru_isrss / rup));
+-	sendto_one_numeric(source_p, RPL_STATSDEBUG,
+-			   "R :Swaps %ld Reclaims %ld Faults %ld",
+-			   rus.ru_nswap, rus.ru_minflt, rus.ru_majflt);
+-	sendto_one_numeric(source_p, RPL_STATSDEBUG,
+-			   "R :Block in %ld out %ld", rus.ru_inblock, rus.ru_oublock);
+-	sendto_one_numeric(source_p, RPL_STATSDEBUG,
+-			   "R :Msg Rcv %ld Send %ld", rus.ru_msgrcv, rus.ru_msgsnd);
+-	sendto_one_numeric(source_p, RPL_STATSDEBUG,
+-			   "R :Signals %ld Context Vol. %ld Invol %ld",
+-			   rus.ru_nsignals, rus.ru_nvcsw, rus.ru_nivcsw);
++        sendto_one_numeric(source_p, RPL_STATSDEBUG,
++                           "R :CPU Secs %" RBTT_FMT ":%" RBTT_FMT " User %" RBTT_FMT ":%" RBTT_FMT
++                           " System %" RBTT_FMT ":%" RBTT_FMT, (secs / 60), (secs % 60),
++                           (rus.ru_utime.tv_sec / 60), (rus.ru_utime.tv_sec % 60),
++                           (rus.ru_stime.tv_sec / 60), (rus.ru_stime.tv_sec % 60));
++        sendto_one_numeric(source_p, RPL_STATSDEBUG,
++                           "R :RSS %ld ShMem %ld Data %ld Stack %ld",
++                           rus.ru_maxrss, (rus.ru_ixrss / rup), (rus.ru_idrss / rup),
++                           (rus.ru_isrss / rup));
++        sendto_one_numeric(source_p, RPL_STATSDEBUG, "R :Swaps %ld Reclaims %ld Faults %ld",
++                           rus.ru_nswap, rus.ru_minflt, rus.ru_majflt);
++        sendto_one_numeric(source_p, RPL_STATSDEBUG, "R :Block in %ld out %ld", rus.ru_inblock,
++                           rus.ru_oublock);
++        sendto_one_numeric(source_p, RPL_STATSDEBUG, "R :Msg Rcv %ld Send %ld", rus.ru_msgrcv,
++                           rus.ru_msgsnd);
++        sendto_one_numeric(source_p, RPL_STATSDEBUG, "R :Signals %ld Context Vol. %ld Invol %ld",
++                           rus.ru_nsignals, rus.ru_nvcsw, rus.ru_nivcsw);
+ #endif
+ }
+ 
+@@ -1037,7 +1034,7 @@ stats_servers(struct Client *source_p)
+ {
+ 	struct Client *target_p;
+ 	rb_dlink_node *ptr;
+-	long days, hours, minutes, seconds;
++	time_t days, hours, minutes, seconds;
+ 	int j = 0;
+ 
+ 	if(ConfigServerHide.flatten_links && !IsOper(source_p) && !IsExemptShide(source_p))
+@@ -1051,7 +1048,7 @@ stats_servers(struct Client *source_p)
+ 		target_p = ptr->data;
+ 
+ 		j++;
+-		seconds = (long)(rb_current_time() - target_p->localClient->firsttime);
++		seconds = (rb_current_time() - target_p->localClient->firsttime);
+ 
+ 		days = seconds / 86400;
+ 		seconds %= 86400;
+@@ -1060,14 +1057,16 @@ stats_servers(struct Client *source_p)
+ 		minutes = seconds / 60;
+ 		seconds %= 60;
+ 
+-		sendto_one_numeric(source_p, RPL_STATSDEBUG,
+-				   "V :%s (%s!*@*) Idle: %ld SendQ: %d "
+-				   "Connected: %ld day%s, %ld:%02ld:%02ld",
+-				   target_p->name,
+-				   (target_p->serv->by[0] ? target_p->serv->by : "Remote."),
+-				   (long)(rb_current_time() - target_p->localClient->lasttime),
+-				   rb_linebuf_len(&target_p->localClient->buf_sendq),
+-				   days, (days == 1) ? "" : "s", hours, minutes, seconds);
++                sendto_one_numeric(source_p, RPL_STATSDEBUG,
++                                   "V :%s (%s!*@*) Idle: %" RBTT_FMT " SendQ: %u "
++                                   "Connected: %" RBTT_FMT " day%s, %" RBTT_FMT ":%02" RBTT_FMT
++                                   ":%02" RBTT_FMT, target_p->name,
++                                   (target_p->serv->by[0] ? target_p->serv->by : "Remote."),
++                                   (rb_current_time() - target_p->localClient->lasttime),
++                                   rb_linebuf_len(&target_p->localClient->buf_sendq), days,
++                                   (days == 1) ? "" : "s", hours, minutes, seconds);
++
++
+ 	}
+ 
+ 	sendto_one_numeric(source_p, RPL_STATSDEBUG, "V :%d Server(s)", j);
+diff --git a/modules/m_svinfo.c b/modules/m_svinfo.c
+index 25c4957..24f4574 100644
+--- a/modules/m_svinfo.c
++++ b/modules/m_svinfo.c
+@@ -56,7 +56,7 @@ DECLARE_MODULE_AV1(svinfo, NULL, NULL, svinfo_clist, NULL, NULL, "$Revision$");
+ static int
+ ms_svinfo(struct Client *client_p, struct Client *source_p, int parc, const char *parv[])
+ {
+-	signed int deltat;
++	time_t deltat;
+ 	time_t theirtime;
+ 
+ 	/* SVINFO isnt remote. */
+@@ -84,12 +84,12 @@ ms_svinfo(struct Client *client_p, struct Client *source_p, int parc, const char
+ 	{
+ 		sendto_realops_flags(UMODE_ALL, L_ALL,
+ 				     "Link %s dropped, excessive TS delta"
+-				     " (my TS=%ld, their TS=%ld, delta=%d)",
++				     " (my TS=%" RBTT_FMT ", their TS=%" RBTT_FMT " delta=%ld)",
+ 				     source_p->name,
+-				     (long)rb_current_time(), (long)theirtime, deltat);
++				     rb_current_time(), theirtime, deltat);
+ 		ilog(L_SERVER,
+ 		     "Link %s dropped, excessive TS delta"
+-		     " (my TS=%ld, their TS=%ld, delta=%d)",
++		     " (my TS=%" RBTT_FMT ", their TS=%" RBTT_FMT ", delta=%ld)",
+ 		     log_client_name(source_p, SHOW_IP), (long)rb_current_time(), (long)theirtime,
+ 		     deltat);
+ 		exit_client(source_p, source_p, source_p, "Excessive TS delta");
+@@ -100,7 +100,7 @@ ms_svinfo(struct Client *client_p, struct Client *source_p, int parc, const char
+ 	{
+ 		sendto_realops_flags(UMODE_ALL, L_ALL,
+ 				     "Link %s notable TS delta"
+-				     " (my TS=%ld, their TS=%ld, delta=%d)",
++				     " (my TS=% " RBTT_FMT ", their TS=%" RBTT_FMT ", delta=%ld)",
+ 				     source_p->name, (long)rb_current_time(), (long)theirtime,
+ 				     deltat);
+ 	}
+diff --git a/modules/m_tb.c b/modules/m_tb.c
+index efc2a64..6d046b9 100644
+--- a/modules/m_tb.c
++++ b/modules/m_tb.c
+@@ -103,13 +103,13 @@ ms_tb(struct Client *client_p, struct Client *source_p, int parc, const char *pa
+ 		sendto_channel_local(ALL_MEMBERS, chptr, ":%s TOPIC %s :%s",
+ 				     source_p->name, chptr->chname, newtopic);
+ 		sendto_server(client_p, chptr, CAP_TB | CAP_TS6, NOCAPS,
+-			      ":%s TB %s %ld %s%s:%s",
+-			      use_id(source_p), chptr->chname, (long)chptr->topic->topic_time,
++			      ":%s TB %s %" RBTT_FMT " %s%s:%s",
++			      use_id(source_p), chptr->chname, chptr->topic->topic_time,
+ 			      ConfigChannel.burst_topicwho ? chptr->topic->topic_info : "",
+ 			      ConfigChannel.burst_topicwho ? " " : "", chptr->topic->topic);
+ 		sendto_server(client_p, chptr, CAP_TB, CAP_TS6,
+-			      ":%s TB %s %ld %s%s:%s",
+-			      source_p->name, chptr->chname, (long)chptr->topic->topic_time,
++			      ":%s TB %s %" RBTT_FMT " %s%s:%s",
++			      source_p->name, chptr->chname, chptr->topic->topic_time,
+ 			      ConfigChannel.burst_topicwho ? chptr->topic->topic_info : "",
+ 			      ConfigChannel.burst_topicwho ? " " : "", chptr->topic->topic);
+ 	}
+diff --git a/src/bandbi.c b/src/bandbi.c
+index ed1b2ab..d40d286 100644
+--- a/src/bandbi.c
++++ b/src/bandbi.c
+@@ -130,8 +130,8 @@ bandb_add(bandb_type type, struct Client *source_p, const char *mask1,
+ 	if(!EmptyString(mask2))
+ 		rb_snprintf_append(buf, sizeof(buf), "%s ", mask2);
+ 
+-	rb_snprintf_append(buf, sizeof(buf), "%s %ld %d :%s",
+-			   get_oper_name(source_p), (long int)rb_current_time(), perm, reason);
++	rb_snprintf_append(buf, sizeof(buf), "%s %" RBTT_FMT " %d :%s",
++			   get_oper_name(source_p), rb_current_time(), perm, reason);
+ 
+ 	if(!EmptyString(oper_reason))
+ 		rb_snprintf_append(buf, sizeof(buf), "|%s", oper_reason);
+diff --git a/src/channel.c b/src/channel.c
+index 83e576f..e0d26b8 100644
+--- a/src/channel.c
++++ b/src/channel.c
+@@ -990,8 +990,8 @@ send_cap_mode_changes(struct Client *client_p, struct Client *source_p,
+ 		nocap = chcap_combos[j].cap_no;
+ 
+ 		if(cap & CAP_TS6)
+-			mbl = preflen = rb_sprintf(modebuf, ":%s TMODE %ld %s ",
+-						   use_id(source_p), (long)chptr->channelts,
++			mbl = preflen = rb_sprintf(modebuf, ":%s TMODE %" RBTT_FMT " %s ",
++						   use_id(source_p), chptr->channelts,
+ 						   chptr->chname);
+ 		else
+ 			mbl = preflen = rb_sprintf(modebuf, ":%s MODE %s ",
+diff --git a/src/client.c b/src/client.c
+index afdf507..f52be5b 100644
+--- a/src/client.c
++++ b/src/client.c
+@@ -1312,13 +1312,13 @@ exit_local_server(struct Client *client_p, struct Client *source_p, struct Clien
+ 				  comment1);
+ 
+ 	sendto_realops_flags(UMODE_ALL, L_ALL, "%s was connected"
+-			     " for %ld seconds.  %llu/%llu send/recv.",
++			     " for %" RBTT_FMT " seconds.  %llu/%llu send/recv.",
+ 			     source_p->name,
+-			     (long int)(rb_current_time() - source_p->localClient->firsttime),
++			     (rb_current_time() - source_p->localClient->firsttime),
+ 			     sendb, recvb);
+ 
+-	ilog(L_SERVER, "%s was connected for %ld seconds.  %llu/%llu send/recv.",
+-	     source_p->name, (long int)(rb_current_time() - source_p->localClient->firsttime),
++	ilog(L_SERVER, "%s was connected for %" RBTT_FMT " seconds.  %llu/%llu send/recv.",
++	     source_p->name, (rb_current_time() - source_p->localClient->firsttime),
+ 	     sendb, recvb);
+ 
+ 	if(has_id(source_p))
+@@ -1827,7 +1827,7 @@ error_exit_client(struct Client *client_p, int error)
+ 
+ 	if(IsServer(client_p) || IsHandshake(client_p))
+ 	{
+-		int connected = rb_current_time() - client_p->localClient->firsttime;
++		time_t connected = rb_current_time() - client_p->localClient->firsttime;
+ 
+ 		if(error == 0)
+ 		{
+@@ -1845,8 +1845,8 @@ error_exit_client(struct Client *client_p, int error)
+ 		}
+ 
+ 		sendto_realops_flags(UMODE_ALL, L_ALL,
+-				     "%s had been connected for %d day%s, %2d:%02d:%02d",
+-				     client_p->name, connected / 86400,
++				     "%s had been connected for % " RBTT_FMT " day%s, %2" RBTT_FMT "%02" RBTT_FMT "%02" RBTT_FMT,
++				     client_p->name, (connected / 86400),
+ 				     (connected / 86400 == 1) ? "" : "s",
+ 				     (connected % 86400) / 3600,
+ 				     (connected % 3600) / 60, connected % 60);
+diff --git a/src/s_conf.c b/src/s_conf.c
+index ed456c8..3fc8c44 100644
+--- a/src/s_conf.c
++++ b/src/s_conf.c
+@@ -1001,11 +1001,11 @@ expire_temp_kd(void *list)
+ 				#define a_x(x) (aconf->x)
+ 				ilog(L_MAIN, "WARNING: DLINE with aconf->status & CONF_DLINE but aconf->pnode == NULL! " 
+ 					"status:%x flags:%x clients:%d info.name:%s info.oper:%s host:%s passwd:%s spasswd:%s user:%s port:%d " 
+-					"hold:%ld, class:%p pnode:%p", a_x(status), a_x(flags), a_x(clients), a_string(info.name), a_string(info.oper),
++					"hold:%" RBTT_FMT ", class:%p pnode:%p", a_x(status), a_x(flags), a_x(clients), a_string(info.name), a_string(info.oper),
+ 					a_string(host), a_string(passwd), a_string(spasswd), a_string(user), a_x(port), a_x(hold), a_x(c_class), a_x(pnode));	
+ 				sendto_realops_flags(UMODE_ALL, L_ALL, "WARNING: DLINE with aconf->status & CONF_DLINE but aconf->pnode == NULL! " 
+ 					"status:%x flags:%x clients:%d info.name:%s info.oper:%s host:%s passwd:%s spasswd:%s user:%s port:%d " 
+-					"hold:%ld, class:%p pnode:%p", a_x(status), a_x(flags), a_x(clients), a_string(info.name), a_string(info.oper),
++					"hold:%" RBTT_FMT ", class:%p pnode:%p", a_x(status), a_x(flags), a_x(clients), a_string(info.name), a_string(info.oper),
+ 					a_string(host), a_string(passwd), a_string(spasswd), a_string(user), a_x(port), a_x(hold), a_x(c_class), a_x(pnode));
+ 				#undef a_string
+ 				#undef a_x
+diff --git a/src/s_user.c b/src/s_user.c
+index 2498f33..8599696 100644
+--- a/src/s_user.c
++++ b/src/s_user.c
+@@ -557,7 +557,7 @@ introduce_client(struct Client *client_p, struct Client *source_p)
+ 	if(has_id(source_p))
+ 	{
+ 		sendto_server(client_p, NULL, CAP_TS6, NOCAPS,
+-			      ":%s UID %s %d %ld %s %s %s %s %s :%s",
++			      ":%s UID %s %d %" RBTT_FMT " %s %s %s %s %s :%s",
+ 			      source_p->servptr->id, source_p->name,
+ 			      source_p->hopcount + 1,
+ 			      (long)source_p->tsinfo, ubuf,
+@@ -566,7 +566,7 @@ introduce_client(struct Client *client_p, struct Client *source_p)
+ 			      source_p->id, source_p->info);
+ 
+ 		sendto_server(client_p, NULL, NOCAPS, CAP_TS6,
+-			      "NICK %s %d %ld %s %s %s %s :%s",
++			      "NICK %s %d %" RBTT_FMT " %s %s %s %s :%s",
+ 			      source_p->name, source_p->hopcount + 1,
+ 			      (long)source_p->tsinfo,
+ 			      ubuf, source_p->username, source_p->host,
+@@ -574,7 +574,7 @@ introduce_client(struct Client *client_p, struct Client *source_p)
+ 	}
+ 	else
+ 		sendto_server(client_p, NULL, NOCAPS, NOCAPS,
+-			      "NICK %s %d %ld %s %s %s %s :%s",
++			      "NICK %s %d %" RBTT_FMT " %s %s %s %s :%s",
+ 			      source_p->name, source_p->hopcount + 1,
+ 			      (long)source_p->tsinfo,
+ 			      ubuf, source_p->username, source_p->host,
+-- 
+2.7.4
+

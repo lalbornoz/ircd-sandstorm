@@ -1,0 +1,27 @@
+From b0378a369e883425a7bba8e08b47e8aeb226540b Mon Sep 17 00:00:00 2001
+From: "Jilles Tjoelker (jilles)" <jilles@stack.nl>
+Date: Sun, 27 May 2012 13:09:42 +0000
+Subject: [PATCH 30/89] Backport trunk r27397: Fix typo, reported by Scott
+ MacDonald.
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27399 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ src/ircd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/ircd.c b/src/ircd.c
+index 5b4fbf6..a31138c 100644
+--- a/src/ircd.c
++++ b/src/ircd.c
+@@ -567,7 +567,7 @@ ratbox_main(int argc, char *argv[])
+ 	if(r > 0)
+ 	{
+ 		fprintf(stderr,
+-			"ERROR: Unable to start ircd: found %d syntax error(s) whlist loading config file.  Try running with -conftest\n",
++			"ERROR: Unable to start ircd: found %d syntax error(s) whilst loading config file.  Try running with -conftest\n",
+ 			r);
+ 		return 1;
+ 	}
+-- 
+2.7.4
+

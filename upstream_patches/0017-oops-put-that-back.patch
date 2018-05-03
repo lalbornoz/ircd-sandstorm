@@ -1,0 +1,26 @@
+From a9fe4512be9d98ccaec5eaa7f14d24f48cd3c46a Mon Sep 17 00:00:00 2001
+From: "Daniel Reidy (dubkat)" <dubkat@gmail.com>
+Date: Sat, 12 Nov 2011 21:41:56 +0000
+Subject: [PATCH 17/89] oops, put that back
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27315 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ bandb/bandb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/bandb/bandb.c b/bandb/bandb.c
+index 7b269d5..bf47563 100644
+--- a/bandb/bandb.c
++++ b/bandb/bandb.c
+@@ -261,7 +261,7 @@ db_error_cb(const char *errstr)
+ {
+ 	char buf[256];
+ 	rb_snprintf(buf, sizeof(buf), "! :%s", errstr);
+-	rb_helper_write(bandb_helper, buf);
++	rb_helper_write(bandb_helper, "%s", buf);
+ 	rb_sleep(2 << 30, 0);
+ 	exit(1);
+ }
+-- 
+2.7.4
+

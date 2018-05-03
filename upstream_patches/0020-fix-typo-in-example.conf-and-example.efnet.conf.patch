@@ -1,0 +1,44 @@
+From a759568d788a400765f172a5683edd93fb6050b5 Mon Sep 17 00:00:00 2001
+From: "Daniel Reidy (dubkat)" <dubkat@gmail.com>
+Date: Mon, 16 Jan 2012 05:43:30 +0000
+Subject: [PATCH 20/89] fix typo in example.conf and example.efnet.conf
+
+reported by Brad Smith <brad@comstyle.com>
+
+
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27341 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ doc/example.conf       | 2 +-
+ doc/example.efnet.conf | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/doc/example.conf b/doc/example.conf
+index 4c22b9f..cf14183 100755
+--- a/doc/example.conf
++++ b/doc/example.conf
+@@ -88,7 +88,7 @@ serverinfo {
+ 	/* vhost6_dns: the IP to bind outgoing dns requests when the dns server is 
+ 	 * ipv6
+ 	 */
+-	# vhost_dns6 = "3ffe:80e8:546::3";
++	# vhost6_dns = "3ffe:80e8:546::3";
+ 
+ 	/* default max clients: the default maximum number of clients
+ 	 * allowed to connect.  This can be changed once ircd has started by
+diff --git a/doc/example.efnet.conf b/doc/example.efnet.conf
+index cb92473..2114754 100644
+--- a/doc/example.efnet.conf
++++ b/doc/example.efnet.conf
+@@ -91,7 +91,7 @@ serverinfo {
+ 	/* vhost6_dns: the IP to bind outgoing dns requests when the dns server is
+ 	 * ipv6
+ 	 */
+-	# vhost_dns6 = "3ffe:80e8:546::3";
++	# vhost6_dns = "3ffe:80e8:546::3";
+ 
+ 	/* default max clients: the default maximum number of clients
+ 	 * allowed to connect.  This can be changed once ircd has started by
+-- 
+2.7.4
+

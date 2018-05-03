@@ -1,0 +1,25 @@
+From 58072d5b987e0fe001d28ece1c254a71850cc9e2 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Mon, 31 Oct 2011 16:11:37 +0000
+Subject: [PATCH 13/89] remove spy_trace_notice.c from README
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27287 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ contrib/README | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/contrib/README b/contrib/README
+index 5cf7d5f..fa79800 100644
+--- a/contrib/README
++++ b/contrib/README
+@@ -71,7 +71,6 @@ spy_links_notice.c   - Spy on clients doing LINKS
+ spy_motd_notice.c    - Spy on clients doing MOTD
+ spy_stats_notice.c   - Spy on clients doing all STATS
+ spy_stats_p_notice.c - Spy on clients doing STATS p only
+-spy_trace_notice.c   - Spy on clients doing TRACE/LTRACE
+ spy_whois_notice.c   - Spy on local clients who WHOIS you.
+ spy_whois_notice_global.c - Spy on remote clients who WHOIS you.
+ 
+-- 
+2.7.4
+

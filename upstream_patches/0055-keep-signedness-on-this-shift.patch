@@ -1,0 +1,26 @@
+From fa5b35234d8ea378df7201b0b8bb98d79c121aa7 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Tue, 13 Oct 2015 14:46:54 +0000
+Subject: [PATCH 55/89] keep signedness on this shift
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@28751 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ bandb/bandb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/bandb/bandb.c b/bandb/bandb.c
+index a88b6ab..db0c72a 100644
+--- a/bandb/bandb.c
++++ b/bandb/bandb.c
+@@ -262,7 +262,7 @@ db_error_cb(const char *errstr)
+ 	char buf[256];
+ 	rb_snprintf(buf, sizeof(buf), "! :%s", errstr);
+ 	rb_helper_write(bandb_helper, "%s", buf);
+-	rb_sleep(2 << 30, 0);
++	rb_sleep(2 << 29, 0);
+ 	exit(1);
+ }
+ 
+-- 
+2.7.4
+

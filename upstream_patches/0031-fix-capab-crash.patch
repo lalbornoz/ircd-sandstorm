@@ -1,0 +1,26 @@
+From ca831e3273e5a643dd5a0e16e90ee6d5a20bdfc0 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Mon, 31 Dec 2012 21:20:29 +0000
+Subject: [PATCH 31/89] fix capab crash
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27411 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ modules/m_capab.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/modules/m_capab.c b/modules/m_capab.c
+index 3094580..58d8b8e 100644
+--- a/modules/m_capab.c
++++ b/modules/m_capab.c
+@@ -37,7 +37,7 @@ static int me_gcap(struct Client *, struct Client *, int, const char **);
+ 
+ struct Message capab_msgtab = {
+ 	"CAPAB", 0, 0, 0, MFLG_SLOW | MFLG_UNREG,
+-	{{mr_capab, 0}, mg_ignore, mg_ignore, mg_ignore, mg_ignore, mg_ignore}
++	{{mr_capab, 2}, mg_ignore, mg_ignore, mg_ignore, mg_ignore, mg_ignore}
+ };
+ 
+ struct Message gcap_msgtab = {
+-- 
+2.7.4
+

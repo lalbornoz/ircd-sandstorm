@@ -1,0 +1,56 @@
+From 0118b95f97af78ae5943d39677d4ab3afba7b15e Mon Sep 17 00:00:00 2001
+From: "Daniel Reidy (dubkat)" <dubkat@gmail.com>
+Date: Fri, 21 Oct 2011 01:59:01 +0000
+Subject: [PATCH 11/89] Add a working crontab script in docs
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27253 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ doc/ircd_crontab.sh | 36 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
+ create mode 100644 doc/ircd_crontab.sh
+
+diff --git a/doc/ircd_crontab.sh b/doc/ircd_crontab.sh
+new file mode 100644
+index 0000000..f716868
+--- /dev/null
++++ b/doc/ircd_crontab.sh
+@@ -0,0 +1,36 @@
++#!/bin/bash
++#
++# IRCD-RATBOX Crontab Script
++# Copyright (C) 2009-2011 ircd-ratbox development team
++# $Id$
++
++# You will want to change this to the root directory your IRCD runs from
++IRCD_PATH="/home/user/ircd"
++
++# The location of your pid file, relative to IRCD_PATH (you can probably leave this alone)
++PID_FILE="etc/ircd.pid"
++
++
++# run: crontab -e
++#
++# To have the script run every minute, type this:
++#
++#      * * * * * /path/to/ircd_crontab.sh
++#
++# To have the script run every 5 minutes, type this:
++#      */5 * * * * ~/path/to/ircd_crontab.sh
++#
++
++
++# Leave the rest alone.
++
++if [ -f "${IRCD_PATH}/${PID_FILE}" ] ; then
++	PID="$(<${IRCD_PATH}/${PID_FILE})"
++	if `kill -CHLD $PID >/dev/null 2>&1`; then
++		exit 0;
++	fi
++	rm -f ${IRCD_PATH}/${PID_FILE}
++fi
++
++test -x ${IRCD_PATH}/bin/ircd && ${IRCD_PATH}/bin/ircd -conftest &>/dev/null && ${IRCD_PATH}/bin/ircd
++exit $?;
+-- 
+2.7.4
+

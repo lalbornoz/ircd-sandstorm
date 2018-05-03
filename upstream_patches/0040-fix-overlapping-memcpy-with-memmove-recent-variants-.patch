@@ -1,0 +1,27 @@
+From 0acc6b9bf00fa6740b87378d8a76f223e3b22d4a Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Mon, 10 Aug 2015 18:23:42 +0000
+Subject: [PATCH 40/89] fix overlapping memcpy with memmove, recent variants of
+ glibc will crash on modrestart
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@28529 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ src/modules.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/modules.c b/src/modules.c
+index 3885230..feb5e45 100644
+--- a/src/modules.c
++++ b/src/modules.c
+@@ -588,7 +588,7 @@ unload_one_module(const char *name, int warn)
+ 	lt_dlclose(modlist[modindex]->address);
+ 
+ 	rb_free(modlist[modindex]->name);
+-	memcpy(&modlist[modindex], &modlist[modindex + 1],
++	memmove(&modlist[modindex], &modlist[modindex + 1],
+ 	       sizeof(struct module) * ((num_mods - 1) - modindex));
+ 
+ 	if(num_mods != 0)
+-- 
+2.7.4
+

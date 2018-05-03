@@ -1,0 +1,322 @@
+From 1ef0b102040a0a51ce8c4ae1c70d84bd9687a6d5 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Sun, 20 Dec 2015 04:35:39 +0000
+Subject: [PATCH 72/89] backport signal handling fixes
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@29265 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ bandb/bandb.c       | 40 +++++++++--------------
+ resolver/resolver.c | 43 +++++++++++++-----------
+ src/ircd_signal.c   | 94 +++++++++++++++++++++++++++++------------------------
+ ssld/ssld.c         | 45 +++++++++++++------------
+ 4 files changed, 116 insertions(+), 106 deletions(-)
+
+diff --git a/bandb/bandb.c b/bandb/bandb.c
+index db0c72a..9808c72 100644
+--- a/bandb/bandb.c
++++ b/bandb/bandb.c
+@@ -218,40 +218,30 @@ error_cb(rb_helper *helper)
+ 	exit(1);
+ }
+ 
+-#ifndef WINDOWS
+-static void
+-dummy_handler(int sig)
+-{
+-	return;
+-}
+-#endif
+-
+ static void
+ setup_signals()
+ {
+ #ifndef WINDOWS
+-	struct sigaction act;
+-
+-	act.sa_flags = 0;
+-	act.sa_handler = SIG_IGN;
+-	sigemptyset(&act.sa_mask);
+-	sigaddset(&act.sa_mask, SIGPIPE);
+-	sigaddset(&act.sa_mask, SIGALRM);
++        struct sigaction act;
++
++        act.sa_flags = 0;
++        act.sa_handler = SIG_IGN;
++        sigemptyset(&act.sa_mask);
++        sigaddset(&act.sa_mask, SIGPIPE);
++        sigaction(SIGPIPE, &act, 0);
++        sigaddset(&act.sa_mask, SIGINT);
++        sigaction(SIGINT, &act, 0);
++        sigaddset(&act.sa_mask, SIGALRM);
++        sigaction(SIGALRM, &act, 0);
+ #ifdef SIGTRAP
+-	sigaddset(&act.sa_mask, SIGTRAP);
++        sigaddset(&act.sa_mask, SIGTRAP);
++        sigaction(SIGTRAP, &act, 0);
+ #endif
+ 
+ #ifdef SIGWINCH
+-	sigaddset(&act.sa_mask, SIGWINCH);
+-	sigaction(SIGWINCH, &act, 0);
++        sigaddset(&act.sa_mask, SIGWINCH);
++        sigaction(SIGWINCH, &act, 0);
+ #endif
+-	sigaction(SIGPIPE, &act, 0);
+-#ifdef SIGTRAP
+-	sigaction(SIGTRAP, &act, 0);
+-#endif
+-
+-	act.sa_handler = dummy_handler;
+-	sigaction(SIGALRM, &act, 0);
+ #endif
+ }
+ 
+diff --git a/resolver/resolver.c b/resolver/resolver.c
+index 0f3baea..d25e10a 100644
+--- a/resolver/resolver.c
++++ b/resolver/resolver.c
+@@ -72,32 +72,37 @@ static void
+ setup_signals()
+ {
+ #ifndef WINDOWS
+-	struct sigaction act;
+-
+-	act.sa_flags = 0;
+-	act.sa_handler = SIG_IGN;
+-	sigemptyset(&act.sa_mask);
+-	sigaddset(&act.sa_mask, SIGPIPE);
+-	sigaddset(&act.sa_mask, SIGALRM);
++        struct sigaction act;
++  
++        act.sa_flags = 0;
++        act.sa_handler = SIG_IGN;
++        sigemptyset(&act.sa_mask);
++        sigaddset(&act.sa_mask, SIGPIPE);
++        sigaction(SIGPIPE, &act, 0);
++        sigaddset(&act.sa_mask, SIGALRM);
++        sigaction(SIGALRM, &act, 0);
++        sigaddset(&act.sa_mask, SIGINT);
++        sigaction(SIGINT, &act, 0);
+ #ifdef SIGTRAP
+-	sigaddset(&act.sa_mask, SIGTRAP);
++        sigaddset(&act.sa_mask, SIGTRAP);
++        sigaction(SIGTRAP, &act, 0);
+ #endif
+-
++ 
+ #ifdef SIGWINCH
+-	sigaddset(&act.sa_mask, SIGWINCH);
+-	sigaction(SIGWINCH, &act, 0);
++        sigaddset(&act.sa_mask, SIGWINCH);
++        sigaction(SIGWINCH, &act, 0);
+ #endif
+-	sigaction(SIGPIPE, &act, 0);
++        sigaction(SIGPIPE, &act, 0);
+ #ifdef SIGTRAP
+-	sigaction(SIGTRAP, &act, 0);
++        sigaction(SIGTRAP, &act, 0);
+ #endif
+ 
+-	act.sa_handler = dummy_handler;
+-	sigaction(SIGALRM, &act, 0);
+-
+-	act.sa_handler = rehash;
+-	sigaddset(&act.sa_mask, SIGHUP);
+-	sigaction(SIGHUP, &act, 0);
++        act.sa_handler = dummy_handler;
++        sigaddset(&act.sa_mask, SIGALRM);
++        sigaction(SIGALRM, &act, 0);
++        act.sa_handler = rehash;
++        sigaddset(&act.sa_mask, SIGHUP);
++        sigaction(SIGHUP, &act, 0);
+ #endif
+ }
+ 
+diff --git a/src/ircd_signal.c b/src/ircd_signal.c
+index a9c7333..bfac668 100644
+--- a/src/ircd_signal.c
++++ b/src/ircd_signal.c
+@@ -116,54 +116,64 @@ sigint_handler(int sig)
+ void
+ setup_signals()
+ {
+-	struct sigaction act;
+-
+-	act.sa_flags = 0;
+-	act.sa_handler = SIG_IGN;
+-	sigemptyset(&act.sa_mask);
+-	sigaddset(&act.sa_mask, SIGPIPE);
+-	sigaddset(&act.sa_mask, SIGALRM);
++        sigset_t sigs;
++        struct sigaction act;
++
++        act.sa_flags = 0;
++        act.sa_handler = SIG_IGN;
++        sigemptyset(&act.sa_mask);
++        sigemptyset(&sigs);
++  
++        sigaddset(&act.sa_mask, SIGPIPE);
++        sigaddset(&act.sa_mask, SIGALRM);
++        sigaddset(&sigs, SIGALRM);
+ #ifdef SIGTRAP
+-	sigaddset(&act.sa_mask, SIGTRAP);
++        sigaddset(&act.sa_mask, SIGTRAP);
+ #endif
+ 
+-# ifdef SIGWINCH
+-	sigaddset(&act.sa_mask, SIGWINCH);
+-	sigaction(SIGWINCH, &act, 0);
+-# endif
+-	sigaction(SIGPIPE, &act, 0);
++#ifdef SIGWINCH
++        sigaddset(&act.sa_mask, SIGWINCH);
++        sigaction(SIGWINCH, &act, 0);
++#endif
++        sigaction(SIGPIPE, &act, 0);
+ #ifdef SIGTRAP
+-	sigaction(SIGTRAP, &act, 0);
++        sigaction(SIGTRAP, &act, 0);
+ #endif
+ 
+-	act.sa_handler = dummy_handler;
+-	sigaction(SIGALRM, &act, 0);
+-
+-	act.sa_handler = sighup_handler;
+-	sigemptyset(&act.sa_mask);
+-	sigaddset(&act.sa_mask, SIGHUP);
+-	sigaction(SIGHUP, &act, 0);
+-
+-	act.sa_handler = sigint_handler;
+-	sigaddset(&act.sa_mask, SIGINT);
+-	sigaction(SIGINT, &act, 0);
+-
+-	act.sa_handler = sigterm_handler;
+-	sigaddset(&act.sa_mask, SIGTERM);
+-	sigaction(SIGTERM, &act, 0);
+-
+-	act.sa_handler = sigusr1_handler;
+-	sigaddset(&act.sa_mask, SIGUSR1);
+-	sigaction(SIGUSR1, &act, 0);
+-
+-	act.sa_handler = sigusr2_handler;
+-	sigaddset(&act.sa_mask, SIGUSR2);
+-	sigaction(SIGUSR2, &act, 0);
+-
+-	act.sa_handler = sigchld_handler;
+-	sigaddset(&act.sa_mask, SIGCHLD);
+-	sigaction(SIGCHLD, &act, 0);
+-
++        act.sa_handler = dummy_handler;
++        sigaction(SIGALRM, &act, 0);   
++
++        act.sa_handler = sighup_handler;
++        sigemptyset(&act.sa_mask);
++        sigaddset(&act.sa_mask, SIGHUP);
++        sigaction(SIGHUP, &act, 0);
++        sigaddset(&sigs, SIGHUP);  
++        
++        act.sa_handler = sigint_handler;
++        sigaddset(&act.sa_mask, SIGINT);
++        sigaction(SIGINT, &act, 0);
++        sigaddset(&sigs, SIGINT);  
++
++        act.sa_handler = sigterm_handler;
++        sigaddset(&act.sa_mask, SIGTERM);
++        sigaction(SIGTERM, &act, 0);
++        sigaddset(&sigs, SIGTERM);  
++        
++        act.sa_handler = sigusr1_handler;
++        sigaddset(&act.sa_mask, SIGUSR1);
++        sigaction(SIGUSR1, &act, 0);
++        sigaddset(&sigs, SIGUSR1);  
++        
++        act.sa_handler = sigusr2_handler;
++        sigaddset(&act.sa_mask, SIGUSR2);
++        sigaction(SIGUSR2, &act, 0);
++        sigaddset(&sigs, SIGUSR2);  
++
++        act.sa_handler = sigchld_handler;
++        sigaddset(&act.sa_mask, SIGCHLD);
++        sigaction(SIGCHLD, &act, 0);
++	sigaddset(&sigs, SIGCHLD); 
++        
+ }
+ 
+ /*
+diff --git a/ssld/ssld.c b/ssld/ssld.c
+index b0c6f27..4d67f71 100644
+--- a/ssld/ssld.c
++++ b/ssld/ssld.c
+@@ -50,7 +50,7 @@ int32_to_buf(char *buf, int32_t x)
+ 	memcpy(buf, &x, sizeof(x));
+ 	return;
+ }
+-
++#if 0
+ static inline uint16_t
+ buf_to_uint16(char *buf)
+ {
+@@ -65,7 +65,7 @@ uint16_to_buf(char *buf, uint16_t x)
+ 	memcpy(buf, &x, sizeof(x));
+ 	return;
+ }
+-
++#endif
+ 
+ static char inbuf[READBUF_SIZE];
+ #ifdef HAVE_ZLIB
+@@ -1256,28 +1256,33 @@ dummy_handler(int sig)
+ static void
+ setup_signals()
+ {
+-#ifndef _WIN32
+-	struct sigaction act;
+-
+-	act.sa_flags = 0;
+-	act.sa_handler = SIG_IGN;
+-	sigemptyset(&act.sa_mask);
+-	sigaddset(&act.sa_mask, SIGPIPE);
+-	sigaddset(&act.sa_mask, SIGALRM);
++#ifndef _WIN32   
++        struct sigaction act;
++
++        act.sa_flags = 0;
++        act.sa_handler = SIG_IGN;
++        sigemptyset(&act.sa_mask);
++        sigaddset(&act.sa_mask, SIGPIPE);
++        sigaction(SIGPIPE, &act, 0);
++        sigaddset(&act.sa_mask, SIGALRM);
++        sigaction(SIGALRM, &act, 0);
++        sigaddset(&act.sa_mask, SIGINT);
++        sigaction(SIGINT, &act, 0); 
+ #ifdef SIGTRAP
+-	sigaddset(&act.sa_mask, SIGTRAP);
++        sigaddset(&act.sa_mask, SIGTRAP);
++        sigaction(SIGTRAP, &act, 0);
+ #endif
+-
++ 
+ #ifdef SIGWINCH
+-	sigaddset(&act.sa_mask, SIGWINCH);
+-	sigaction(SIGWINCH, &act, 0);
++        sigaddset(&act.sa_mask, SIGWINCH);
++        sigaction(SIGWINCH, &act, 0);
+ #endif
+-	sigaction(SIGPIPE, &act, 0);
+-#ifdef SIGTRAP
+-	sigaction(SIGTRAP, &act, 0);
++        sigaction(SIGPIPE, &act, 0);
++#ifdef SIGTRAP  
++        sigaction(SIGTRAP, &act, 0);
+ #endif
+-
+-	act.sa_handler = dummy_handler;
+-	sigaction(SIGALRM, &act, 0);
++ 
++        act.sa_handler = dummy_handler;
++        sigaction(SIGALRM, &act, 0);
+ #endif
+ }
+-- 
+2.7.4
+

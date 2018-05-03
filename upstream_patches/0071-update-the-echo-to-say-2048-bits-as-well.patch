@@ -1,0 +1,26 @@
+From 188368e28991b00d3fae21e752bb78cbd6e76760 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Fri, 18 Dec 2015 17:15:54 +0000
+Subject: [PATCH 71/89] update the echo to say 2048 bits as well
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@29251 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ doc/genssl.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/doc/genssl.sh b/doc/genssl.sh
+index 32b3591..75c9ab9 100755
+--- a/doc/genssl.sh
++++ b/doc/genssl.sh
+@@ -20,7 +20,7 @@ if [ "$DAYS_VALID" -gt "365" ]; then
+ fi
+ 
+ echo
+-echo "Generating 1024-bit self-signed RSA key for ${SERVER}... "
++echo "Generating 2048-bit self-signed RSA key for ${SERVER}... "
+ openssl req -new -newkey rsa:2048 -sha256 -days ${SSL_DAYS_VALID} -nodes -x509 -keyout ${SERVER}.pem  -out ${SERVER}.pem
+ echo "Done creating self-signed cert"
+ 
+-- 
+2.7.4
+

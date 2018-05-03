@@ -1,0 +1,22 @@
+From f23cc5402971fcb01e30f8807f5d455655d8ffef Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Wed, 13 Jan 2016 19:14:52 +0000
+Subject: [PATCH 85/89] force commit
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@29311 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ libltdl/config-h.in | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/libltdl/config-h.in b/libltdl/config-h.in
+index 23eab00..a03faed 100644
+--- a/libltdl/config-h.in
++++ b/libltdl/config-h.in
+@@ -176,3 +176,4 @@
+ 
+ /* Define to a type to use for `error_t' if it is not otherwise available. */
+ #undef error_t
++
+-- 
+2.7.4
+

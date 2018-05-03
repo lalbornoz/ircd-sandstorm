@@ -1,0 +1,108 @@
+From d74b6039da39e83eb7eac1c40b8d74552a10a0ef Mon Sep 17 00:00:00 2001
+From: "Daniel Reidy (dubkat)" <dubkat@gmail.com>
+Date: Fri, 16 Mar 2012 23:10:29 +0000
+Subject: [PATCH 28/89] more copyright changes
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27381 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ contrib/m_clearchan.c   | 2 +-
+ contrib/m_force.c       | 2 +-
+ contrib/m_ojoin.c       | 2 +-
+ contrib/m_okick.c       | 2 +-
+ contrib/m_olist.c       | 2 +-
+ doc/server-version-info | 2 +-
+ src/version.c.SH        | 2 +-
+ 7 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/contrib/m_clearchan.c b/contrib/m_clearchan.c
+index ad04e7a..0cf89d0 100644
+--- a/contrib/m_clearchan.c
++++ b/contrib/m_clearchan.c
+@@ -1,7 +1,7 @@
+ /*
+  *   IRC - Internet Relay Chat, contrib/m_clearchan.c
+  *   Copyright (C) 2002 Hybrid Development Team
+- *   Copyright (C) 2004 ircd-ratbox Development Team
++ *   Copyright (C) 2004-2012 ircd-ratbox Development Team
+  *
+  *   This program is free software; you can redistribute it and/or modify
+  *   it under the terms of the GNU General Public License as published by
+diff --git a/contrib/m_force.c b/contrib/m_force.c
+index ddafc34..5cacc29 100644
+--- a/contrib/m_force.c
++++ b/contrib/m_force.c
+@@ -1,6 +1,6 @@
+ /* contrib/m_force.c
+  * Copyright (C) 1996-2002 Hybrid Development Team
+- * Copyright (C) 2004 ircd-ratbox Development Team
++ * Copyright (C) 2004-2012 ircd-ratbox Development Team
+  *
+  *  Redistribution and use in source and binary forms, with or without
+  *  modification, are permitted provided that the following conditions are
+diff --git a/contrib/m_ojoin.c b/contrib/m_ojoin.c
+index e902c11..b57dd77 100644
+--- a/contrib/m_ojoin.c
++++ b/contrib/m_ojoin.c
+@@ -1,6 +1,6 @@
+ /*   contrib/m_ojoin.c
+  *   Copyright (C) 2002 Hybrid Development Team
+- *   Copyright (C) 2004 ircd-ratbox Development Team
++ *   Copyright (C) 2004-2012 ircd-ratbox Development Team
+  *
+  *   This program is free software; you can redistribute it and/or modify
+  *   it under the terms of the GNU General Public License as published by
+diff --git a/contrib/m_okick.c b/contrib/m_okick.c
+index ddcc13b..36a6d20 100644
+--- a/contrib/m_okick.c
++++ b/contrib/m_okick.c
+@@ -3,7 +3,7 @@
+  *  m_okick.c: Kicks a user from a channel with much prejudice.
+  *
+  *  Copyright (C) 2002 by the past and present ircd coders, and others.
+- *  Copyright (C) 2004 ircd-ratbox Development Team
++ *  Copyright (C) 2004-2012 ircd-ratbox Development Team
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+diff --git a/contrib/m_olist.c b/contrib/m_olist.c
+index e2f25ff..99d3b8f 100644
+--- a/contrib/m_olist.c
++++ b/contrib/m_olist.c
+@@ -6,7 +6,7 @@
+  *             somebody will likely need it.
+  *
+  *  Copyright (C) 2002 by the past and present ircd coders, and others.
+- *  Copyright (C) 2004 ircd-ratbox Development Team
++ *  Copyright (C) 2004-2012 ircd-ratbox Development Team
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+diff --git a/doc/server-version-info b/doc/server-version-info
+index 009a41d..7583960 100644
+--- a/doc/server-version-info
++++ b/doc/server-version-info
+@@ -3,7 +3,7 @@
+    $Id$
+ 
+    Copyright (c) 2001 by ircd-hybrid team
+-   Copyright (c) 2002 ircd-ratbox development team
++   Copyright (c) 2002-2012 ircd-ratbox development team
+ 
+      ----------------------------------------------------------------------
+ 
+diff --git a/src/version.c.SH b/src/version.c.SH
+index 2c5c099..5fb187b 100644
+--- a/src/version.c.SH
++++ b/src/version.c.SH
+@@ -64,7 +64,7 @@ const char *infotext[] =
+   "Based on the original code written by Jarkko Oikarinen",
+   "Copyright 1988, 1989, 1990, 1991 University of Oulu, Computing Center",
+   "Copyright (c) 1996-2001 Hybrid Development Team", 
+-  "Copyright (c) 2002-2011 ircd-ratbox Development Team",
++  "Copyright (c) 2002-2012 ircd-ratbox Development Team",
+   "",
+   "This program is free software; you can redistribute it and/or",
+   "modify it under the terms of the GNU General Public License as",
+-- 
+2.7.4
+

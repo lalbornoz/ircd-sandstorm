@@ -1,0 +1,87 @@
+From 5ac886f112b37a8c62f88986b93ca314cfcd43c5 Mon Sep 17 00:00:00 2001
+From: "Daniel Reidy (dubkat)" <dubkat@gmail.com>
+Date: Thu, 13 Oct 2011 05:51:26 +0000
+Subject: [PATCH 07/89] make bantool have a more meaningful version number
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27231 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ bandb/bantool.c | 22 ++++++++--------------
+ 1 file changed, 8 insertions(+), 14 deletions(-)
+
+diff --git a/bandb/bantool.c b/bandb/bantool.c
+index 4cec7a9..6fb9208 100644
+--- a/bandb/bantool.c
++++ b/bandb/bantool.c
+@@ -4,8 +4,7 @@
+  *
+  *  Copyright (C) 1990 Jarkko Oikarinen and University of Oulu, Co Center
+  *  Copyright (C) 1996-2002 Hybrid Development Team
+- *  Copyright (C) 2002-2008 ircd-ratbox development team
+- *  Copyright (C) 2008 Daniel J Reidy <dubkat@gmail.com>
++ *  Copyright (C) 2002-2011 ircd-ratbox development team
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -22,9 +21,6 @@
+  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
+  *  USA
+  *
+- *  $Id$
+- *
+- *
+  * The following server admins have either contributed various configs to test against,
+  * or helped with debugging and feature requests. Many thanks to them.
+  * stevoo / efnet.port80.se
+@@ -32,9 +28,7 @@
+  * Salvation / irc.blessed.net
+  * JamesOff / efnet.demon.co.uk
+  *
+- * Thanks to AndroSyn for challenging me to learn C on the fly :)
+- * BUGS Direct Question, Bug Reports, and Feature Requests to #ratbox on EFnet.
+- * BUGS Complaints >/dev/null
++ *  $Id$
+  *
+  */
+ 
+@@ -42,14 +36,14 @@
+ #include <stdlib.h>
+ #include <time.h>
+ 
++#include "serno.h"
++#include "patchlevel.h"
+ #include "stdinc.h"
+ #include "rsdb.h"
+ 
+ #define EmptyString(x) ((x == NULL) || (*(x) == '\0'))
+ #define CheckEmpty(x) EmptyString(x) ? "" : x
+ 
+-#define BT_VERSION "0.4.1"
+-
+ typedef enum
+ {
+ 	BANDB_KLINE,
+@@ -207,8 +201,8 @@ main(int argc, char *argv[])
+ 		rb_strlcpy(etc, ETCPATH, sizeof(ETCPATH));
+ 
+ 	fprintf(stdout,
+-		"* ircd-ratbox bantool v.%s ($Id$)\n",
+-		BT_VERSION);
++		"* bantool v.%s built for %s ($Id$)\n",
++		SERIALNUM, PATCHLEVEL);
+ 
+ 	if(flag.pretend == NO)
+ 	{
+@@ -873,8 +867,8 @@ void
+ print_help(int i_exit)
+ {
+ 	/* *INDENT-OFF* */
+-	fprintf(stderr, "bantool v.%s - the ircd-ratbox database tool.\n", BT_VERSION);
+-	fprintf(stderr, "Copyright (C) 2008 Daniel J Reidy <dubkat@gmail.com>\n");
++	fprintf(stderr, "bantool v.%s - the %s database tool.\n", SERIALNUM, PATCHLEVEL);
++	fprintf(stderr, "Copyright (C) 2008-2011 ircd-ratbox development team\n");
+ 	fprintf(stderr, "$Id$\n\n");
+ 	fprintf(stderr, "This program is distributed in the hope that it will be useful,\n"
+ 		"but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+-- 
+2.7.4
+

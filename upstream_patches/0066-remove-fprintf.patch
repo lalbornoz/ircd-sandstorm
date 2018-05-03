@@ -1,0 +1,25 @@
+From f5ba98fcdbd1e707b42fccfbcf1ed972e06c1517 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Thu, 10 Dec 2015 18:35:59 +0000
+Subject: [PATCH 66/89] remove fprintf
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@29219 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ src/newconf.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/src/newconf.c b/src/newconf.c
+index 51f601d..0359421 100644
+--- a/src/newconf.c
++++ b/src/newconf.c
+@@ -1782,7 +1782,6 @@ conf_set_end_connect(conf_t * conf)
+ 	{
+ 		conf_report_warning_nl("Ignoring connect block for %s at %s:%d -- missing password",
+ 				       conf->subname, conf->filename, conf->line);
+-			fprintf(stderr, "ignoring connect block: %p\n", t_server);
+ 		goto cleanup;
+ 	}
+ 
+-- 
+2.7.4
+

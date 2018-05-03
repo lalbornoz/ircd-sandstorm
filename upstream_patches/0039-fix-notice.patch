@@ -1,0 +1,26 @@
+From 5b0deeb414985e0b002bdbfbfad1871c890dc378 Mon Sep 17 00:00:00 2001
+From: "Aaron Sethman (androsyn)" <androsyn@ratbox.org>
+Date: Mon, 4 Aug 2014 17:31:18 +0000
+Subject: [PATCH 39/89] fix notice
+
+git-svn-id: http://svn.ratbox.org/svnroot/ircd-ratbox/branches/RATBOX_3_0@27478 b93f080a-4cfa-0310-a19a-80a68f531ef9
+---
+ modules/core/m_die.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/modules/core/m_die.c b/modules/core/m_die.c
+index 1735002..d21059a 100644
+--- a/modules/core/m_die.c
++++ b/modules/core/m_die.c
+@@ -67,7 +67,7 @@ mo_die(struct Client *client_p __unused, struct Client *source_p, int parc, cons
+ 	}
+ 	else if(irccmp(parv[1], me.name))
+ 	{
+-		sendto_one(source_p, ":Mismatch on /die %s", me.name);
++		sendto_one_notice(source_p, ":Mismatch on /die %s", me.name);
+ 		return 0;
+ 	}
+ 
+-- 
+2.7.4
+
