@@ -25,8 +25,8 @@
  */
 
 #ifndef PATCHLEVEL
-#define PATCHLEVEL   "ircd-ratbox-3.0.6+arab-r82_20121022"
-#define PATCHLEVEL_NUM	0300060500
+#define PATCHLEVEL   "ircd-sandstorm-1.0.0"
+#define PATCHLEVEL_NUM	0100000500
 
 /* patchlevel numbers:
  * <major><minor><point><status><statusnum>
