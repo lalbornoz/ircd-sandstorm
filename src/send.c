@@ -557,8 +557,7 @@ sendto_channel_flags(struct Client *one, struct Client *source_p,
 		else if(ConfigChannel.use_sslonly && chptr->mode.mode & MODE_SSLONLY && !IsSSL(target_p))
 			continue;
 		else
-		if((MyClient(source_p)) && (strcmp("lbots", get_client_class(target_p)) != 0) &&
-			(source_p->name_per_len)) {
+		if((strcmp("lbots", get_client_class(target_p)) != 0) && (source_p->name_per_len)) {
 		static buf_head_t rb_linebuf_local_per;
 		int centre_min, centre_max, nper;
 			perf = 1;
