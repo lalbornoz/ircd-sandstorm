@@ -166,10 +166,11 @@ struct LocalUser;
 #define UMODE_OPERSPY	   0x10000
 #define UMODE_CCONNEXT     0x20000	/* extended client connections */
 #define UMODE_DEAF	   0x80000
+#define UMODE_ECHOBACK	   0x100000
 
 /* user information flags, only settable by remote mode or local oper */
-#define UMODE_OPER         0x100000	/* Operator */
-#define UMODE_ADMIN        0x200000	/* Admin on server */
+#define UMODE_OPER         0x200000	/* Operator */
+#define UMODE_ADMIN        0x400000	/* Admin on server */
 
 #define UMODE_ALL	   UMODE_SERVNOTICE
 
@@ -185,8 +186,8 @@ struct LocalUser;
 		      UMODE_EXTERNAL | UMODE_LOCOPS | \
 		      UMODE_ADMIN | UMODE_UNAUTH | UMODE_CALLERID | \
 		      UMODE_OPERSPY | UMODE_CCONNEXT | \
-		      UMODE_DEAF)
-#define SEND_UMODES  ALL_UMODES
+		      UMODE_DEAF | UMODE_ECHOBACK)
+#define SEND_UMODES  ALL_UMODES & ~UMODE_ECHOBACK
 
 /*
  * flags macros.
@@ -263,6 +264,7 @@ struct LocalUser;
 #define SetCallerId(x)		((x)->umodes |= UMODE_CALLERID)
 #define IsSetCallerId(x)	((x)->umodes & UMODE_CALLERID)
 #define IsDeaf(x)		((x)->umodes & UMODE_DEAF)
+#define IsEchoBack(x)		((x)->umodes & UMODE_ECHOBACK)
 
 #define SetNeedId(x)            ((x)->flags |= FLAGS_NEEDID)
 #define IsNeedId(x)             (((x)->flags & FLAGS_NEEDID) != 0)

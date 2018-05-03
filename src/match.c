@@ -579,7 +579,7 @@ valid_username(const char *username)
  * side effects -
  */
 int
-valid_nick(const char *nick, int loc_client)
+valid_nick(const char *nick, int loc_client, int ignore_len)
 {
 	int len = 0;
 
@@ -594,7 +594,7 @@ valid_nick(const char *nick, int loc_client)
                         return NO;
 
 	/* nicklen is +1 */
-	if(len >= NICKLEN)
+	if((len >= NICKLEN) && !ignore_len)
 		return NO;
 
 	return YES;

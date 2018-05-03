@@ -46,7 +46,7 @@ AFP(2, 3);
 			const char *format, ...) AFP(3, 4);
 
      void sendto_channel_flags(struct Client *one, struct Client *source_p,
-			       struct Channel *chptr, const char *, ...) AFP(4, 5);
+			       struct Channel *chptr, const char *command, const char *text);
 
      void sendto_channel_local(struct Channel *, const char *, ...) AFP(2, 3);
      void sendto_common_channels_local(struct Client *, const char *, ...) AFP(2, 3);

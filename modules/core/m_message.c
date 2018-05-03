@@ -153,6 +153,7 @@ m_message(int p_or_n,
 {
 	int i;
 	char *text;
+	static char text_filtered[BUFSIZE];
 
 	if(parc < 2 || EmptyString(parv[1]))
 	{
@@ -188,8 +189,9 @@ m_message(int p_or_n,
 		{
 		struct Channel *chptr = targets[i].ptr;
 
+			memset(text_filtered, '\0', sizeof(text_filtered));
 			if(chptr->mode.mode & MODE_REGEX)
-				filter_regex(chptr, source_p, &text);
+				filter_regex(chptr, source_p, text, text_filtered);
 
 			if(chptr->mode.mode & MODE_XCHGSENDER)
 				xchg_sender(chptr, source_p, text,
@@ -199,8 +201,12 @@ m_message(int p_or_n,
 		switch (targets[i].type)
 		{
 		case ENTITY_CHANNEL:
-			msg_channel(p_or_n, command, client_p, source_p,
-				    (struct Channel *)targets[i].ptr, text);
+			if(strlen(text_filtered))
+				msg_channel(p_or_n, command, client_p, source_p,
+					    (struct Channel *)targets[i].ptr, text_filtered);
+			else
+				msg_channel(p_or_n, command, client_p, source_p,
+					    (struct Channel *)targets[i].ptr, text);
 			break;
 
 		case ENTITY_CLIENT:
@@ -376,8 +382,7 @@ msg_channel(int p_or_n, const char *command,
 	/* chanops and voiced can flood their own channel with impunity */
 	if((result = can_send(chptr, source_p, NULL)))
 	{
-		sendto_channel_flags(client_p, source_p, chptr,
-				     "%s %s :%s", command, chptr->chname, text);
+		sendto_channel_flags(client_p, source_p, chptr, command, text);
 	}
 	else
 	{

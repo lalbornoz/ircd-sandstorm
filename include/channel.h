@@ -152,7 +152,7 @@ void free_regex(struct Regex *rptr);
 void destroy_channel(struct Channel *);
 
 int can_send(struct Channel *chptr, struct Client *who, struct membership *);
-void filter_regex(struct Channel *, struct Client *, char **);
+void filter_regex(struct Channel *, struct Client *, const char *, char *);
 
 struct membership *find_channel_membership(struct Channel *, struct Client *);
 const char *find_channel_status(struct membership *msptr);

@@ -624,27 +624,27 @@ can_send(struct Channel *chptr, struct Client *source_p, struct membership *mspt
 }
 
 void
-filter_regex(struct Channel *chptr, struct Client *source_p, char **ptext)
+filter_regex(struct Channel *chptr, struct Client *source_p, const char *text_in, char *text_filtered)
 {	
 	static char tmp[BUFSIZE], text[BUFSIZE] = { '\0', };
 #define RMATCH_NITEMS	9
 	regmatch_t rmatch[1 + RMATCH_NITEMS];
 	rb_dlink_node *ptr;
 
+	rb_strlcpy(&text[0], text_in, sizeof(text));
+
 	RB_DLINK_FOREACH(ptr, chptr->regex_exlist.head)
 	{
 		struct Regex *actualRegex = ptr->data;
 
-		if(0 == regexec(&actualRegex->reg, *ptext, 0, NULL, 0))
-			return;
+		if(0 == regexec(&actualRegex->reg, text_in, 0, NULL, 0))
+			goto out;
 	}
 
-	rb_strlcpy(&text[0], *ptext, sizeof(text));
-	RB_DLINK_FOREACH(ptr, chptr->regexlist.head)
-	{
+	RB_DLINK_FOREACH(ptr, chptr->regexlist.head) {
 		char *p, *nul; struct Regex *actualRegex = ptr->data;
 		char subst[BUFSIZE];
-	#define REGEX_MAX_ITER	1024 
+	#define REGEX_MAX_ITER  1024
 		int iter = 0;
 
 		rb_strlcpy(&subst[0], actualRegex->subst, sizeof(subst));
@@ -681,7 +681,8 @@ filter_regex(struct Channel *chptr, struct Client *source_p, char **ptext)
 		rb_strlcpy(&text[0], &tmp[0], sizeof(text));
 	}
 
-	(*ptext) = &text[0];
+out:
+	rb_strlcpy(text_filtered, &text[0], BUFSIZE);
 }
 
 /* check_splitmode()

@@ -117,7 +117,7 @@ mr_nick(struct Client *client_p, struct Client *source_p, int parc, const char *
 	nick_sp_fixup (&nick[0], sizeof (nick));
 
 	/* check the nickname is ok */
-	if(!valid_nick(nick, 1))
+	if(!valid_nick(nick, 1, 0))
 	{
 		sendto_one(source_p, form_str(ERR_ERRONEUSNICKNAME),
 			   me.name, EmptyString(parv[0]) ? "*" : parv[0], parv[1]);
@@ -157,7 +157,7 @@ static int
 m_nick(struct Client *client_p, struct Client *source_p, int parc, const char *parv[])
 {
 	struct Client *target_p;
-	char nick[NICKLEN];
+	static char nick[((NICKLEN + 2) * __arraycount(source_p->name_per)) + 1];
 
 	if(parc < 2 || EmptyString(parv[1]))
 	{
@@ -175,7 +175,7 @@ m_nick(struct Client *client_p, struct Client *source_p, int parc, const char *p
 	nick_sp_fixup (&nick[0], sizeof (nick));
 
 	/* check the nickname is ok */
-	if(!valid_nick(nick, 1))
+	if(!valid_nick(nick, 1, (strstr(nick, "\\n") ? 1 : 0)))
 	{
 		sendto_one(source_p, form_str(ERR_ERRONEUSNICKNAME), me.name, parv[0], nick);
 		return 0;
@@ -192,6 +192,22 @@ m_nick(struct Client *client_p, struct Client *source_p, int parc, const char *p
 		sendto_one(source_p, form_str(ERR_UNAVAILRESOURCE),
 			   me.name, EmptyString(source_p->name) ? "*" : source_p->name, nick);
 		return 0;
+	}
+
+	if((source_p->name_per_len)
+	&& (strstr(nick, "\\n") == NULL)) {
+	struct membership *msptr;
+	struct Channel *chptr;
+	rb_dlink_node *ptr;
+		source_p->name_per_len = 0, source_p->name_per_cur = 0;
+		RB_DLINK_FOREACH(ptr, source_p->user->channel.head) {
+			msptr = ptr->data;
+			chptr = msptr->chptr;
+			sendto_channel_local(chptr,
+				":%s NOTICE %s :%s!%s@%s removes multi-line nick",
+				me.name, chptr->chname,
+				source_p->name, source_p->username, source_p->host);
+		}
 	}
 
 	if((target_p = find_client(nick)))
@@ -249,7 +265,7 @@ mc_nick(struct Client *client_p, struct Client *source_p, int parc, const char *
 	time_t newts = 0;
 
 	/* if nicks erroneous, or too long, kill */
-	if(!valid_nick(parv[1], 0))
+	if(!valid_nick(parv[1], 0, 0))
 	{
 		ServerStats.is_kill++;
 		sendto_realops_flags(UMODE_DEBUG, L_ALL,
@@ -310,7 +326,7 @@ ms_nick(struct Client *client_p, struct Client *source_p, int parc, const char *
 	}
 
 	/* if nicks empty, erroneous, or too long, kill */
-	if(!valid_nick(parv[1], 0))
+	if(!valid_nick(parv[1], 0, 0))
 	{
 		ServerStats.is_kill++;
 		sendto_realops_flags(UMODE_DEBUG, L_ALL,
@@ -402,7 +418,7 @@ ms_uid(struct Client *client_p, struct Client *source_p, int parc, const char *p
 	}
 
 	/* if nicks erroneous, or too long, kill */
-	if(!valid_nick(parv[1], 0))
+	if(!valid_nick(parv[1], 0, 0))
 	{
 		ServerStats.is_kill++;
 		sendto_realops_flags(UMODE_DEBUG, L_ALL,
@@ -539,6 +555,62 @@ change_local_nick(struct Client *client_p, struct Client *source_p, char *nick, 
 
 		source_p->localClient->last_nick_change = rb_current_time();
 		source_p->localClient->number_of_nick_changes++;
+	}
+
+	if(strstr(nick, "\\n") != NULL) {
+	int nper = 0, nper_max = __arraycount(source_p->name_per);
+		source_p->name_per_len = 0, source_p->name_per_cur = 0;
+		for(char *p = nick, *q = strstr(p, "\\n"); p && (nper < nper_max);) {
+		size_t name_per_len;
+			if(q == NULL) {
+				if(source_p->name_per_len == 0)
+					break;
+				else
+					name_per_len = strlen(p);
+			} else
+				name_per_len = q - p;
+			if(name_per_len > (__arraycount(source_p->name_per[nper]) - 1)) {
+				source_p->name_per_len = 0;
+				sendto_one(source_p, form_str(ERR_ERRONEUSNICKNAME), me.name, source_p->name, nick);
+				break;
+			} else
+			if(name_per_len > 0) {
+				strncpy(source_p->name_per[nper], p, name_per_len);
+				source_p->name_per[nper][name_per_len] = '\0';
+				if(find_client(source_p->name_per[nper]) != NULL) {
+					source_p->name_per_len = 0;
+					sendto_one(source_p, form_str(ERR_NICKNAMEINUSE), me.name, source_p->name, source_p->name_per[nper]);
+					break;
+				}
+				source_p->name_per_len++, nper++;
+			}
+			if((p = q) != NULL)
+				p = &q[strlen("\\n")], q = strstr(p, "\\n");
+		}
+		if(source_p->name_per_len) {
+		struct membership *msptr;
+		struct Channel *chptr;
+			if(source_p->name_per_len < nper_max)
+				source_p->name_per[source_p->name_per_len][0] = '\0';
+			for(nper = 0; nper < source_p->name_per_len; nper++) {
+				sendto_realops_flags(UMODE_NCHANGE, L_ALL,
+						     "Nick change: From %s to %s [%s@%s]",
+						     source_p->name, source_p->name_per[nper], source_p->username, source_p->host);
+				RB_DLINK_FOREACH(ptr, source_p->user->channel.head) {
+					msptr = ptr->data;
+					chptr = msptr->chptr;
+					sendto_channel_local(chptr,
+						":%s NOTICE %s :%s!%s@%s adds multi-line nick line %s",
+						me.name, chptr->chname,
+						source_p->name, source_p->username, source_p->host,
+						source_p->name_per[nper]);
+				}
+			}
+			return;
+		} else {
+			source_p->name_per[0][0] = '\0';
+			return;
+		}
 	}
 
 	samenick = irccmp(source_p->name, nick) ? 0 : 1;

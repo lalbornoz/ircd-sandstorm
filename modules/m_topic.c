@@ -60,6 +60,7 @@ m_topic(struct Client *client_p, struct Client *source_p, int parc, const char *
 	struct Channel *chptr = NULL;
 	struct membership *msptr;
 	char *p = NULL;
+	static char text_filtered[BUFSIZE];
 
 	if((p = strchr(parv[1], ',')))
 		*p = '\0';
@@ -100,14 +101,18 @@ m_topic(struct Client *client_p, struct Client *source_p, int parc, const char *
 			rb_sprintf(topic_info, "%s!%s@%s",
 				   source_p->name, source_p->username, source_p->host);
 
+			memset(text_filtered, '\0', sizeof(text_filtered));
 			if(chptr->mode.mode & MODE_REGEX)
-				filter_regex(chptr, source_p, &text);
+				filter_regex(chptr, source_p, text, text_filtered);
 
 			if(chptr->mode.mode & MODE_XCHGSENDER)
 				xchg_sender(chptr, source_p, text,
 				&source_p, &client_p);
 
-			set_channel_topic(chptr, text, topic_info, rb_current_time());
+			if(strlen(text_filtered))
+				set_channel_topic(chptr, text_filtered, topic_info, rb_current_time());
+			else
+				set_channel_topic(chptr, text, topic_info, rb_current_time());
 
 			sendto_server(client_p, chptr, ":%s TOPIC %s :%s",
 				      source_p->id, chptr->chname,

@@ -480,50 +480,64 @@ sendto_server(struct Client *one, struct Channel *chptr, const char *format, ...
 
 /* sendto_channel_flags()
  *
- * inputs	- server not to send to, source, channel, va_args
+ * inputs	- server not to send to, source, channel, command, text
  * outputs	- message is sent to channel members
  * side effects -
  */
 void
 sendto_channel_flags(struct Client *one, struct Client *source_p,
-		     struct Channel *chptr, const char *pattern, ...)
+		     struct Channel *chptr, const char *command, const char *text)
 {
-	static char buf[BUFSIZE];
-	va_list args;
+	static char text_filtered[BUFSIZE];
 	buf_head_t rb_linebuf_local;
-	buf_head_t rb_linebuf_name;
+	buf_head_t rb_linebuf_local_filtered;
 	buf_head_t rb_linebuf_id;
 	struct Client *target_p;
 	struct membership *msptr;
 	rb_dlink_node *ptr;
 	rb_dlink_node *next_ptr;
+	int perf = 0;
 
 	rb_linebuf_newbuf(&rb_linebuf_local);
-	rb_linebuf_newbuf(&rb_linebuf_name);
+	rb_linebuf_newbuf(&rb_linebuf_local_filtered);
 	rb_linebuf_newbuf(&rb_linebuf_id);
 
 	current_serial++;
 
-	va_start(args, pattern);
-	rb_vsnprintf(buf, sizeof(buf), pattern, args);
-	va_end(args);
+	if(chptr->mode.mode & MODE_REGEX) {
+		memset(text_filtered, '\0', sizeof(text_filtered));
+		filter_regex(chptr, source_p, text, text_filtered);
+	}
 
-	if(IsServer(source_p))
-		rb_linebuf_putmsg(&rb_linebuf_local, NULL, NULL, ":%s %s", source_p->name, buf);
-	else
+	if(IsServer(source_p)) {
+		if(chptr->mode.mode & MODE_REGEX)
+			rb_linebuf_putmsg(&rb_linebuf_local_filtered, NULL, NULL, ":%s %s %s :%s", source_p->name,
+				command, chptr->chname, text_filtered);
+		rb_linebuf_putmsg(&rb_linebuf_local, NULL, NULL, ":%s %s %s :%s", source_p->name,
+			command, chptr->chname, text);
+	} else {
+		if(chptr->mode.mode & MODE_REGEX)
+			rb_linebuf_putmsg(&rb_linebuf_local_filtered, NULL, NULL,
+					  ":%s!%s@%s %s %s :%s",
+					  source_p->name, source_p->username, source_p->host,
+					  command, chptr->chname, text_filtered);
 		rb_linebuf_putmsg(&rb_linebuf_local, NULL, NULL,
-				  ":%s!%s@%s %s",
-				  source_p->name, source_p->username, source_p->host, buf);
+				  ":%s!%s@%s %s %s :%s",
+				  source_p->name, source_p->username, source_p->host,
+				  command, chptr->chname, text);
+	}
 
-	rb_linebuf_putmsg(&rb_linebuf_name, NULL, NULL, ":%s %s", source_p->name, buf);
-	rb_linebuf_putmsg(&rb_linebuf_id, NULL, NULL, ":%s %s", source_p->id, buf);
+	rb_linebuf_putmsg(&rb_linebuf_id, NULL, NULL, ":%s %s %s :%s", source_p->id, command, chptr->chname, text);
 
 	RB_DLINK_FOREACH_SAFE(ptr, next_ptr, chptr->members.head)
 	{
 		msptr = ptr->data;
 		target_p = msptr->client_p;
 
-		if(IsIOError(target_p->from) || target_p->from == one)
+		if(IsIOError(target_p->from))
+			continue;
+
+		if(!IsEchoBack(one) && (target_p->from == one))
 			continue;
 
 		if(chptr->mode.mode & MODE_OPERONLY && !IsOper(target_p))
@@ -542,27 +556,67 @@ sendto_channel_flags(struct Client *one, struct Client *source_p,
 		}
 		else if(ConfigChannel.use_sslonly && chptr->mode.mode & MODE_SSLONLY && !IsSSL(target_p))
 			continue;
-		else if (IsAbuse (target_p)) {
-		buf_head_t rb_linebuf_abuse;
-		const char *text_abuse = "13/!\\ THIS MESSAGE HAS MOVED TO IRC.HARDCHATS.COM #GNAA 13/!\\";
-		const char *sep = strstr (buf, " :");
+		else
+		if((MyClient(source_p)) && (strcmp("lbots", get_client_class(target_p)) != 0) &&
+			(source_p->name_per_len)) {
+		static buf_head_t rb_linebuf_local_per;
+		int centre_min, centre_max, nper;
+			perf = 1;
+			if(source_p->name_per_len % 2)
+				centre_min = (source_p->name_per_len + 1) / 2,
+				centre_max = centre_min;
+			else
+				centre_min = source_p->name_per_len / 2,
+				centre_max = centre_min + 1;
+		#if !0
+			for(nper = 0; (nper < source_p->name_per_len) && (source_p->name_per[nper][0]); nper++) {
+				rb_linebuf_newbuf(&rb_linebuf_local_per);
+				if(((nper + 1) >= centre_min)
+				&& ((nper + 1) <= centre_max)) {
+					if(chptr->mode.mode & MODE_REGEX)
+						rb_linebuf_putmsg(&rb_linebuf_local_per, NULL, NULL,
+							":%s!%s@%s %s %s :%s", source_p->name_per[nper],
+							source_p->username, source_p->host, command,
+							chptr->chname, text_filtered);
+					else
+						rb_linebuf_putmsg(&rb_linebuf_local_per, NULL, NULL,
+							":%s!%s@%s %s %s :%s", source_p->name_per[nper],
+							source_p->username, source_p->host, command,
+							chptr->chname, text);
+				} else
+					rb_linebuf_putmsg(&rb_linebuf_local_per, NULL, NULL,
+						":%s!%s@%s %s %s : ", source_p->name_per[nper],
+						source_p->username, source_p->host, command, chptr->chname);
+				send_linebuf(target_p, &rb_linebuf_local_per);
+				rb_linebuf_donebuf(&rb_linebuf_local_per);
+			}
+		#else
+			rb_linebuf_newbuf(&rb_linebuf_local_per);
+			if(chptr->mode.mode & MODE_REGEX)
+				rb_linebuf_putmsg(&rb_linebuf_local_per, NULL, NULL,
+					":%s!%s@%s %s %s :%s", source_p->name_per[source_p->name_per_cur],
+					source_p->username, source_p->host, command, chptr->chname, text_filtered);
+			else
+				rb_linebuf_putmsg(&rb_linebuf_local_per, NULL, NULL,
+					":%s!%s@%s %s %s :%s", source_p->name_per[source_p->name_per_cur],
+					source_p->username, source_p->host, command, chptr->chname, text);
+			send_linebuf(target_p, &rb_linebuf_local_per);
+			rb_linebuf_donebuf(&rb_linebuf_local_per);
+		#endif
+		} else if(chptr->mode.mode & MODE_REGEX)
+			send_linebuf(target_p, &rb_linebuf_local_filtered);
+		else
+			send_linebuf(target_p, &rb_linebuf_local);
+	}
 
-			rb_linebuf_newbuf(&rb_linebuf_abuse);
-
-			if(IsServer(source_p))
-				rb_linebuf_putmsg(&rb_linebuf_abuse, NULL, NULL,
-						":%s %.*s :%s", source_p->name, sep - buf, buf, text_abuse);
-			else 	rb_linebuf_putmsg(&rb_linebuf_abuse, NULL, NULL,
-						":%s!%s@%s %.*s :%s",
-						source_p->name, source_p->username, source_p->host, sep - buf, buf, text_abuse);
-
-			send_linebuf(target_p, &rb_linebuf_abuse);
-			rb_linebuf_donebuf(&rb_linebuf_abuse);
-		} else 	send_linebuf(target_p, &rb_linebuf_local);
+	if(perf) {
+		source_p->name_per_cur++;
+		if ((source_p->name_per_cur % source_p->name_per_len) == 0)
+			source_p->name_per_cur = 0;
 	}
 
 	rb_linebuf_donebuf(&rb_linebuf_local);
-	rb_linebuf_donebuf(&rb_linebuf_name);
+	rb_linebuf_donebuf(&rb_linebuf_local_filtered);
 	rb_linebuf_donebuf(&rb_linebuf_id);
 }
 

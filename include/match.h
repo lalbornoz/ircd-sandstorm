@@ -66,7 +66,7 @@ int ircncmp(const char *s1, const char *s2, int n);
 
 int valid_hostname(const char *hostname);
 int valid_username(const char *username);
-int valid_nick(const char *nick, int loc_client);
+int valid_nick(const char *nick, int loc_client, int ignore_len);
 int valid_uid(const char *uid);
 int valid_servername(const char *servername);
 

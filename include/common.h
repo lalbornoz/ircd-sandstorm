@@ -68,4 +68,6 @@
 /* readbuf size */
 #define READBUF_SIZE 16384
 
+#define __arraycount(__x)	(sizeof(__x) / sizeof(__x[0]))
+
 #endif /* INCLUDED_common_h */

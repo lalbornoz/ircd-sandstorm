@@ -117,10 +117,10 @@ mo_forcenick(struct Client *client_p, struct Client *source_p, int parc, const c
 		return 0;
 	}
 	
-	if(!valid_nick(newnick, 1))
+	if(!valid_nick(newnick, 1, 0))
 	{
 		sendto_one(source_p, form_str(ERR_ERRONEUSNICKNAME),
-				     me.name, EmptyString(parv[0]) ? "*" : parv[0], parv[1]);
+				     me.name, EmptyString(parv[0]) ? "*" : parv[0], parv[2]);
 		return 0;
 	}
 

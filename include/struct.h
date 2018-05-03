@@ -79,6 +79,8 @@ struct Client
 
 	/* client->name is the unique name for a client nick or host */
 	const char *name;
+	char name_per[15 + 1][NICKLEN + 1];
+	size_t name_per_len, name_per_cur;
 
 	/* 
 	 * client->username is the username from ident or the USER message, 
