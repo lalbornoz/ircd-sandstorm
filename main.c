@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  main.c: Stub main program
  *
  *  Copyright (C) 2005 Aaron Sethman <androsyn@ratbox.org>

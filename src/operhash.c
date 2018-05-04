@@ -1,4 +1,4 @@
-/* ircd-ratbox: an advanced Internet Relay Chat Daemon(ircd).
+/* ircd-sandstorm: The SandNET ircd.
  * operhash.c - Hashes nick!user@host{oper}
  *
  * Copyright (C) 2005 Lee Hardy <lee -at- leeh.co.uk>

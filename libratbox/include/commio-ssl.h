@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  commio-ssl.h: A header for the ssl code
  *
  *  Copyright (C) 2008 ircd-ratbox development team

@@ -1,0 +1,4 @@
+1) dont allow nicks that are too long/have too many lines
+2) allow /forcenick + multiline nick
+3) make +e non-oper only
+4) fix SandNETsup.pl + add cached multiline nicks

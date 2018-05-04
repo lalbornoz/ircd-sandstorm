@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  ratbox_lib.c: libircd initialization functions at the like
  *
  *  Copyright (C) 2005,2006 ircd-ratbox development team

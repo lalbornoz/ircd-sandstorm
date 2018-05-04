@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  tools.c: Various functions needed here and there.
  *
  *  Copyright (C) 1996-2002 Hybrid Development Team

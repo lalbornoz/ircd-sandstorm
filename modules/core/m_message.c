@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  m_message.c: Sends a (PRIVMSG|NOTICE) message to a user or channel.
  *
  *  Copyright (C) 1990 Jarkko Oikarinen and University of Oulu, Co Center

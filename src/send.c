@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  send.c: Functions for sending messages.
  *
  *  Copyright (C) 1990 Jarkko Oikarinen and University of Oulu, Co Center

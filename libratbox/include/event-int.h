@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  event-int.h: internal structs for events
  *
  *  Copyright (C) 2007 ircd-ratbox development team

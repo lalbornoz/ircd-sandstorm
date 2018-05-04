@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  hostmask.c: Code to efficiently find IP & hostmask based configs.
  *
  *  Copyright (C) 1990 Jarkko Oikarinen and University of Oulu, Co Center

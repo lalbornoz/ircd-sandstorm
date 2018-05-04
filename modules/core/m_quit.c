@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  m_quit.c: Makes a user quit from IRC.
  *
  *  Copyright (C) 1990 Jarkko Oikarinen and University of Oulu, Co Center

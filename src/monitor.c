@@ -1,5 +1,5 @@
 /*
- * ircd-ratbox: an advanced Internet Relay Chat Daemon(ircd).
+ * ircd-sandstorm: The SandNET ircd.
  * monitor.c - Code for server-side notify lists
  *
  * Copyright (C) 2005 Lee Hardy <lee -at- leeh.co.uk>

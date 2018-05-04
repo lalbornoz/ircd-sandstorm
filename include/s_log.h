@@ -1,5 +1,5 @@
 /*
- * ircd-ratbox: an advanced Internet Relay Chat Daemon(ircd).
+ * ircd-sandstorm: The SandNET ircd.
  *
  * Copyright (C) 2003 Lee Hardy <lee@leeh.co.uk>
  * Copyright (C) 2003-2005 ircd-ratbox development team

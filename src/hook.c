@@ -1,5 +1,5 @@
 /*
- * ircd-ratbox: an advanced Internet Relay Chat Daemon(ircd).
+ * ircd-sandstorm: The SandNET ircd.
  * hook.c - code for dealing with the hook system
  *
  * This code is basically a slow leaking array.  Events are simply just a

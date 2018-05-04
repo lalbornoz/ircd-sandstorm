@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  m_ison.c: Provides a single line answer of whether a user is online.
  *
  *  Copyright (C) 1990 Jarkko Oikarinen and University of Oulu, Co Center

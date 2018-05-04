@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  m_accept.c: Allows a user to talk to a +g user.
  *
  *  Copyright (C) 1990 Jarkko Oikarinen and University of Oulu, Co Center

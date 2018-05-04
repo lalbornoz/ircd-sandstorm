@@ -1,5 +1,5 @@
 /**
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  bantool.c: The ircd-ratbox database managment tool.
  *
  *  Copyright (C) 1990 Jarkko Oikarinen and University of Oulu, Co Center

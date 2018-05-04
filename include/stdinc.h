@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  stdinc.h: Pull in all of the necessary system headers
  *
  *  Copyright (C) 2002 Aaron Sethman <androsyn@ratbox.org>

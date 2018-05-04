@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  newconf.c: Our new two-pass config file mangler
  *
  *  Copyright (C) 2007 Aaron Sethman <androsyn@ratbox.org>

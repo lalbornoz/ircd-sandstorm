@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  rawbuf.h: A header for rawbuf.c
  *
  *  Copyright (C) 2007 Aaron Sethman <androsyn@ratbox.org>

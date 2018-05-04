@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  m_resv.c: Reserves(jupes) a nickname or channel.
  *
  *  Copyright (C) 2001-2002 Hybrid Development Team

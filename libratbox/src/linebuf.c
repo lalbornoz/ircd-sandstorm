@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  linebuf.c: Maintains linebuffers.
  *
  *  Copyright (C) 2001-2002 Adrian Chadd <adrian@creative.net.au>

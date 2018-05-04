@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: an advanced Internet Relay Chat Daemon(ircd).
+ *  ircd-sandstorm: The SandNET ircd.
  *  m_stats.c: Sends the user statistics or config information.
  *
  *  Copyright (C) 1990 Jarkko Oikarinen and University of Oulu, Co Center

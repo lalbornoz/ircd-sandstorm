@@ -1,5 +1,5 @@
 /*
- * ircd-ratbox: an advanced Internet Relay Chat Daemon(ircd).
+ * ircd-sandstorm: The SandNET ircd.
  * cache.c - code for caching files
  *
  * Copyright (C) 2003 Lee Hardy <lee@leeh.co.uk>

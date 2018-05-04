@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  m_part.c: Parts a user from a channel.
  *
  *  Copyright (C) 1990 Jarkko Oikarinen and University of Oulu, Co Center

@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  rb_signal.h: A header for ircd signals.
  *
  *  Copyright (C) 1990 Jarkko Oikarinen and University of Oulu, Co Center

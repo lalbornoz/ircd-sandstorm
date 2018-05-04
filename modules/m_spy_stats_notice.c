@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  spy_stats_notice.c: Sends a notice when someone uses STATS.
  *
  *  Copyright (C) 2002 by the past and present ircd coders, and others.

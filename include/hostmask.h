@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: an advanced Internet Relay Chat Daemon(ircd).
+ *  ircd-sandstorm: The SandNET ircd.
  *  hostmask.h: A header for the hostmask code.
  *
  *  Copyright (C) 1990 Jarkko Oikarinen and University of Oulu, Co Center

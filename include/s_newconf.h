@@ -1,5 +1,5 @@
 /*
- * ircd-ratbox: an advanced Internet Relay Chat Daemon(ircd).
+ * ircd-sandstorm: The SandNET ircd.
  * s_newconf.h: code for dealing with conf stuff
  *
  * Copyright (C) 2004 Lee Hardy <lee@leeh.co.uk>

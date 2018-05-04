@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd.
+ *  ircd-sandstorm: The SandNET ircd.
  *  m_unreject.c: Removes an ip from the reject cache
  *
  *  Copyright (C) 2004 Aaron Sethman <androsyn@ratbox.org>
