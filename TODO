@@ -1,4 +1,11 @@
-1) dont allow nicks that are too long/have too many lines
-2) allow /forcenick + multiline nick
-3) make +e non-oper only
-4) fix SandNETsup.pl + add cached multiline nicks
+1) apply patches, split SandNET code, sync w/ HEAD
+2) split off multinicks support into separate source module
+3) dont allow nicks that are too long/have too many lines
+4) split up long lines @ multiline nicks
+5) allow /forcenick + multiline nick
+6) (re)sync nicks after split
+
+`       __|\\n    .-'    '-.\n   / .--, _ a L\n .J (  '-' "'--'\n'-'-.)' (qurtuba<->ishbiliya rejects some nicks)
+qurtuba<->ishbiliya should never set nick from multiline nick line 0
+
+14:52.27 [SandNET] !ishbiliya.arabs.ps *** Notice -- Dropping server qurtuba.arabs.ps due to (invalid) command 'NICK' with only 2 arguments (expecting 3).
