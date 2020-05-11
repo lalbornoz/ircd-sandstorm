@@ -121,8 +121,6 @@ struct config_file_entry
 	const char *dpath;	/* DPATH if set from command line */
 	const char *configfile;
 
-	char *egdpool_path;
-
 	char *default_operstring;
 	char *default_adminstring;
 	char *kline_reason;
@@ -179,7 +177,6 @@ struct config_file_entry
 	int min_nonwildcard;
 	int client_flood;
 	int min_nonwildcard_simple;
-	int use_egd;
 	int ping_cookie;
 	int tkline_expire_notices;
 	int use_whois_actually;

@@ -643,12 +643,7 @@ ratbox_main(int argc, char *argv[])
 	else
 		ConfigServerHide.links_disabled = 1;
 
-	if(ConfigFileEntry.use_egd && (ConfigFileEntry.egdpool_path != NULL))
-	{
-		rb_init_prng(ConfigFileEntry.egdpool_path, RB_PRNG_EGD);
-	}
-	else
-		rb_init_prng(NULL, RB_PRNG_DEFAULT);
+	rb_init_prng(NULL, RB_PRNG_DEFAULT);
 	seed_random(NULL);
 
 	init_main_logfile(logFileName);
